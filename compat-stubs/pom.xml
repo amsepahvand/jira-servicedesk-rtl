@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>io.portaltheme</groupId>
+        <artifactId>portal-theme-parent</artifactId>
+        <version>1.0.0</version>
+    </parent>
+    <artifactId>portal-theme-compat-stubs</artifactId>
+    <packaging>jar</packaging>
+    <name>Portal Theme - compile-time API stubs (never shipped)</name>
+    <description>
+        Interfaces of the Jira 10+ Web Resource Manager whose Maven coordinates clash with the
+        Jira 9 ones. Used with provided scope so one plugin JAR can carry adapters for both.
+    </description>
+    <dependencies>
+        <dependency>
+            <groupId>com.atlassian.plugins</groupId>
+            <artifactId>atlassian-plugins-api</artifactId>
+            <version>${plugins.api.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+</project>

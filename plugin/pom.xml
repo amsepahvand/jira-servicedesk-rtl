@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>io.portaltheme</groupId>
+        <artifactId>portal-theme-parent</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>jsm-portal-theme</artifactId>
+    <packaging>atlassian-plugin</packaging>
+    <name>Portal Theme for Jira Service Management</name>
+    <description>Brandable, Persian/RTL-first theme for the Jira Service Management customer portal.</description>
+
+    <organization>
+        <name>Portal Theme</name>
+        <url>https://github.com/</url>
+    </organization>
+
+    <properties>
+        <atlassian.plugin.key>${project.groupId}.${project.artifactId}</atlassian.plugin.key>
+    </properties>
+
+    <dependencies>
+        <!-- Everything is provided by Jira. The plugin bundles no third-party library. -->
+        <dependency>
+            <groupId>com.atlassian.jira</groupId>
+            <artifactId>jira-api</artifactId>
+            <version>${jira.compile.version}</version>
+            <scope>provided</scope>
+            <!-- Only the few platform APIs listed below are used; the full transitive tree also
+                 references artifacts that are not published publicly. -->
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.sal</groupId>
+            <artifactId>sal-api</artifactId>
+            <version>5.0.3</version>
+            <scope>provided</scope>
+            <exclusions><exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion></exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.plugins</groupId>
+            <artifactId>atlassian-plugins-webresource-api</artifactId>
+            <version>6.0.6</version>
+            <scope>provided</scope>
+            <exclusions><exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion></exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.plugins</groupId>
+            <artifactId>atlassian-plugins-api</artifactId>
+            <version>${plugins.api.version}</version>
+            <scope>provided</scope>
+            <exclusions><exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion></exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.plugins</groupId>
+            <artifactId>atlassian-plugins-webfragment-api</artifactId>
+            <version>6.0.1</version>
+            <scope>provided</scope>
+            <exclusions><exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion></exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.json</groupId>
+            <artifactId>atlassian-json-api</artifactId>
+            <version>0.9</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>32.1.1-jre</version>
+            <scope>provided</scope>
+            <exclusions><exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion></exclusions>
+        </dependency>
+        <dependency>
+            <groupId>io.portaltheme</groupId>
+            <artifactId>portal-theme-compat-stubs</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>4.0.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>6.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.10.2</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.atlassian.maven.plugins</groupId>
+                <artifactId>jira-maven-plugin</artifactId>
+                <version>${amps.version}</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <productVersion>${jira.run.version}</productVersion>
+                    <productDataVersion>${jira.run.version}</productDataVersion>
+                    <applications>
+                        <application>
+                            <applicationKey>jira-servicedesk</applicationKey>
+                            <version>${jsm.run.version}</version>
+                        </application>
+                    </applications>
+                    <enableQuickReload>false</enableQuickReload>
+                    <skipManifestValidation>true</skipManifestValidation>
+                    <compressResources>false</compressResources>
+                    <instructions>
+                        <Atlassian-Plugin-Key>${atlassian.plugin.key}</Atlassian-Plugin-Key>
+                        <Export-Package />
+                        <!-- Version-neutral imports. Packages that exist only in some Jira generations
+                             are optional; the classes that use them are enabled per version through
+                             <restrict> in atlassian-plugin.xml (see compat.* packages). -->
+                        <Import-Package>
+                            com.atlassian.jira.component;version="0",
+                            com.atlassian.jira.security;version="0",
+                            com.atlassian.jira.user;version="0",
+                            com.atlassian.jira.permission;version="0",
+                            com.atlassian.jira.config.properties;version="0",
+                            com.atlassian.jira.application;version="0",
+                            com.atlassian.jira.util;version="0",
+                            com.atlassian.jira.web;version="0";resolution:=optional,
+                            com.atlassian.sal.api.pluginsettings;version="0",
+                            com.atlassian.sal.api.websudo;version="0";resolution:=optional,
+                            com.atlassian.json.marshal;version="0",
+                            com.atlassian.plugin;version="0",
+                            com.atlassian.webresource.api.data;version="0",
+                            com.atlassian.webresource.api.assembler;version="0";resolution:=optional,
+                            com.atlassian.plugin.webresource;version="0";resolution:=optional,
+                            com.atlassian.plugin.webresource.condition;version="0";resolution:=optional,
+                            com.atlassian.plugin.webresource.url;version="0";resolution:=optional,
+                            com.atlassian.plugin.web.baseconditions;version="0";resolution:=optional,
+                            com.atlassian.webresource.api;version="0";resolution:=optional,
+                            com.atlassian.webresource.api.url;version="0";resolution:=optional,
+                            com.atlassian.webresource.spi.condition;version="0";resolution:=optional,
+                            com.google.common.base;version="0";resolution:=optional,
+                            javax.servlet;version="0";resolution:=optional,
+                            javax.servlet.http;version="0";resolution:=optional,
+                            jakarta.servlet;version="0";resolution:=optional,
+                            jakarta.servlet.http;version="0";resolution:=optional,
+                            org.slf4j;version="0";resolution:=optional
+                        </Import-Package>
+                        <Spring-Context>*</Spring-Context>
+                    </instructions>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.5</version>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <!-- mvn -Pjira9 jira:run   → Jira 9.12.10 + JSM 5.12.10 -->
+        <profile>
+            <id>jira9</id>
+            <properties>
+                <jira.run.version>9.12.10</jira.run.version>
+                <jsm.run.version>5.12.10</jsm.run.version>
+            </properties>
+        </profile>
+        <!-- mvn -Pjira10 jira:run  → Jira 10.3.x LTS -->
+        <profile>
+            <id>jira10</id>
+            <properties>
+                <jira.run.version>10.3.12</jira.run.version>
+                <jsm.run.version>10.3.12</jsm.run.version>
+            </properties>
+        </profile>
+    </profiles>
+</project>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Intentionally empty plain-Spring context. It only gives the plugin a container so Jira can
+  instantiate the module classes (servlets, conditions, data provider). No Spring Scanner, no
+  OSGi namespaces: this file is valid for Spring 5 (Jira 9/10) and Spring 6 (Jira 11).
+  Platform services are looked up lazily through ComponentAccessor (see core.Platform).
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd">
+</beans>
