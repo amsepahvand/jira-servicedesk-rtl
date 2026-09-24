@@ -108,8 +108,10 @@
     to(t.searchPlaceholder, ['Find help and services', 'Search for help or services', 'Search for help']);
     to(t.emptyRequestsTitle, ['No requests were found.', 'No requests found', 'No requests found.', 'We couldn\'t find any requests.',
       'You have no requests.', 'You don\'t have any requests yet.']);
-    to(t.emptySearchTitle, ['No results found', 'No results found.', 'No results', 'We couldn\'t find anything matching your search.']);
-    to(t.emptySearchBody, ['Try again with a different term.', 'Try searching for something else']);
+    to(t.emptySearchTitle, ['No results found', 'No results found.', 'No results', 'We couldn\'t find anything matching your search.',
+      'No matching search results', 'No matching results', 'No search results', 'We couldn\'t find any results']);
+    to(t.emptySearchBody, ['Try again with a different term.', 'Try searching for something else',
+      'Browse the list of portals below to raise a request', 'Try a different search term', 'Try a different search term.']);
     to(t.createSuccess, ['Your request has been created.', 'Your request was created', 'Request created']);
     to(t.loginSubtitle ? PT.enhance.fill(t.loginSubtitle, settings) : '', ['Log in to continue', 'Enter your username and password']);
     to(t.loginTitle ? PT.enhance.fill(t.loginTitle, settings) : '', ['Log in to the Help Center']);

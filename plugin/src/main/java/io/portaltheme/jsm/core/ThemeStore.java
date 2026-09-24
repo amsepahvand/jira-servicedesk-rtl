@@ -74,7 +74,18 @@ public final class ThemeStore {
     }
 
     public ConfigValidator.Result save(String json) {
+        return save(json, null);
+    }
+
+    /** Validates and stores; {@code author} (display name) is recorded in {@code meta} if given. */
+    public ConfigValidator.Result save(String json, String author) {
         ConfigValidator.Result r = ConfigValidator.validate(json);
+        Map<String, Object> meta = new LinkedHashMap<>();
+        meta.put("updatedAt", java.time.Instant.now().toString());
+        if (author != null) {
+            meta.put("updatedBy", author);
+        }
+        r.config.put("meta", meta);
         settings.put(CONFIG_KEY, Json.write(r.config));
         return r;
     }

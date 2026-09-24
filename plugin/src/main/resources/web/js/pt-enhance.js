@@ -124,14 +124,23 @@
 
   // ------------------------------------------------------------------ footer
 
+  /** Author credit, always shown at the very bottom of the portal (also when the footer is off). */
+  var CREDIT = '<p class="pt-credit" dir="ltr" lang="en">Made with <span class="pt-heart" role="img" aria-label="love">\u2764\ufe0f</span> by ' +
+    '<a href="https://www.linkedin.com/in/asepahvand/" target="_blank" rel="noopener">Amir</a> &amp; ' +
+    '<a href="https://www.linkedin.com/in/taha-sepahvand-3b5063420/" target="_blank" rel="noopener">Taha Sepahvand</a></p>';
+
   function footer() {
     var cfg = ctx.settings.footer || {};
     var el = document.getElementById('pt-footer');
+    if (el || !document.body) { return; }
     if (cfg.enabled === false) {
-      if (el) { el.parentNode.removeChild(el); }
+      el = document.createElement('footer');
+      el.id = 'pt-footer';
+      el.className = 'pt-own pt-footer pt-footer--minimal';
+      el.innerHTML = '<div class="pt-footer-inner">' + CREDIT + '</div>';
+      (document.getElementById('page') || document.body).appendChild(el);
       return;
     }
-    if (el || !document.body) { return; }
     var t = ctx.settings.texts || {};
     var links = (Array.isArray(cfg.links) ? cfg.links : []).map(function (l) {
       var href = U.absolute(l && l.url);
@@ -159,7 +168,8 @@
       (t.footerText ? '<p>' + U.escapeHtml(fill(t.footerText)) + '</p>' : '') + '</div>' +
       (links ? '<nav class="pt-footer-links" aria-label="' + (ctx.lang === 'fa' ? 'پیوندهای پایین صفحه' : 'Footer') + '"><ul>' + links + '</ul></nav>' : '') +
       supportBlock +
-      (t.copyright ? '<p class="pt-copyright">' + U.escapeHtml(fill(t.copyright)) + '</p>' : '') +
+      '<div class="pt-footer-bottom">' +
+      (t.copyright ? '<p class="pt-copyright">' + U.escapeHtml(fill(t.copyright)) + '</p>' : '') + CREDIT + '</div>' +
       '</div>';
     (document.getElementById('page') || document.body).appendChild(el);
   }

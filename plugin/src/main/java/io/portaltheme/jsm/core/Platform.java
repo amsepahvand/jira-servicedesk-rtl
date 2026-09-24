@@ -52,6 +52,16 @@ public final class Platform {
         }
     }
 
+    /** Display name of the current user, or null. */
+    public static String currentUserName() {
+        ApplicationUser u = currentUser();
+        try {
+            return u == null ? null : u.getDisplayName();
+        } catch (RuntimeException e) {
+            return null;
+        }
+    }
+
     public static boolean isJiraAdmin() {
         ApplicationUser user = currentUser();
         if (user == null) {

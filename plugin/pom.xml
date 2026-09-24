@@ -6,7 +6,7 @@
     <parent>
         <groupId>io.portaltheme</groupId>
         <artifactId>portal-theme-parent</artifactId>
-        <version>1.0.0</version>
+        <version>1.0.1</version>
     </parent>
 
     <artifactId>jsm-portal-theme</artifactId>
@@ -15,8 +15,8 @@
     <description>Brandable, Persian/RTL-first theme for the Jira Service Management customer portal.</description>
 
     <organization>
-        <name>Portal Theme</name>
-        <url>https://github.com/</url>
+        <name>Sepahvand Bros</name>
+        <url>https://github.com/amsepahvand/jira-servicedesk-rtl</url>
     </organization>
 
     <properties>

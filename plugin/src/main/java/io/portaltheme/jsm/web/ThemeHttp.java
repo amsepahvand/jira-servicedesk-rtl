@@ -124,7 +124,7 @@ public final class ThemeHttp {
         } else if ("GET".equals(method) && "/export".equals(route)) {
             json(ex, 200, export(store));
         } else if ("PUT".equals(method) && "/config".equals(route)) {
-            ConfigValidator.Result r = store.save(ex.body(MAX_BODY));
+            ConfigValidator.Result r = store.save(ex.body(MAX_BODY), Platform.currentUserName());
             Map<String, Object> out = state(store);
             out.put("warnings", r.warnings);
             json(ex, 200, out);
@@ -232,7 +232,7 @@ public final class ThemeHttp {
                 }
             }
         }
-        store.save(Json.write(r.config));
+        store.save(Json.write(r.config), Platform.currentUserName());
         for (Asset.Kind k : Asset.Kind.values()) {
             if (images.containsKey(k)) {
                 store.putAsset(k, images.get(k));

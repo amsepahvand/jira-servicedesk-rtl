@@ -305,13 +305,30 @@ html.pt .pt-footer-support p { margin: 0 0 10px; }
 html.pt .pt-footer-support li { display: flex; align-items: center; gap: 10px; min-height: 32px; }
 html.pt .pt-footer-support .pt-icon { width: 18px; height: 18px; color: var(--pt-subtle); }
 html.pt .pt-footer-support a { color: var(--pt-text) !important; font-weight: 600; unicode-bidi: isolate; }
-html.pt .pt-copyright {
+html.pt .pt-footer-bottom {
   grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 24px;
   padding-top: 18px;
   border-block-start: 1px solid var(--pt-border);
-  color: var(--pt-subtle);
-  font-size: 13px;
 }
+html.pt .pt-copyright { color: var(--pt-subtle); font-size: 13px; }
+html.pt .pt-credit {
+  margin: 0;
+  color: var(--pt-subtle);
+  font-size: 12.5px;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif !important;
+  unicode-bidi: isolate;
+}
+html.pt .pt-credit a { color: var(--pt-muted) !important; font-weight: 600; text-decoration: underline; text-decoration-color: var(--pt-border); text-underline-offset: 3px; }
+html.pt .pt-credit a:hover { color: var(--pt-brand-text) !important; text-decoration-color: currentColor; }
+html.pt .pt-heart { display: inline-block; font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif !important; }
+html.pt-motion .pt-credit:hover .pt-heart { animation: pt-heart 700ms var(--pt-ease-out); }
+@keyframes pt-heart { 40% { transform: scale(1.25); } }
+html.pt .pt-footer--minimal .pt-footer-inner { display: flex; justify-content: center; padding-block: 16px; }
 
 /* Our top bar exists only on login-type pages */
 html.pt .pt-topbar { flex: none; }

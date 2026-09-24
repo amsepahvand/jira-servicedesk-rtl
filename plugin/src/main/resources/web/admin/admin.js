@@ -26,8 +26,11 @@
     saved: null,      // normalised document as stored
     draft: null,      // document being edited
     assets: {},       // { logo: {hash,type,bytes}, … }
-    tab: 'identity',
+    tab: 'overview',
     viewport: 'desktop',
+    previewPage: 'home',
+    meta: null,       // { updatedAt, updatedBy } of the stored document
+    jiraVersion: '',
     busy: false
   };
 
@@ -269,6 +272,13 @@
     ]);
   }
 
+  function more(title, children) {
+    return el('details', { class: 'pt-a-more' }, [
+      el('summary', { class: 'pt-a-more-summary', text: title }),
+      el('div', { class: 'pt-a-grid' }, children)
+    ]);
+  }
+
   function section(title, children, desc) {
     return el('section', { class: 'pt-a-section' }, [
       title ? el('h3', { class: 'pt-a-section-title', text: title }) : null,
@@ -281,93 +291,58 @@
 
   var TABS = {
     identity: function () {
-      var presetSelect = el('select', { id: 'pt-a-preset', class: 'pt-a-input' }, Object.keys(PT.presets.PRESETS).map(function (k) {
-        return el('option', { value: k, text: PT.presets.PRESETS[k].name[lang] });
-      }));
-      presetSelect.value = state.draft.preset;
+      var c = function (k) { return colorField('colors.' + k); };
       return [
         section(null, [
-          el('div', { class: 'pt-a-field pt-a-field--wide pt-a-preset' }, [
-            el('label', { for: 'pt-a-preset', class: 'pt-a-label', text: T.presets }),
-            el('div', { class: 'pt-a-inline' }, [presetSelect, el('button', {
-              type: 'button', class: 'pt-a-btn', text: T.applyPreset,
-              onclick: function () {
-                if (!win.confirm(T.presetConfirm)) { return; }
-                var fresh = PT.presets.documentFromPreset(presetSelect.value);
-                fresh.enabled = state.draft.enabled;
-                fresh.portals = state.draft.portals;
-                state.draft = fresh;
-                render();
-              }
-            })])
+          textField('identity.companyName'),
+          imageField('logo'),
+          toggleField('identity.showName'),
+          rangeField('identity.logoHeight', 20, 64, 'px'),
+          more(T.moreOptions, [
+            imageField('logoDark'),
+            rangeField('identity.logoMaxWidth', 60, 360, 'px'),
+            textField('identity.logoAlt')
           ])
         ]),
-        section(null, [
-          textField('identity.companyName'),
-          toggleField('identity.showName'),
-          imageField('logo'),
-          imageField('logoDark'),
-          rangeField('identity.logoHeight', 20, 64, 'px'),
-          rangeField('identity.logoMaxWidth', 60, 360, 'px'),
-          textField('identity.logoAlt')
-        ])
+        section(T.brandColours, [
+          c('primary'), c('accent'), c('header'),
+          more(T.moreColours, [c('background'), c('surface'), c('text'), c('muted'), c('border'), c('focus'), c('success'), c('warning'), c('error')])
+        ]),
+        contrastPanel()
       ];
-    },
-    colors: function () {
-      var brand = ['primary', 'accent', 'header'].map(function (k) { return colorField('colors.' + k); });
-      var neutral = ['background', 'surface', 'text', 'muted', 'border', 'focus'].map(function (k) { return colorField('colors.' + k); });
-      var st = ['success', 'warning', 'error'].map(function (k) { return colorField('colors.' + k); });
-      return [section(null, brand), section(null, neutral), section(null, st), contrastPanel()];
     },
     appearance: function () {
       return [section(null, [
         rangeField('shape.radius', 0, 24, 'px'),
         selectField('shape.cardStyle', ['elevated', 'outlined', 'flat']),
-        selectField('shape.shadow', ['none', 'soft', 'medium']),
-        selectField('shape.density', ['comfortable', 'compact']),
-        selectField('shape.contentWidth', ['narrow', 'standard', 'wide']),
         selectField('appearance.heroStyle', ['tinted', 'plain', 'brand']),
         selectField('appearance.mode', ['light', 'dark', 'auto']),
-        selectField('features.iconStyle', ['tinted', 'original', 'mono']),
-        selectField('typography.font', ['vazirmatn', 'system', 'custom']),
-        value('typography.font') === 'custom' ? textField('typography.customStack', { dir: 'ltr', code: true }) : null,
-        selectField('typography.scale', ['default', 'large']),
-        selectField('motion.level', ['full', 'reduced', 'off'])
+        more(T.moreOptions, [
+          selectField('shape.shadow', ['none', 'soft', 'medium']),
+          selectField('shape.density', ['comfortable', 'compact']),
+          selectField('shape.contentWidth', ['narrow', 'standard', 'wide']),
+          selectField('features.iconStyle', ['tinted', 'original', 'mono']),
+          selectField('typography.font', ['vazirmatn', 'system', 'custom']),
+          value('typography.font') === 'custom' ? textField('typography.customStack', { dir: 'ltr', code: true }) : null,
+          selectField('typography.scale', ['default', 'large']),
+          selectField('motion.level', ['full', 'reduced', 'off'])
+        ])
       ])];
     },
     texts: function () {
       var t = function (k, multi) { return textField('texts.' + k, multi ? { multiline: true, rows: 2 } : null); };
       return [
-        section(null, [t('homeTitle'), t('homeSubtitle', true), t('searchPlaceholder'), t('portalsHeading'), t('requestTypesHeading')]),
-        section(null, [t('emptyRequestsTitle'), t('emptyRequestsBody', true), t('emptySearchTitle'), t('emptySearchBody', true), t('createSuccess', true)]),
-        section(null, [t('loginTitle'), t('loginSubtitle', true)]),
-        section(null, [t('footerText'), t('copyright'), t('supportTitle'), t('supportText', true),
-          textField('texts.supportEmail', { type: 'email', dir: 'ltr' }), textField('texts.supportPhone', { type: 'tel', dir: 'ltr' }), t('supportHours')])
-      ];
-    },
-    language: function () {
-      return [
         section(null, [
-          selectField('locale.direction', ['rtl', 'ltr']),
           selectField('locale.language', ['fa', 'en']),
+          selectField('locale.direction', ['rtl', 'ltr']),
           toggleField('locale.translate'),
           toggleField('locale.persianDigits')
         ]),
-        section(null, [
-          rowsField('dictionary', [{ key: 'from', label: T.jiraText, dir: 'ltr' }, { key: 'to', label: T.yourText }],
-            function () {
-              var d = getPath(state.draft.global, 'dictionary') || {};
-              return Object.keys(d).map(function (k) { return { from: k, to: d[k] }; });
-            },
-            function (rows) {
-              var d = {};
-              rows.forEach(function (r) { if (r.from && r.from.trim()) { d[r.from.trim()] = r.to || ''; } });
-              update('dictionary', d);
-            }),
-          rowsField('patterns', [{ key: 'source', label: T.jiraText, dir: 'ltr' }, { key: 'target', label: T.yourText }],
-            function () { return (getPath(state.draft.global, 'patterns') || []).map(function (p) { return { source: p.source, target: p.target }; }); },
-            function (rows) { update('patterns', rows.filter(function (r) { return r.source && r.source.trim(); })); })
-        ])
+        section(T.textsHome, [t('homeTitle'), t('homeSubtitle', true), t('searchPlaceholder'), t('portalsHeading'), t('requestTypesHeading')]),
+        section(T.textsMessages, [t('emptyRequestsTitle'), t('emptyRequestsBody', true), t('emptySearchTitle'), t('emptySearchBody', true), t('createSuccess', true)]),
+        section(T.textsLogin, [t('loginTitle'), t('loginSubtitle', true)]),
+        section(T.textsFooter, [t('footerText'), t('copyright'), t('supportTitle'), t('supportText', true),
+          textField('texts.supportEmail', { type: 'email', dir: 'ltr' }), textField('texts.supportPhone', { type: 'tel', dir: 'ltr' }), t('supportHours')])
       ];
     },
     navigation: function () {
@@ -421,12 +396,194 @@
         }
       });
       return [
+        section(null, [
+          rowsField('dictionary', [{ key: 'from', label: T.jiraText, dir: 'ltr' }, { key: 'to', label: T.yourText }],
+            function () {
+              var d = getPath(state.draft.global, 'dictionary') || {};
+              return Object.keys(d).map(function (k) { return { from: k, to: d[k] }; });
+            },
+            function (rows) {
+              var d = {};
+              rows.forEach(function (r) { if (r.from && r.from.trim()) { d[r.from.trim()] = r.to || ''; } });
+              update('dictionary', d);
+            }),
+          rowsField('patterns', [{ key: 'source', label: T.jiraText, dir: 'ltr' }, { key: 'target', label: T.yourText }],
+            function () { return (getPath(state.draft.global, 'patterns') || []).map(function (p) { return { source: p.source, target: p.target }; }); },
+            function (rows) { update('patterns', rows.filter(function (r) { return r.source && r.source.trim(); })); })
+        ]),
         section(null, [fieldWrap('customCss', css, cssId, 'pt-a-field--wide')]),
         section(null, [fieldWrap('portals', json, jsonId, 'pt-a-field--wide'), jsonErr]),
         section(T.bypassTitle, [el('p', { class: 'pt-a-help', text: T.bypassText })])
       ];
     }
   };
+
+
+  // ------------------------------------------------------------------ overview (dashboard)
+
+  function relTime(iso) {
+    var t = Date.parse(iso);
+    if (!t) { return ''; }
+    var diff = (t - Date.now()) / 1000;
+    var units = [['year', 31536000], ['month', 2592000], ['day', 86400], ['hour', 3600], ['minute', 60]];
+    try {
+      var rtf = new Intl.RelativeTimeFormat(lang, { numeric: 'auto' });
+      for (var i = 0; i < units.length; i++) {
+        if (Math.abs(diff) >= units[i][1]) { return rtf.format(Math.round(diff / units[i][1]), units[i][0]); }
+      }
+      return rtf.format(0, 'minute');
+    } catch (e) { return new Date(t).toLocaleString(); }
+  }
+
+  function fillT(str, vars) { return String(str).replace(/\{(\w+)\}/g, function (m, k) { return vars[k] != null ? vars[k] : m; }); }
+
+  function card(title, body, action) {
+    return el('section', { class: 'pt-a-card' }, [
+      el('h3', { class: 'pt-a-card-title', text: title }),
+      el('div', { class: 'pt-a-card-body' }, body),
+      action || null
+    ]);
+  }
+
+  function goTab(tab) {
+    return el('button', { type: 'button', class: 'pt-a-link', onclick: function () { state.tab = tab; renderPanel(); var t = doc.getElementById('pt-a-tab-' + tab); if (t) { t.focus(); } } });
+  }
+
+  function swatches(s) {
+    return el('div', { class: 'pt-a-swatches' }, ['primary', 'accent', 'header', 'background', 'surface', 'text'].map(function (k) {
+      var c = PT.color.normalize(U.get(s, 'colors.' + k, '#ffffff'), '#ffffff');
+      return el('span', { class: 'pt-a-swatch-dot', style: 'background:' + c, title: label('colors.' + k) + ' ' + c });
+    }));
+  }
+
+  function presetGallery() {
+    var O = T.overview;
+    var cards = Object.keys(PT.presets.PRESETS).map(function (k) {
+      var p = PT.presets.PRESETS[k];
+      var s = PT.presets.presetSettings(k);
+      var c = s.colors;
+      var current = state.draft.preset === k;
+      var mini = el('div', { class: 'pt-a-preset-mini', 'aria-hidden': 'true', style: 'background:' + c.background }, [
+        el('span', { class: 'pt-a-preset-bar', style: 'background:' + c.header + ';border-color:' + c.border }, [
+          el('i', { style: 'background:' + c.accent })
+        ]),
+        el('span', { class: 'pt-a-preset-card', style: 'background:' + c.surface + ';border-color:' + c.border }, [
+          el('i', { style: 'background:' + c.text }), el('b', { style: 'background:' + c.primary })
+        ])
+      ]);
+      var btn = el('button', {
+        type: 'button', class: 'pt-a-btn' + (current ? '' : ' pt-a-btn--primary'), text: current ? O.current : O.apply, disabled: current,
+        'aria-label': (current ? O.current : O.apply) + ': ' + p.name[lang],
+        onclick: function () {
+          if (!win.confirm(T.presetConfirm)) { return; }
+          var fresh = PT.presets.documentFromPreset(k);
+          fresh.enabled = state.draft.enabled;
+          fresh.portals = state.draft.portals;
+          fresh.global = PT.presets.effective(fresh, null);
+          state.draft = fresh;
+          render();
+          status(T.unsaved, 'warn');
+        }
+      });
+      return el('li', { class: 'pt-a-preset' + (current ? ' is-current' : '') }, [mini,
+        el('div', { class: 'pt-a-preset-foot' }, [el('strong', { text: p.name[lang] }), btn])]);
+    });
+    return el('section', { class: 'pt-a-section' }, [
+      el('h3', { class: 'pt-a-section-title', text: T.overview.presetsTitle }),
+      el('p', { class: 'pt-a-help', text: T.overview.presetsText }),
+      el('ul', { class: 'pt-a-presets' }, cards)
+    ]);
+  }
+
+  TABS.overview = function () {
+    var O = T.overview;
+    var s = effective();
+    var on = state.draft.enabled !== false;
+    var report = PT.tokens.contrastReport(s);
+    var okCount = report.filter(function (r) { return r.ok; }).length;
+    var major = parseInt(String(state.jiraVersion).split('.')[0], 10) || 0;
+    var adapter = major >= 10 ? O.adapterJ10 : major >= 9 ? O.adapterJ9 : O.adapterUnknown;
+    var meta = state.meta;
+
+    var toggle = el('input', { type: 'checkbox', role: 'switch', class: 'pt-a-switch pt-a-switch--lg', id: 'pt-a-ov-enabled' });
+    toggle.checked = on;
+    toggle.addEventListener('change', function () { state.draft.enabled = toggle.checked; changed(); renderPanel(); });
+
+    var hero = el('section', { class: 'pt-a-hero' + (on ? ' is-on' : ' is-off') }, [
+      el('div', { class: 'pt-a-hero-main' }, [
+        el('span', { class: 'pt-a-hero-dot', 'aria-hidden': 'true' }),
+        el('div', {}, [
+          el('h3', { class: 'pt-a-hero-title', text: on ? O.statusOn : O.statusOff }),
+          el('p', { class: 'pt-a-help', text: on ? O.statusOnText : O.statusOffText }),
+          el('p', { class: 'pt-a-hero-meta', text: meta && meta.updatedAt ? fillT(O.lastSaved, { when: relTime(meta.updatedAt), who: meta.updatedBy || '—' }) : O.neverSaved }),
+          dirty() ? el('p', { class: 'pt-a-hero-dirty', text: O.unsavedNote }) : null
+        ])
+      ]),
+      el('label', { class: 'pt-a-master', for: 'pt-a-ov-enabled' }, [toggle, el('span', { text: on ? T.enabled : T.disabled })])
+    ]);
+
+    var logo = state.assets.logo ? el('img', { class: 'pt-a-brand-logo', alt: '', src: BASE + '/asset/logo?v=' + encodeURIComponent(state.assets.logo.hash) })
+      : el('span', { class: 'pt-a-brand-mark', style: 'background:' + PT.color.normalize(U.get(s, 'colors.accent'), '#0f8a8c') + ';color:' + PT.color.onColor(PT.color.normalize(U.get(s, 'colors.accent'), '#0f8a8c')), text: (U.get(s, 'identity.companyName', '•') || '•').charAt(0) });
+    var brandCard = card(O.brand, [
+      el('div', { class: 'pt-a-brand-row' }, [logo, el('strong', { class: 'pt-a-brand-name', text: U.get(s, 'identity.companyName', '') })]),
+      swatches(s)
+    ], el('div', { class: 'pt-a-card-actions' }, [
+      (function () { var b = goTab('identity'); b.textContent = O.editIdentity; return b; })(),
+      (function () { var b = goTab('identity'); b.textContent = O.editColours; return b; })()
+    ]));
+
+    var a11yCard = card(O.a11y, [
+      el('div', { class: 'pt-a-meter', role: 'img', 'aria-label': okCount + '/' + report.length }, [
+        el('span', { class: 'pt-a-meter-fill' + (okCount === report.length ? ' is-ok' : ' is-warn'), style: 'width:' + Math.round(100 * okCount / report.length) + '%' })
+      ]),
+      el('p', { class: 'pt-a-help', text: okCount === report.length ? fillT(O.a11yAll, { n: report.length }) : fillT(O.a11ySome, { ok: okCount, n: report.length }) })
+    ], okCount === report.length ? null : el('div', { class: 'pt-a-card-actions' }, [(function () { var b = goTab('identity'); b.textContent = O.editColours; return b; })()]));
+
+    var compatCard = card(O.compat, [
+      el('dl', { class: 'pt-a-facts' }, [
+        el('dt', { text: O.jiraVersion }), el('dd', { dir: 'ltr', text: state.jiraVersion || '—' }),
+        el('dt', { text: O.adapter }), el('dd', {}, [el('span', { text: adapter }), major >= 9 ? el('span', { class: 'pt-a-chip is-ok', text: O.supported }) : null])
+      ])
+    ]);
+
+    var portals = Object.keys(state.draft.portals || {}).length;
+    var featCard = card(O.features, [
+      el('dl', { class: 'pt-a-facts' }, [
+        el('dt', { text: O.language }), el('dd', { text: opt(U.get(s, 'locale.language', 'fa')) }),
+        el('dt', { text: O.direction }), el('dd', { text: opt(U.get(s, 'locale.direction', 'rtl')) }),
+        el('dt', { text: O.backToJira }), el('dd', { text: U.get(s, 'backToJira.enabled', false) ? O.on : O.off }),
+        el('dt', { text: O.footer }), el('dd', { text: U.get(s, 'footer.enabled', true) !== false ? O.on : O.off }),
+        el('dt', { text: O.customCss }), el('dd', { text: U.get(s, 'customCss', '') ? O.on : O.none }),
+        el('dt', { text: O.perPortal }), el('dd', { text: portals ? String(portals) : O.none })
+      ])
+    ]);
+
+    var portalUrl = U.contextPath() + '/servicedesk/customer/portals';
+    var quick = card(O.quick, [el('ul', { class: 'pt-a-quick' }, [
+      el('li', {}, [el('a', { href: portalUrl, target: '_blank', rel: 'noopener', class: 'pt-a-quick-link', text: O.openPortal + ' ↗' })]),
+      el('li', {}, [el('button', { type: 'button', class: 'pt-a-quick-link', text: O.openDraft + ' ↗', onclick: previewOnPortal })]),
+      el('li', {}, [el('a', { href: portalUrl + '?portalTheme=off', target: '_blank', rel: 'noopener', class: 'pt-a-quick-link', text: O.openBypass + ' ↗' })]),
+      el('li', {}, [el('button', { type: 'button', class: 'pt-a-quick-link', text: T.exportJson, onclick: exportJson })])
+    ])]);
+
+    return [hero, el('div', { class: 'pt-a-cards' }, [brandCard, a11yCard, compatCard, featCard, quick]), presetGallery()];
+  };
+
+  var TAB_ICONS = (function () {
+    function svg(d) { return '<svg class="pt-a-tab-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="' + d + '" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>'; }
+    return {
+      overview: svg('M4 13h6V4H4zM14 20h6v-9h-6zM14 4v3h6V4zM4 20h6v-3H4z'),
+      identity: svg('M4 20V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v14M9 10a3 3 0 1 0 6 0 3 3 0 0 0-6 0M7 20c.8-2.6 2.8-4 5-4s4.2 1.4 5 4'),
+      colors: svg('M12 3a9 9 0 1 0 0 18c1.1 0 1.6-.9 1.2-1.8-.5-1.1.2-2.2 1.4-2.2H17a4 4 0 0 0 4-4c0-5-4-10-9-10zM7.5 11.5h.01M10 7.5h.01M15 7.5h.01'),
+      appearance: svg('M4 6h16M4 12h10M4 18h6M18 14l3 3-3 3'),
+      texts: svg('M5 6V4h14v2M12 4v16M9 20h6'),
+      language: svg('M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18'),
+      navigation: svg('M4 6h16M4 12h16M4 18h9'),
+      advanced: svg('M9 7 4 12l5 5M15 7l5 5-5 5')
+    };
+  })();
+
+  var TAB_ORDER = ['overview', 'identity', 'appearance', 'texts', 'navigation', 'advanced'];
 
   function contrastPanel() {
     var report = PT.tokens.contrastReport(effective());
@@ -460,29 +617,50 @@
       requests: 'درخواست‌ها', it: 'پشتیبانی فناوری اطلاعات', itd: 'مشکلات رایانه، شبکه و دسترسی‌ها',
       hr: 'منابع انسانی', hrd: 'گواهی اشتغال، مرخصی و امور اداری', summary: 'عنوان', desc: 'شرح',
       err: 'پر کردن این بخش الزامی است.', send: 'ثبت درخواست', cancel: 'انصراف',
+      fin: 'امور مالی', find: 'پرداخت‌ها، فاکتورها و تنخواه', fac: 'پشتیبانی اداری', facd: 'تجهیزات، پذیرایی و نگهداری ساختمان',
+      newReq: 'درخواست دسترسی به سامانه', attach: 'پیوست', drop: 'فایل‌ها را اینجا رها کنید یا انتخاب کنید',
+      myReq: 'درخواست‌های من', open: 'درخواست‌های باز', all: 'همه‌ی درخواست‌ها',
       rows: [['SD-128', 'دسترسی به سامانه‌ی حقوق', 'در حال انجام', 'progress'], ['SD-121', 'تعویض کارتریج چاپگر', 'انجام‌شده', 'done'], ['SD-119', 'VPN connection drops', 'در انتظار پاسخ شما', 'waiting']]
     } : {
       requests: 'Requests', it: 'IT support', itd: 'Computers, network and access', hr: 'Human resources', hrd: 'Letters, leave and admin',
       summary: 'Summary', desc: 'Description', err: 'This field is required.', send: 'Send', cancel: 'Cancel',
+      fin: 'Finance', find: 'Payments, invoices and expenses', fac: 'Facilities', facd: 'Equipment, catering and building care',
+      newReq: 'Request system access', attach: 'Attachment', drop: 'Drop files here or browse',
+      myReq: 'My requests', open: 'Open requests', all: 'All requests',
       rows: [['SD-128', 'Payroll system access', 'In progress', 'progress'], ['SD-121', 'Printer cartridge', 'Done', 'done'], ['SD-119', 'VPN connection drops', 'Waiting for customer', 'waiting']]
     };
     var back = U.get(s, 'backToJira.enabled', false) ? '<span class="pv-headbtn pv-back">' + e(U.get(s, 'backToJira.label', '')) + '</span>' : '';
     return '' +
       '<div class="pv-header"><div class="pv-brand">' + brand + '</div><div class="pv-nav">' + back +
       '<span class="pv-headbtn">' + L.requests + ' <b class="pv-badge">۳</b></span><span class="pv-avatar"></span></div></div>' +
-      '<div class="pv-hero"><h1>' + e(t.homeTitle) + '</h1><p>' + e(t.homeSubtitle) + '</p>' +
+      previewBody(s, t, L, e) +
+      '<div class="pv-footer">' + e(t.footerText) + '</div>';
+  }
+
+  function previewBody(s, t, L, e) {
+    var page = state.previewPage;
+    if (page === 'form') {
+      return '<div class="pv-body pv-body--page"><div class="pv-title"><span class="pv-tile"></span><div><small>' + L.it + '</small><h1>' + L.newReq + '</h1></div></div>' +
+        '<div class="pv-form"><label>' + L.summary + ' <span class="pv-req">*</span></label><div class="pv-input pv-input--error"></div>' +
+        '<p class="pv-error">' + L.err + '</p><label>' + L.desc + '</label><div class="pv-input pv-input--focus pv-input--tall"></div>' +
+        '<label>' + L.attach + '</label><div class="pv-drop">' + L.drop + '</div>' +
+        '<div class="pv-actions"><span class="pv-btn pv-btn--primary">' + L.send + '</span><span class="pv-btn">' + L.cancel + '</span></div></div></div>';
+    }
+    if (page === 'list') {
+      return '<div class="pv-body pv-body--page"><div class="pv-title"><div><h1>' + L.myReq + '</h1></div></div>' +
+        '<div class="pv-filters"><span class="pv-chip is-on">' + L.open + '</span><span class="pv-chip">' + L.all + '</span><span class="pv-input pv-input--search"></span></div>' +
+        '<div class="pv-list">' + L.rows.map(function (r) {
+          return '<div class="pv-row"><span class="pv-key" dir="ltr">' + r[0] + '</span><span class="pv-sum" dir="auto">' + e(r[1]) + '</span>' +
+            '<span class="pv-pill" data-st="' + r[3] + '">' + e(r[2]) + '</span></div>';
+        }).join('') + '</div></div>';
+    }
+    return '<div class="pv-hero"><h1>' + e(t.homeTitle) + '</h1><p>' + e(t.homeSubtitle) + '</p>' +
       '<div class="pv-search"><span class="pv-search-icon"></span>' + e(t.searchPlaceholder) + '</div></div>' +
       '<div class="pv-body"><h2 class="pv-section">' + e(t.portalsHeading) + '</h2>' +
       '<div class="pv-grid"><div class="pv-card"><span class="pv-tile"></span><div><strong>' + L.it + '</strong><p>' + L.itd + '</p></div></div>' +
-      '<div class="pv-card"><span class="pv-tile"></span><div><strong>' + L.hr + '</strong><p>' + L.hrd + '</p></div></div></div>' +
-      '<div class="pv-form"><label>' + L.summary + ' <span class="pv-req">*</span></label><div class="pv-input pv-input--error"></div>' +
-      '<p class="pv-error">' + L.err + '</p><label>' + L.desc + '</label><div class="pv-input pv-input--focus"></div>' +
-      '<div class="pv-actions"><span class="pv-btn pv-btn--primary">' + L.send + '</span><span class="pv-btn">' + L.cancel + '</span></div></div>' +
-      '<div class="pv-list">' + L.rows.map(function (r) {
-        return '<div class="pv-row"><span class="pv-key" dir="ltr">' + r[0] + '</span><span class="pv-sum" dir="auto">' + e(r[1]) + '</span>' +
-          '<span class="pv-pill" data-st="' + r[3] + '">' + e(r[2]) + '</span></div>';
-      }).join('') + '</div></div>' +
-      '<div class="pv-footer">' + e(t.footerText) + '</div>';
+      '<div class="pv-card"><span class="pv-tile"></span><div><strong>' + L.hr + '</strong><p>' + L.hrd + '</p></div></div>' +
+      '<div class="pv-card"><span class="pv-tile"></span><div><strong>' + L.fin + '</strong><p>' + L.find + '</p></div></div>' +
+      '<div class="pv-card"><span class="pv-tile"></span><div><strong>' + L.fac + '</strong><p>' + L.facd + '</p></div></div></div></div>';
   }
 
   var previewFrame, previewStyle;
@@ -514,7 +692,7 @@
       previewQueued = false;
       renderPreview();
       var c = root.querySelector('.pt-a-contrast');
-      if (c && state.tab === 'colors') { c.parentNode.replaceWith(contrastPanel()); }
+      if (c && state.tab === 'identity') { c.parentNode.replaceWith(contrastPanel()); }
     });
   }
 
@@ -564,6 +742,8 @@
 
   function accept(res) {
     state.assets = res.assets || {};
+    state.meta = res.config && res.config.meta ? res.config.meta : null;
+    state.jiraVersion = res.jiraVersion || state.jiraVersion;
     var doc0 = res.config ? PT.presets.normalizeDocument(res.config) : PT.presets.documentFromPreset('persian');
     if (res.config && !U.isPlainObject(res.config.global)) { doc0.global = {}; }
     // The draft stores complete settings so every field shows its effective value.
@@ -649,15 +829,18 @@
         saveBtn
       ])
     ]);
+    saveBtn.setAttribute('title', T.shortcut);
+    saveBtn.setAttribute('aria-keyshortcuts', 'Control+S Meta+S');
 
-    var tabList = el('div', { class: 'pt-a-tabs', role: 'tablist', 'aria-orientation': 'vertical' }, Object.keys(TABS).map(function (k) {
+    var tabList = el('div', { class: 'pt-a-tabs', role: 'tablist', 'aria-orientation': 'vertical' }, TAB_ORDER.map(function (k) {
       return el('button', {
-        type: 'button', role: 'tab', id: 'pt-a-tab-' + k, class: 'pt-a-tab', 'data-tab': k, 'aria-controls': 'pt-a-panel', text: T.tabs[k],
+        type: 'button', role: 'tab', id: 'pt-a-tab-' + k, class: 'pt-a-tab', 'data-tab': k, 'aria-controls': 'pt-a-panel',
+        html: TAB_ICONS[k] + '<span>' + U.escapeHtml(T.tabs[k]) + '</span>',
         onclick: function () { state.tab = k; renderPanel(); }
       });
     }));
     tabList.addEventListener('keydown', function (e) {
-      var keys = Object.keys(TABS);
+      var keys = TAB_ORDER;
       var i = keys.indexOf(state.tab);
       var next = null;
       if (e.key === 'ArrowDown' || e.key === 'ArrowRight' && lang !== 'fa' || e.key === 'ArrowLeft' && lang === 'fa') { next = keys[(i + 1) % keys.length]; }
@@ -693,9 +876,19 @@
       onclick: function () { state.viewport = 'desktop'; render(); } });
     var vpMob = el('button', { type: 'button', class: 'pt-a-seg', 'aria-pressed': state.viewport === 'mobile' ? 'true' : 'false', text: T.mobile,
       onclick: function () { state.viewport = 'mobile'; render(); } });
+    var pageSeg = el('div', { class: 'pt-a-segmented', role: 'group', 'aria-label': T.previewTitle }, ['home', 'form', 'list'].map(function (p) {
+      return el('button', { type: 'button', class: 'pt-a-seg', 'aria-pressed': state.previewPage === p ? 'true' : 'false', text: T.previewPages[p],
+        onclick: function () {
+          state.previewPage = p;
+          var btns = pageSeg.querySelectorAll('button');
+          for (var i = 0; i < btns.length; i++) { btns[i].setAttribute('aria-pressed', btns[i] === this ? 'true' : 'false'); }
+          renderPreview();
+        } });
+    }));
     var previewCol = el('aside', { class: 'pt-a-preview', 'aria-label': T.previewTitle }, [
       el('div', { class: 'pt-a-preview-head' }, [el('h3', { class: 'pt-a-section-title', text: T.previewTitle }),
         el('div', { class: 'pt-a-segmented', role: 'group' }, [vpDesk, vpMob])]),
+      pageSeg,
       previewStyle,
       el('div', { class: 'pt-a-preview-stage' }, [previewFrame])
     ]);
@@ -705,10 +898,20 @@
     root.appendChild(header);
     root.appendChild(statusEl);
     root.appendChild(el('div', { class: 'pt-a-layout' }, [side, panelEl, previewCol]));
+    root.appendChild(el('p', { class: 'pt-a-madeby', dir: 'ltr', lang: 'en', html: 'Portal Theme ' + PT.version +
+      ' · Made with <span role="img" aria-label="love">\u2764\ufe0f</span> by <strong>Sepahvand Bros</strong> — ' +
+      '<a href="https://www.linkedin.com/in/asepahvand/" target="_blank" rel="noopener">Amir</a> &amp; ' +
+      '<a href="https://www.linkedin.com/in/taha-sepahvand-3b5063420/" target="_blank" rel="noopener">Taha Sepahvand</a>' }));
     renderPanel();
     renderPreview();
     toolbarState();
   }
+
+  doc.addEventListener('keydown', function (e) {
+    if ((e.ctrlKey || e.metaKey) && !e.altKey && (e.key === 's' || e.key === 'S')) {
+      if (state.draft && dirty() && !state.busy) { e.preventDefault(); save(); }
+    }
+  });
 
   win.addEventListener('beforeunload', function (e) {
     if (state.draft && dirty()) { e.preventDefault(); e.returnValue = ''; }

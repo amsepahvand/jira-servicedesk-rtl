@@ -33,7 +33,7 @@
     if (s === '' || /^portals\/?$/.test(s)) { return 'home'; }
     if (/^portal\/\d+\/create\/\d+/.test(s)) { return 'create'; }
     if (/^portal\/\d+\/[A-Z][A-Z0-9_]*-\d+/.test(s)) { return 'request'; }
-    if (/^portal\/\d+\/(group\/\d+)?\/?$/.test(s)) { return 'portal'; }
+    if (/^portal\/\d+(\/group\/\d+)?\/?$/.test(s)) { return 'portal'; }
     if (/(^|\/)(kb|article)\//.test(s)) { return 'article'; }
     return 'other';
   }
