@@ -107,26 +107,6 @@
         </condition>
     </web-resource>
 
-    <!-- ?portalTheme=off: remembers the bypass for the browser session and shows a small pill. -->
-    <web-resource key="bypass-wrm6" name="Portal Theme bypass notice (Jira 9)">
-        <restrict application="jira" version="[9.0,10.0)"/>
-        <context>customerportal</context>
-        <context>atl.general</context>
-        <resource type="download" name="pt-bypass.js" location="web/js/pt-bypass.js"/>
-        <condition class="io.portaltheme.jsm.compat.wrm6.ThemeCondition">
-            <param name="mode">bypass</param>
-        </condition>
-    </web-resource>
-    <web-resource key="bypass-wrm7" name="Portal Theme bypass notice (Jira 10+)">
-        <restrict application="jira" version="[10.0,)"/>
-        <context>customerportal</context>
-        <context>atl.general</context>
-        <resource type="download" name="pt-bypass.js" location="web/js/pt-bypass.js"/>
-        <condition class="io.portaltheme.jsm.compat.wrm7.ThemeCondition">
-            <param name="mode">bypass</param>
-        </condition>
-    </web-resource>
-
     <!-- ===== Administration ===== -->
     <web-resource key="admin" name="Portal Theme – admin page">
         <dependency>${atlassian.plugin.key}:theme-shared</dependency>

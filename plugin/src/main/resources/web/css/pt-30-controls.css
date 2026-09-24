@@ -82,7 +82,9 @@ html.pt .aui-button.aui-button-subtle:hover { background: var(--pt-surface3) !im
 html.pt :is(.aui-button[disabled], .aui-button[aria-disabled="true"], button[disabled]) { opacity: .5; cursor: not-allowed; }
 
 /* ---------- Form fields ---------- */
-html.pt :is(input.text, input[type="text"], input[type="search"], input[type="email"], input[type="password"],
+/* :where() keeps these generic rules at zero specificity: any role-specific rule below or in later
+   layers (search box, filters, login rows) wins without a specificity race. */
+html.pt :where(input.text, input[type="text"], input[type="search"], input[type="email"], input[type="password"],
   input[type="number"], input[type="tel"], input[type="url"], input[type="date"], select, select.select, textarea, textarea.textarea) {
   width: 100%;
   max-width: none !important;
@@ -98,7 +100,7 @@ html.pt :is(input.text, input[type="text"], input[type="search"], input[type="em
   line-height: 1.6 !important;
   transition: border-color var(--pt-dur-1) ease, box-shadow var(--pt-dur-1) ease;
 }
-html.pt textarea { min-height: 128px; resize: vertical; }
+html.pt :where(textarea) { min-height: 128px; resize: vertical; }
 html.pt ::placeholder { color: var(--pt-subtle) !important; opacity: 1; }
 /* Inputs inside composite widgets (React selects, pickers, login rows): the wrapper draws the box.
    ":is(…, #pt-x)" raises specificity above the hover/focus rules below. */
@@ -111,8 +113,8 @@ html.pt input:is([role="combobox"], #pt-x) {
   background: transparent !important;
   box-shadow: none !important;
 }
-html.pt :is(input, textarea, select):hover { border-color: var(--pt-muted) !important; }
-html.pt :is(input, textarea, select):focus {
+html.pt :where(input, textarea, select):hover { border-color: var(--pt-muted) !important; }
+html.pt :where(input, textarea, select):focus {
   border-color: var(--pt-focus) !important;
   box-shadow: var(--pt-focus-glow) !important;
   outline: none !important;

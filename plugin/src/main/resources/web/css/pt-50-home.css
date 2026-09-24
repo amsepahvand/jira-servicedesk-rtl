@@ -4,18 +4,13 @@
 
 /* ---------- Hero: title, subtitle, search ----------
    The hero area bleeds to the full window width behind the content column. */
-html.pt:is([data-pt-page="home"], [data-pt-page="portal"]) [data-pt~="content"] { position: relative; isolation: isolate; }
-html.pt:is([data-pt-page="home"], [data-pt-page="portal"]) [data-pt~="content"]::before {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  inset-block-start: 0;
-  inset-inline: calc(50% - 50vw);
-  height: 340px;
-  background: var(--pt-hero-bg);
-  pointer-events: none;
+html.pt:is([data-pt-page="home"], [data-pt-page="portal"]) [data-pt~="page"] {
+  background-image: var(--pt-hero-bg) !important;
+  background-repeat: no-repeat !important;
+  background-size: 100% 420px !important;
+  background-position: top center !important;
 }
-html.pt[data-pt-hero="brand"]:is([data-pt-page="home"], [data-pt-page="portal"]) [data-pt~="content"]::before { height: 300px; }
+html.pt[data-pt-hero="brand"]:is([data-pt-page="home"], [data-pt-page="portal"]) [data-pt~="page"] { background-size: 100% 340px !important; }
 
 html.pt [data-pt~="hero"] {
   display: block !important;
@@ -53,7 +48,7 @@ html.pt [data-pt~="hero-text"] p { margin: 0; }
 html.pt [data-pt~="search"] { margin: 0 0 var(--pt-section-gap) !important; padding: 0 !important; max-width: 760px; }
 html.pt .sd-smart-search-input-container { width: auto !important; max-width: none !important; margin: 0 !important; position: relative; }
 html.pt [data-pt~="search-box"] { position: relative; }
-html.pt [data-pt~="search-input"] {
+html.pt input[data-pt~="search-input"] {
   height: 58px !important;
   padding-block: 0 !important;
   padding-inline: 54px 48px !important;
@@ -103,7 +98,15 @@ html.pt [data-pt~="section-title"]::before {
 }
 
 /* ---------- Services (portal cards on the home page) ---------- */
-html.pt [data-pt~="portal-list"] { margin: 0 !important; }
+html.pt [data-pt~="portal-list"] {
+  /* JSM positions this container full-bleed (left: -Npx; width: 100vw). Bring it back into the column. */
+  position: static !important;
+  inset: auto !important;
+  width: auto !important;
+  max-width: none !important;
+  margin: 0 !important;
+  transform: none !important;
+}
 html.pt [data-pt~="portal-toolbar"] {
   display: flex !important;
   flex-wrap: wrap;
@@ -128,7 +131,7 @@ html.pt [data-pt~="rt-grid"] {
   list-style: none;
 }
 html.pt [data-pt~="portal-grid"] > li,
-html.pt [data-pt~="rt-grid"] > li {
+html.pt [data-pt~="rt-grid"] > li:not([data-pt~="rt-card"]) {
   display: block !important;
   flex: none !important;
   width: auto !important;
@@ -185,6 +188,9 @@ html.pt [data-pt~="rt-card"]::before {
 /* Portal cards have no icon of their own: a neutral "service" glyph in the brand colour */
 html.pt [data-pt~="portal-card"]::after {
   content: "";
+  opacity: 1 !important;          /* JSM fades its own ::after overlay in on hover */
+  inset-inline-end: auto !important;
+  inset-block-end: auto !important;
   position: absolute;
   inset-block-start: calc(var(--pt-card-pad) + 12px);
   inset-inline-start: calc(var(--pt-card-pad) + 12px);

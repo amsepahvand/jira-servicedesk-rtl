@@ -15,8 +15,8 @@ import java.util.function.BooleanSupplier;
  *   <li>{@link Mode#LOGIN} – resources in {@code atl.general}, which must only activate on customer
  *       portal URLs. Needed because on Jira 10+ the portal login/sign-up pages are rendered by the
  *       generic Jira login page, which does not load {@code customerportal}.</li>
- *   <li>{@link Mode#BYPASS} – the tiny script that remembers {@code ?portalTheme=off} for the
- *       browser session and shows the "theme is off" pill.</li>
+ *   <li>{@link Mode#BYPASS} – retired in 1.0.2 (the bypass now lives in the browser, so it never
+ *       changes the URL of Jira's own resource batches); kept so old descriptors still parse.</li>
  * </ul>
  */
 public final class ThemeGate {
@@ -62,31 +62,17 @@ public final class ThemeGate {
             // definition). The front end still honours ?portalTheme=off on its own.
             return mode == Mode.PORTAL && enabled.getAsBoolean();
         }
-        boolean portalPath = request.path.contains(PORTAL_PATH);
-        boolean bypassed = isBypassed(request);
         switch (mode) {
             case BYPASS:
-                return portalPath && bypassed;
+                return false; // the bypass is handled in the browser since 1.0.2
             case LOGIN:
-                if (!portalPath) {
+                if (!request.path.contains(PORTAL_PATH)) {
                     return false; // the common case on every non-portal Jira page: cheap exit
                 }
-                return !bypassed && enabled.getAsBoolean();
+                return enabled.getAsBoolean();
             case PORTAL:
             default:
-                return !bypassed && enabled.getAsBoolean();
+                return enabled.getAsBoolean();
         }
-    }
-
-    /** {@code ?portalTheme=off}, or the session cookie set by it, unless {@code ?portalTheme=on}. */
-    static boolean isBypassed(RequestInfo request) {
-        String p = request.queryParam(PARAM);
-        if ("off".equals(p)) {
-            return true;
-        }
-        if ("on".equals(p)) {
-            return false;
-        }
-        return "off".equals(request.cookie(COOKIE));
     }
 }

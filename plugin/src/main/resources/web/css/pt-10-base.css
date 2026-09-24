@@ -84,6 +84,11 @@ html.pt .aui-skip-link:focus-visible {
    User-written content (summaries, comments, descriptions) gets dir="auto" from pt-enhance.js:
    an English comment stays left-to-right inside the Persian page. Identifiers are isolated. */
 html.pt [dir="auto"] { unicode-bidi: plaintext; text-align: start; }
+/* Headings, names and labels written in English still line up with the page's reading edge; only
+   their internal order (and punctuation) follows the text. Long user text keeps its natural edge. */
+html.pt[dir="rtl"] :is([data-pt~="title"], [data-pt~="portal-card-name"], [data-pt~="rt-name"], [data-pt~="authored"]) { text-align: right !important; }
+html.pt[dir="ltr"] :is([data-pt~="title"], [data-pt~="portal-card-name"], [data-pt~="rt-name"], [data-pt~="authored"]) { text-align: left !important; }
+html.pt :is(label, legend, .description)[data-pt~="authored"] { unicode-bidi: plaintext; }
 html.pt [data-pt~="ltr-token"],
 html.pt [data-pt~="issue-key"] { direction: ltr; unicode-bidi: isolate; }
 html.pt :is(input[type="email"], input[type="url"], input[type="tel"], input[type="password"], input[name="username"], code, pre, kbd, samp) {

@@ -31,18 +31,11 @@ class ThemeGateTest {
     }
 
     @Test
-    void bypassByQueryAndCookie() {
-        RequestInfo off = req("/servicedesk/customer/portals", "a=1&portalTheme=off", "");
-        assertFalse(ThemeGate.decide(PORTAL, off, () -> true));
-        assertTrue(ThemeGate.decide(BYPASS, off, () -> true));
-
-        RequestInfo cookie = req("/servicedesk/customer/portal/1", "", "JSESSIONID=x; portalTheme=off");
-        assertFalse(ThemeGate.decide(PORTAL, cookie, () -> true));
-        assertTrue(ThemeGate.decide(BYPASS, cookie, () -> true));
-
-        RequestInfo on = req("/servicedesk/customer/portal/1", "portalTheme=on", "portalTheme=off");
-        assertTrue(ThemeGate.decide(PORTAL, on, () -> true));
-        assertFalse(ThemeGate.decide(BYPASS, on, () -> true));
+    void bypassNeverChangesServerDecisions() {
+        // The bypass is client-side: the server keeps Jira's resource URLs stable.
+        RequestInfo off = req("/servicedesk/customer/portals", "portalTheme=off", "portalTheme=off");
+        assertTrue(ThemeGate.decide(PORTAL, off, () -> true));
+        assertFalse(ThemeGate.decide(BYPASS, off, () -> true));
     }
 
     @Test

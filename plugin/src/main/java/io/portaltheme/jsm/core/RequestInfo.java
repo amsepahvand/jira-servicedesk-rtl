@@ -44,7 +44,28 @@ public final class RequestInfo {
         String query = (String) call(api, req, "getQueryString");
         Method header = api.getMethod("getHeader", String.class);
         String cookie = (String) header.invoke(req, "Cookie");
+        // Pages rendered after an internal forward (e.g. the Jira 10+/11 login page shown for
+        // /servicedesk/customer/user/login) report the forward target as request URI. The URL the
+        // browser asked for is kept in the standard forward attributes.
+        Method attr = findMethod(api, "getAttribute", String.class);
+        if (attr != null) {
+            for (String prefix : new String[] {"jakarta", "javax"}) {
+                Object original = attr.invoke(req, prefix + ".servlet.forward.request_uri");
+                if (original instanceof String && !((String) original).isEmpty()) {
+                    Object originalQuery = attr.invoke(req, prefix + ".servlet.forward.query_string");
+                    return new RequestInfo((String) original, originalQuery instanceof String ? (String) originalQuery : query, cookie);
+                }
+            }
+        }
         return new RequestInfo(uri, query, cookie);
+    }
+
+    private static Method findMethod(Class<?> c, String name, Class<?>... types) {
+        try {
+            return c.getMethod(name, types);
+        } catch (NoSuchMethodException e) {
+            return null;
+        }
     }
 
     private static Object call(Class<?> api, Object target, String name) throws ReflectiveOperationException {

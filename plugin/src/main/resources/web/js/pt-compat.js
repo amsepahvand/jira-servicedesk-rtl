@@ -102,7 +102,8 @@
     'layout-reset': ['.cv-help-center-container', '.cv-smart-portal-container', '.cv-help-center-content-container',
       '.cv-browse-container', '.cv-help-center-main-content', '.sd-scale-group', '.sd-scale-group > .aui-item',
       '.cv-page-contents-container', '.cv-portal-cards-container', '.cv-portal-cards-react-container > div'],
-    'page-bg-image': ['.cv-bg-image', '.cv-help-center-branding-sidepanel'],
+    'page-bg-image': ['.cv-bg-image'],
+    'customize-panel': ['.cv-help-center-branding-sidepanel'],
 
     // Create request
     'form-card': ['#content .cp-request-form', '#content form.vp-form.cp-request-form'],
@@ -161,14 +162,19 @@
     'login-shell': ['[data-testid="two-step-verification-jsm-login"]'],
     'login-card': ['[data-testid="two-step-verification-login"]'],
     'login-banner': ['[data-testid$="jsm-login__banner"]'],
+    // Product logo above the login card (Jira 10/11 login page)
+    'jira-logo': ['[data-testid="two-step-verification-jsm-login"] > div > span:has(> svg)', '#login-panel .aui-header-logo'],
     'login-form': ['#login-form'],
     'login-header': ['#login-header'],
 
     // Content that users wrote: keep its own text direction (English stays LTR)
     'user-content': ['.user-content-block', '.cv-user-content', '.vp-activity-list .activity-item > .content',
       '.vp-activity-list dd', '.vp-activity-list .comment-body', '[data-testid="cv-summary-cell"]',
-      '.cv-request-type-description', '.cv-smart-portal-request-type-description', '[data-testid="card-description"]',
       '.vp-request-header'],
+    // Written by portal admins: direction follows the text, but JSM's generated default texts
+    // (e.g. "Welcome! You can raise a … request") may still be translated.
+    'authored': ['.cv-request-type-description', '.cv-smart-portal-request-type-description', '[data-testid="card-description"]',
+      '.cv-description', 'form.aui .field-group > label', 'form.aui .field-group .description', 'form.aui legend'],
     'ltr-token': ['[data-testid="cv-issue-key-cell"]', '.cv-request-key', 'dd.email', '.profile-field .email']
   };
 

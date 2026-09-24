@@ -305,7 +305,7 @@
 
   function directions(scope) {
     var root = scope || document;
-    var list = root.querySelectorAll('[data-pt~="user-content"]:not([dir])');
+    var list = root.querySelectorAll('[data-pt~="user-content"]:not([dir]), [data-pt~="authored"]:not([dir]):not(label):not(legend)');
     for (var i = 0; i < list.length; i++) { list[i].setAttribute('dir', 'auto'); }
     var ltr = root.querySelectorAll('[data-pt~="ltr-token"]:not([dir])');
     for (var j = 0; j < ltr.length; j++) { ltr[j].setAttribute('dir', 'ltr'); }

@@ -19,7 +19,7 @@
     '[contenteditable="true"]', '.ak-editor-content-area', '.ProseMirror', '.wiki-edit', '.mce-content-body',
     '.user-content-block', '.cv-user-content', '.vp-request-header', '.vp-activity-list dd',
     '.vp-activity-list .comment-body', '.vp-activity-list .activity-item > .content',
-    '[data-testid="cv-summary-cell"]', '[data-pt~="user-content"]', '[data-pt-skip]', '.pt-own'
+    '[data-testid="cv-summary-cell"]', '[data-pt~="user-content"]', '[data-pt-skip]', '.pt-own', '.cv-help-center-branding-sidepanel'
   ].join(',');
 
   var ATTRS = ['placeholder', 'title', 'aria-label', 'alt'];

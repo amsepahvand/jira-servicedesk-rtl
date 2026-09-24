@@ -410,6 +410,7 @@
     ['^page (\\d+)$', 'صفحه‌ی $1'],
     ['^Max(?:imum)? file size[: ]+(.+)$', 'بیشترین حجم فایل: $1'],
     ['^Welcome! You can raise an? (.+) request from the options provided\\.$', 'خوش آمدید. درخواست «$1» را از گزینه‌های زیر ثبت کنید.'],
+    ['^Welcome! You can raise an? (.+) request from the options provided\\.?$', 'درخواست‌های «$1» را از اینجا ثبت کنید.'],
     ['^Please provide a valid value for field \'(.+?)\'\\.?$', 'مقدار «$1» معتبر نیست.'],
     ['^Please provide a value for required field \'(.+?)\'\\.?$', 'پر کردن «$1» الزامی است.'],
     ['^You must specify a value for (?:the field )?\'?(.+?)\'?\\.?$', 'پر کردن «$1» الزامی است.'],

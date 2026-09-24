@@ -207,7 +207,7 @@ html.pt [data-pt~="user-button"][aria-expanded="true"] { border-color: var(--pt-
 html.pt [data-pt~="user-button"] :is(.cp-avatar, .cp-avatar-image, img) { width: 100% !important; height: 100% !important; border-radius: 50% !important; }
 
 /* Jira branding and admin-only tools (feature switches) */
-html.pt-hide-jira-brand [data-pt~="jira-footer"] { display: none !important; }
+html.pt-hide-jira-brand :is([data-pt~="jira-footer"], [data-pt~="jira-logo"]) { display: none !important; }
 html.pt-hide-admin [data-pt~="admin-tool"] { display: none !important; }
 
 /* Portal announcement: a calm banner, not a shouting band */

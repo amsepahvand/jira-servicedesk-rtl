@@ -31,11 +31,46 @@
 
   function cookiePath() { return (U.contextPath() || '') + '/'; }
 
+  // Emergency bypass, entirely in the browser (it must never change Jira's own resource URLs):
+  // ?portalTheme=off keeps the original portal for this browser session, ?portalTheme=on ends it.
   var mode = param('portalTheme');
   if (mode === 'on') {
     doc.cookie = COOKIE + '=; Max-Age=0; Path=' + cookiePath() + '; SameSite=Lax';
   }
-  if (mode === 'off' || (mode !== 'on' && /(?:^|;\s*)portalTheme=off\b/.test(doc.cookie))) { return; }
+  if (mode === 'off') {
+    doc.cookie = COOKIE + '=off; Path=' + cookiePath() + '; SameSite=Lax';
+  }
+  if (mode === 'off' || (mode !== 'on' && /(?:^|;\s*)portalTheme=off\b/.test(doc.cookie))) {
+    U.onReady(function () { bypassNotice(); });
+    return;
+  }
+
+  function bypassNotice() {
+    if (doc.getElementById('pt-bypass') || !doc.body) { return; }
+    var fa = /^fa/.test(html.getAttribute('lang') || '') || /[\u0600-\u06FF]/.test(doc.title);
+    var box = doc.createElement('div');
+    box.id = 'pt-bypass';
+    box.setAttribute('role', 'status');
+    box.setAttribute('style', 'position:fixed;z-index:2147483000;bottom:16px;left:16px;display:flex;align-items:center;gap:12px;' +
+      'max-width:calc(100vw - 32px);padding:10px 14px;border-radius:10px;background:#1f2937;color:#fff;' +
+      'font:500 13px/1.5 system-ui,-apple-system,Segoe UI,Tahoma,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.25)');
+    var text = doc.createElement('span');
+    text.textContent = fa ? 'پوسته‌ی پرتال برای این نشست خاموش است.' : 'Portal theme is off for this browser session.';
+    var on = doc.createElement('a');
+    on.href = win.location.pathname + '?portalTheme=on';
+    on.textContent = fa ? 'روشن کردن' : 'Turn on';
+    on.setAttribute('style', 'color:#fff;font-weight:700;text-decoration:underline;text-underline-offset:3px');
+    var close = doc.createElement('button');
+    close.type = 'button';
+    close.setAttribute('aria-label', fa ? 'بستن' : 'Dismiss');
+    close.textContent = '×';
+    close.setAttribute('style', 'min-width:32px;min-height:32px;border:0;border-radius:6px;background:transparent;color:#fff;font-size:18px;cursor:pointer');
+    close.addEventListener('click', function () { box.parentNode.removeChild(box); });
+    box.appendChild(text);
+    box.appendChild(on);
+    box.appendChild(close);
+    doc.body.appendChild(box);
+  }
 
   function claim() {
     try {
@@ -217,9 +252,30 @@
     }
   }
 
+  /** JSM's own "Customize" mode needs the native portal: the theme steps aside until reload. */
+  function customizing() {
+    var panel = doc.querySelector('.cv-help-center-branding-sidepanel, [data-pt~="customize-panel"]');
+    return !!(panel && panel.children.length);
+  }
+
+  function stepAsideForCustomize() {
+    off();
+    var note = doc.createElement('div');
+    note.className = 'pt-customize-note';
+    note.setAttribute('role', 'status');
+    note.setAttribute('style', 'position:fixed;z-index:2147483000;top:12px;left:50%;transform:translateX(-50%);padding:8px 14px;' +
+      'border-radius:999px;background:#1f2937;color:#fff;font:600 13px/1.5 system-ui,Tahoma,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.25)');
+    note.textContent = /^fa/.test(state.original.lang || state.lang || '') || state.lang === 'fa'
+      ? 'پوسته‌ی پرتال در حالت سفارشی‌سازی جیرا موقتاً خاموش است. پس از پایان، صفحه را دوباره بارگذاری کنید.'
+      : 'The portal theme is paused while you customise the portal. Reload the page when you are done.';
+    doc.body.appendChild(note);
+    win.setTimeout(function () { if (note.parentNode) { note.parentNode.removeChild(note); } }, 7000);
+  }
+
   var observer = null;
   function onMutations(records) {
     try {
+      if (customizing()) { stepAsideForCustomize(); return; }
       routeChanged();
       for (var i = 0; i < records.length; i++) {
         var r = records[i];

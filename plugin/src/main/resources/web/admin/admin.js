@@ -8,6 +8,9 @@
 (function (win, doc) {
   'use strict';
 
+  // Jira may load this script in <head>, before the page body exists: start once the DOM is ready.
+  function boot() {
+
   var PT = win.PortalTheme;
   var U = PT.util;
   var root = doc.getElementById('pt-admin');
@@ -921,4 +924,7 @@
     root.innerHTML = '';
     root.appendChild(el('div', { class: 'aui-message aui-message-error', role: 'alert' }, [el('p', { text: T.loadError + ' ' + err.message })]));
   });
+  }
+
+  if (doc.readyState === 'loading') { doc.addEventListener('DOMContentLoaded', boot); } else { boot(); }
 })(window, document);
