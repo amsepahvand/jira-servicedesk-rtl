@@ -1,0 +1,306 @@
+/* ==========================================================================================
+   Layer 30 — controls: buttons, form fields, selects, pickers, editor, attachments, menus
+   Targets AUI's public component classes and the semantic hooks; never generated classes.
+   ========================================================================================== */
+
+/* ---------- Buttons ---------- */
+html.pt .aui-button,
+html.pt button[data-appearance] {
+  border-radius: var(--pt-radius-md) !important;
+  font-weight: 600 !important;
+  touch-action: manipulation;
+}
+
+/* Secondary (default) */
+html.pt .aui-button:not(.aui-button-link):not(.aui-button-subtle):not(.aui-button-primary):not([data-pt~="header-button"]):not([data-pt~="user-button"]) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: var(--pt-control-h);
+  height: auto;
+  padding: 0 18px !important;
+  background: var(--pt-surface) !important;
+  border: 1px solid var(--pt-border) !important;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, .03) !important;
+  color: var(--pt-text) !important;
+  line-height: 1.2 !important;
+}
+html.pt .aui-button:not(.aui-button-link):not(.aui-button-subtle):not(.aui-button-primary):not([data-pt~="header-button"]):not([data-pt~="user-button"]):hover {
+  background: var(--pt-surface2) !important;
+  border-color: var(--pt-border-strong) !important;
+  color: var(--pt-text) !important;
+}
+
+/* Primary: one per view, the brand colour */
+html.pt .aui-button.aui-button-primary,
+html.pt form.aui button[type="submit"]:not(.aui-button-link):not(.aui-button-subtle),
+html.pt input[type="submit"],
+html.pt button[data-appearance="primary"],
+html.pt #login-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 120px;
+  min-height: var(--pt-button-h) !important;
+  height: auto !important;
+  padding: 0 24px !important;
+  background: var(--pt-brand) !important;
+  border: 1px solid var(--pt-brand) !important;
+  border-radius: var(--pt-radius-md) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .1) !important;
+  color: var(--pt-on-brand) !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+}
+html.pt .aui-button.aui-button-primary:hover,
+html.pt form.aui button[type="submit"]:not(.aui-button-link):not(.aui-button-subtle):hover,
+html.pt input[type="submit"]:hover,
+html.pt button[data-appearance="primary"]:hover,
+html.pt #login-button:hover {
+  background: var(--pt-brand-hover) !important;
+  border-color: var(--pt-brand-hover) !important;
+  color: var(--pt-on-brand) !important;
+}
+html.pt .aui-button.aui-button-primary:active,
+html.pt button[data-appearance="primary"]:active { background: var(--pt-brand-active) !important; }
+html.pt :is(.aui-button.aui-button-primary, #login-button) * { color: inherit !important; }
+
+html.pt .aui-button.aui-button-link,
+html.pt .aui-button-link {
+  background: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  color: var(--pt-brand-text) !important;
+  font-weight: 600 !important;
+}
+html.pt .aui-button-link:hover { text-decoration: underline; }
+html.pt .aui-button.aui-button-subtle { background: transparent !important; border-color: transparent !important; color: var(--pt-text) !important; }
+html.pt .aui-button.aui-button-subtle:hover { background: var(--pt-surface3) !important; }
+html.pt :is(.aui-button[disabled], .aui-button[aria-disabled="true"], button[disabled]) { opacity: .5; cursor: not-allowed; }
+
+/* ---------- Form fields ---------- */
+html.pt :is(input.text, input[type="text"], input[type="search"], input[type="email"], input[type="password"],
+  input[type="number"], input[type="tel"], input[type="url"], input[type="date"], select, select.select, textarea, textarea.textarea) {
+  width: 100%;
+  max-width: none !important;
+  min-height: var(--pt-control-h);
+  padding: 9px 14px !important;
+  background: var(--pt-surface) !important;
+  color: var(--pt-text) !important;
+  border: 1px solid var(--pt-border-strong) !important;
+  border-radius: var(--pt-radius-md) !important;
+  box-shadow: none !important;
+  box-sizing: border-box;
+  font-size: 15px !important;
+  line-height: 1.6 !important;
+  transition: border-color var(--pt-dur-1) ease, box-shadow var(--pt-dur-1) ease;
+}
+html.pt textarea { min-height: 128px; resize: vertical; }
+html.pt ::placeholder { color: var(--pt-subtle) !important; opacity: 1; }
+/* Inputs inside composite widgets (React selects, pickers, login rows): the wrapper draws the box.
+   ":is(…, #pt-x)" raises specificity above the hover/focus rules below. */
+html.pt :is(sd-user-picker, [class*="-control"], [data-pt~="login-form"] div, #pt-x) input:not([type="checkbox"]):not([type="radio"]),
+html.pt input:is([role="combobox"], #pt-x) {
+  min-height: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+html.pt :is(input, textarea, select):hover { border-color: var(--pt-muted) !important; }
+html.pt :is(input, textarea, select):focus {
+  border-color: var(--pt-focus) !important;
+  box-shadow: var(--pt-focus-glow) !important;
+  outline: none !important;
+}
+html.pt :is(input, textarea, select)[aria-invalid="true"],
+html.pt [data-pt~="field"]:has([data-pt~="field-error"]:not(:empty)) :is(input.text, textarea, select) {
+  border-color: var(--pt-error-dot) !important;
+}
+html.pt :is(input, textarea, select)[aria-invalid="true"]:focus { box-shadow: 0 0 0 3px color-mix(in srgb, var(--pt-error-dot) 25%, transparent) !important; }
+html.pt :is(input[type="checkbox"], input[type="radio"]) {
+  width: 18px;
+  height: 18px;
+  min-height: 0;
+  margin-inline-end: 8px;
+  accent-color: var(--pt-brand);
+  vertical-align: middle;
+}
+
+/* Field groups */
+html.pt [data-pt~="field"] {
+  float: none !important;
+  width: auto !important;
+  min-height: 0 !important;
+  margin: 0 0 22px !important;
+  padding: 0 !important;
+  text-align: start;
+}
+html.pt [data-pt~="field-label"] {
+  display: block !important;
+  float: none !important;
+  position: static !important;
+  width: auto !important;
+  margin: 0 0 8px !important;
+  padding: 0 !important;
+  color: var(--pt-text) !important;
+  font-size: 14px !important;
+  font-weight: 650 !important;
+  line-height: 1.6 !important;
+  text-align: start !important;
+}
+html.pt :is(.cp-required, .aui-icon-required, .icon-required) { color: var(--pt-error-dot) !important; margin-inline-start: 4px; }
+html.pt [data-pt~="field-help"],
+html.pt [data-pt~="required-note"] {
+  margin-top: 6px;
+  color: var(--pt-muted) !important;
+  font-size: 13px !important;
+  line-height: 1.7;
+  text-align: start;
+}
+html.pt [data-pt~="required-note"] { margin: 0 0 24px; }
+html.pt form.aui .field-container { width: auto !important; max-width: none !important; }
+
+/* Inline errors: icon + text, next to the field, announced by Jira's own markup */
+html.pt [data-pt~="field-error"] {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 8px;
+  color: var(--pt-error-fg) !important;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.6;
+}
+html.pt [data-pt~="field-error"]:empty { display: none; }
+html.pt [data-pt~="field-error"]:not(:empty)::before {
+  content: "!";
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+  border-radius: 50%;
+  background: var(--pt-error-dot);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+/* Select2 (profile language etc.) */
+html.pt :is(.select2-container .select2-choice, .select2-container-multi .select2-choices) {
+  display: flex !important;
+  align-items: center;
+  min-height: var(--pt-control-h);
+  border: 1px solid var(--pt-border-strong) !important;
+  border-radius: var(--pt-radius-md) !important;
+  background: var(--pt-surface) !important;
+  box-shadow: none !important;
+}
+html.pt .select2-drop { border-radius: var(--pt-radius-md) !important; box-shadow: var(--pt-shadow-3) !important; border-color: var(--pt-border) !important; }
+
+/* React selects & pickers: their control box follows the input style */
+html.pt [data-testid$="select--control"],
+html.pt [data-pt~="user-picker"] {
+  min-height: var(--pt-control-h) !important;
+  border: 1px solid var(--pt-border-strong) !important;
+  border-radius: var(--pt-radius-md) !important;
+  background: var(--pt-surface) !important;
+  box-shadow: none !important;
+}
+html.pt [data-testid$="select--control"]:hover,
+html.pt [data-pt~="user-picker"]:hover { border-color: var(--pt-muted) !important; }
+html.pt [data-testid$="select--control"]:focus-within,
+html.pt [data-pt~="user-picker"]:focus-within { border-color: var(--pt-focus) !important; box-shadow: var(--pt-focus-glow) !important; }
+html.pt :is([class*="-menu"], [role="listbox"]) { border-radius: var(--pt-radius-md) !important; }
+html.pt [role="listbox"] { box-shadow: var(--pt-shadow-3) !important; }
+html.pt [role="option"] { min-height: 40px; display: flex; align-items: center; }
+
+/* Rich text editor */
+html.pt [data-pt~="editor"] {
+  overflow: hidden;
+  background: var(--pt-surface) !important;
+  border: 1px solid var(--pt-border-strong) !important;
+  border-radius: var(--pt-radius-md) !important;
+}
+html.pt [data-pt~="editor"]:focus-within { border-color: var(--pt-focus) !important; box-shadow: var(--pt-focus-glow) !important; }
+html.pt [data-pt~="editor-toolbar"] { background: var(--pt-surface2) !important; border-block-end: 1px solid var(--pt-border) !important; }
+html.pt [data-pt~="editor-toolbar"] button { border-radius: var(--pt-radius-sm) !important; }
+
+/* ---------- Attachments: a clear drop zone ---------- */
+html.pt [data-pt~="attach-container"] { padding: 0 !important; border: 0 !important; background: none !important; }
+html.pt [data-pt~="dropzone"] {
+  display: flex !important;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px 12px;
+  min-height: 88px;
+  padding: 20px !important;
+  background: var(--pt-surface2) !important;
+  border: 1.5px dashed var(--pt-border-strong) !important;
+  border-radius: var(--pt-radius-lg) !important;
+  color: var(--pt-muted);
+  font-size: 14px;
+  text-align: center;
+  transition: border-color var(--pt-dur-2) ease, background-color var(--pt-dur-2) ease;
+}
+html.pt [data-pt~="dropzone"]::before {
+  content: "";
+  flex: 0 0 100%;
+  height: 28px;
+  background: var(--pt-subtle);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 16V4M7 9l5-5 5 5'/%3E%3Cpath d='M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3'/%3E%3C/svg%3E") center / 28px no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 16V4M7 9l5-5 5 5'/%3E%3Cpath d='M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3'/%3E%3C/svg%3E") center / 28px no-repeat;
+}
+html.pt [data-pt~="dropzone"]:is(:hover, :focus-within),
+html.pt [data-pt~="dropzone"].active,
+html.pt .dragover [data-pt~="dropzone"] {
+  border-color: var(--pt-brand) !important;
+  background: var(--pt-brand-soft) !important;
+}
+html.pt [data-pt~="dropzone"] br { display: none; }
+html.pt .cv-attachment-label.aui-button { min-height: 36px !important; padding: 0 14px !important; }
+
+/* ---------- Dropdown menus (AUI dropdown2) ---------- */
+html.pt .aui-dropdown2,
+html.pt .aui-dropdown2.aui-style-default {
+  min-width: 220px;
+  padding: 6px !important;
+  background: var(--pt-surface) !important;
+  border: 1px solid var(--pt-border) !important;
+  border-radius: var(--pt-radius-lg) !important;
+  box-shadow: var(--pt-shadow-3) !important;
+  text-align: start;
+}
+html.pt .aui-dropdown2 ul { margin: 0; padding: 0; }
+html.pt :is(.aui-dropdown2 a, .aui-dropdown2 .aui-dropdown2-radio, .aui-dropdown2 .aui-dropdown2-checkbox, .aui-dropdown2 [role="menuitem"]) {
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 40px;
+  padding: 8px 12px !important;
+  border-radius: var(--pt-radius-sm);
+  color: var(--pt-text) !important;
+  font-weight: 500;
+  text-align: start;
+}
+html.pt :is(.aui-dropdown2 a:hover, .aui-dropdown2 a:focus, .aui-dropdown2 .aui-dropdown2-active, .aui-dropdown2 [role="menuitem"]:hover) {
+  background: var(--pt-surface3) !important;
+  color: var(--pt-text) !important;
+  text-decoration: none !important;
+}
+html.pt :is(.aui-dropdown2 .aui-dropdown2-checked, .aui-dropdown2 [aria-checked="true"]) {
+  background: var(--pt-brand-soft) !important;
+  color: var(--pt-brand-soft-text) !important;
+  box-shadow: none !important;
+  font-weight: 700;
+}
+html.pt .aui-dropdown2-section + .aui-dropdown2-section { margin-top: 6px; padding-top: 6px; border-block-start: 1px solid var(--pt-border) !important; }

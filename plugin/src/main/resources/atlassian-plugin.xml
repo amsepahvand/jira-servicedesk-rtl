@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<atlassian-plugin key="${atlassian.plugin.key}" name="${project.name}" plugins-version="2">
+    <plugin-info>
+        <description>${project.description}</description>
+        <version>${project.version}</version>
+        <vendor name="${project.organization.name}" url="${project.organization.url}"/>
+        <param name="configure.url">/plugins/servlet/portal-theme/admin</param>
+        <param name="plugin-icon">web/images/plugin-icon.png</param>
+        <param name="plugin-logo">web/images/plugin-logo.png</param>
+        <param name="atlassian-data-center-status">compatible</param>
+        <param name="atlassian-data-center-compatible">true</param>
+    </plugin-info>
+
+    <resource type="i18n" name="i18n" location="i18n/portal-theme"/>
+
+    <!--
+      ============================================================================================
+      COMPATIBILITY: modules whose Java API differs between Jira generations exist once per
+      generation and are switched on by <restrict>. Everything else is shared.
+
+        API                         Jira 9.x          Jira 10.x         Jira 11.x
+        servlet namespace           javax             javax             jakarta
+        URL-reading conditions      WRM 5/6 package   WRM 7 (spi)       WRM 8 (spi)
+      ============================================================================================
+    -->
+
+    <!-- ===== HTTP: admin page, admin JSON API, uploaded images ===== -->
+    <servlet key="portal-theme-servlet-javax" name="Portal Theme servlet (javax)"
+             class="io.portaltheme.jsm.compat.javax.ThemeServlet">
+        <restrict application="jira" version="[9.0,11.0)"/>
+        <url-pattern>/portal-theme/*</url-pattern>
+    </servlet>
+    <servlet key="portal-theme-servlet-jakarta" name="Portal Theme servlet (jakarta)"
+             class="io.portaltheme.jsm.compat.jakarta.ThemeServlet">
+        <restrict application="jira" version="[11.0,)"/>
+        <url-pattern>/portal-theme/*</url-pattern>
+    </servlet>
+
+    <!-- ===== Shared front-end engine (no context, no condition: pulled in by the entries) ===== -->
+    <web-resource key="theme-shared" name="Portal Theme – shared token engine">
+        <resource type="download" name="pt-namespace.js" location="web/js/pt-namespace.js"/>
+        <resource type="download" name="pt-color.js" location="web/js/pt-color.js"/>
+        <resource type="download" name="pt-presets.js" location="web/js/pt-presets.js"/>
+        <resource type="download" name="pt-tokens.js" location="web/js/pt-tokens.js"/>
+    </web-resource>
+
+    <web-resource key="theme-core" name="Portal Theme – customer portal theme">
+        <dependency>${atlassian.plugin.key}:theme-shared</dependency>
+        <data key="config" class="io.portaltheme.jsm.web.ThemeDataProvider"/>
+
+        <resource type="download" name="fonts/" location="web/fonts/"/>
+        <resource type="download" name="pt-00-tokens.css" location="web/css/pt-00-tokens.css"/>
+        <resource type="download" name="pt-10-base.css" location="web/css/pt-10-base.css"/>
+        <resource type="download" name="pt-20-shell.css" location="web/css/pt-20-shell.css"/>
+        <resource type="download" name="pt-30-controls.css" location="web/css/pt-30-controls.css"/>
+        <resource type="download" name="pt-40-feedback.css" location="web/css/pt-40-feedback.css"/>
+        <resource type="download" name="pt-50-home.css" location="web/css/pt-50-home.css"/>
+        <resource type="download" name="pt-60-request.css" location="web/css/pt-60-request.css"/>
+        <resource type="download" name="pt-70-lists.css" location="web/css/pt-70-lists.css"/>
+        <resource type="download" name="pt-80-login.css" location="web/css/pt-80-login.css"/>
+        <resource type="download" name="pt-85-motion.css" location="web/css/pt-85-motion.css"/>
+        <resource type="download" name="pt-90-responsive.css" location="web/css/pt-90-responsive.css"/>
+
+        <resource type="download" name="pt-i18n-fa.js" location="web/js/pt-i18n-fa.js"/>
+        <resource type="download" name="pt-compat.js" location="web/js/pt-compat.js"/>
+        <resource type="download" name="pt-text.js" location="web/js/pt-text.js"/>
+        <resource type="download" name="pt-enhance.js" location="web/js/pt-enhance.js"/>
+        <resource type="download" name="pt-boot.js" location="web/js/pt-boot.js"/>
+    </web-resource>
+
+    <!-- ===== Entry points. Each is gated server-side (enabled switch, portal URL, bypass). ===== -->
+    <!-- Customer portal pages rendered by JSM. -->
+    <web-resource key="entry-portal-wrm6" name="Portal Theme entry – portal (Jira 9)">
+        <restrict application="jira" version="[9.0,10.0)"/>
+        <context>customerportal</context>
+        <dependency>${atlassian.plugin.key}:theme-core</dependency>
+        <condition class="io.portaltheme.jsm.compat.wrm6.ThemeCondition">
+            <param name="mode">portal</param>
+        </condition>
+    </web-resource>
+    <web-resource key="entry-portal-wrm7" name="Portal Theme entry – portal (Jira 10+)">
+        <restrict application="jira" version="[10.0,)"/>
+        <context>customerportal</context>
+        <dependency>${atlassian.plugin.key}:theme-core</dependency>
+        <condition class="io.portaltheme.jsm.compat.wrm7.ThemeCondition">
+            <param name="mode">portal</param>
+        </condition>
+    </web-resource>
+
+    <!-- Portal login / sign-up pages rendered by the generic Jira login page (Jira 10+, and some
+         9.x flows). atl.general is on every Jira page, so the condition exits immediately unless
+         the URL is a customer portal URL: no other Jira page receives anything. -->
+    <web-resource key="entry-login-wrm6" name="Portal Theme entry – portal login (Jira 9)">
+        <restrict application="jira" version="[9.0,10.0)"/>
+        <context>atl.general</context>
+        <dependency>${atlassian.plugin.key}:theme-core</dependency>
+        <condition class="io.portaltheme.jsm.compat.wrm6.ThemeCondition">
+            <param name="mode">login</param>
+        </condition>
+    </web-resource>
+    <web-resource key="entry-login-wrm7" name="Portal Theme entry – portal login (Jira 10+)">
+        <restrict application="jira" version="[10.0,)"/>
+        <context>atl.general</context>
+        <dependency>${atlassian.plugin.key}:theme-core</dependency>
+        <condition class="io.portaltheme.jsm.compat.wrm7.ThemeCondition">
+            <param name="mode">login</param>
+        </condition>
+    </web-resource>
+
+    <!-- ?portalTheme=off: remembers the bypass for the browser session and shows a small pill. -->
+    <web-resource key="bypass-wrm6" name="Portal Theme bypass notice (Jira 9)">
+        <restrict application="jira" version="[9.0,10.0)"/>
+        <context>customerportal</context>
+        <context>atl.general</context>
+        <resource type="download" name="pt-bypass.js" location="web/js/pt-bypass.js"/>
+        <condition class="io.portaltheme.jsm.compat.wrm6.ThemeCondition">
+            <param name="mode">bypass</param>
+        </condition>
+    </web-resource>
+    <web-resource key="bypass-wrm7" name="Portal Theme bypass notice (Jira 10+)">
+        <restrict application="jira" version="[10.0,)"/>
+        <context>customerportal</context>
+        <context>atl.general</context>
+        <resource type="download" name="pt-bypass.js" location="web/js/pt-bypass.js"/>
+        <condition class="io.portaltheme.jsm.compat.wrm7.ThemeCondition">
+            <param name="mode">bypass</param>
+        </condition>
+    </web-resource>
+
+    <!-- ===== Administration ===== -->
+    <web-resource key="admin" name="Portal Theme – admin page">
+        <dependency>${atlassian.plugin.key}:theme-shared</dependency>
+        <resource type="download" name="fonts/" location="web/fonts/"/>
+        <resource type="download" name="pt-i18n-fa.js" location="web/js/pt-i18n-fa.js"/>
+        <resource type="download" name="admin.css" location="web/admin/admin.css"/>
+        <resource type="download" name="preview.css" location="web/admin/preview.css"/>
+        <resource type="download" name="admin-i18n.js" location="web/admin/admin-i18n.js"/>
+        <resource type="download" name="admin.js" location="web/admin/admin.js"/>
+    </web-resource>
+
+    <web-section key="portal-theme-admin-section" name="Portal Theme admin section"
+                 location="admin_plugins_menu" weight="160">
+        <label key="portal-theme.admin.section"/>
+    </web-section>
+    <web-item key="portal-theme-admin-link" name="Portal Theme settings link"
+              section="admin_plugins_menu/portal-theme-admin-section" weight="10">
+        <label key="portal-theme.admin.link"/>
+        <link linkId="portal-theme-admin-link">/plugins/servlet/portal-theme/admin</link>
+    </web-item>
+</atlassian-plugin>

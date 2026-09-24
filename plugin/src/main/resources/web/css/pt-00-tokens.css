@@ -1,0 +1,90 @@
+/*!
+ * Portal Theme for Jira Service Management — stylesheet layer 00: font and token fallbacks.
+ *
+ * Every rule of the theme is scoped under html.pt, which pt-boot.js sets only on customer portal
+ * pages. Without it (JS off, theme disabled, ?portalTheme=off) these files do nothing at all.
+ * Colours, radii and spacing come exclusively from --pt-* custom properties, generated from the
+ * admin settings by pt-tokens.js; the values below are only a safety net.
+ */
+
+@font-face {
+  font-family: "Vazirmatn";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url(fonts/vazirmatn-variable.woff2) format("woff2");
+}
+
+html.pt {
+  --pt-bg: #f5f7fa;
+  --pt-surface: #ffffff;
+  --pt-surface2: #f8f9fb;
+  --pt-surface3: #f0f2f5;
+  --pt-text: #0f1b2d;
+  --pt-muted: #4a5568;
+  --pt-subtle: #5a6576;
+  --pt-border: #e2e7ee;
+  --pt-border-strong: #8a96a8;
+  --pt-brand: #16407a;
+  --pt-brand-hover: #143a6f;
+  --pt-brand-active: #123463;
+  --pt-on-brand: #ffffff;
+  --pt-brand-text: #16407a;
+  --pt-brand-soft: #eef2f7;
+  --pt-brand-soft-text: #16407a;
+  --pt-accent: #0f8a8c;
+  --pt-on-accent: #ffffff;
+  --pt-accent-text: #0c7274;
+  --pt-accent-soft: #e0f1f1;
+  --pt-accent-soft-text: #0a4e50;
+  --pt-focus: #2563eb;
+  --pt-header: #ffffff;
+  --pt-on-header: #0f1b2d;
+  --pt-on-header-muted: #4a5568;
+  --pt-header-hover: #f3f4f6;
+  --pt-header-border: #e2e7ee;
+  --pt-success-bg: #e8f3ec; --pt-success-fg: #11602f; --pt-success-dot: #15803d; --pt-success-border: #b9d9c4;
+  --pt-warning-bg: #f7eee4; --pt-warning-fg: #7a3c07; --pt-warning-dot: #b45309; --pt-warning-border: #e8c9a6;
+  --pt-error-bg: #f9e9ea;   --pt-error-fg: #97171d;   --pt-error-dot: #c0262d;   --pt-error-border: #ecb8bb;
+  --pt-info-bg: #e9eef5;    --pt-info-fg: #16407a;    --pt-info-dot: #16407a;    --pt-info-border: #b9c6d9;
+  --pt-neutral-bg: #f0f2f5; --pt-neutral-fg: #0f1b2d; --pt-neutral-dot: #8a93a0; --pt-neutral-border: #e2e7ee;
+  --pt-scrim: rgba(8, 12, 20, .48);
+  --pt-focus-ring: 0 0 0 2px #ffffff, 0 0 0 4px #2563eb;
+  --pt-focus-glow: 0 0 0 3px rgba(37, 99, 235, .28);
+  --pt-selection: rgba(15, 138, 140, .35);
+  --pt-radius-xs: 4px; --pt-radius-sm: 7px; --pt-radius-md: 9px; --pt-radius-lg: 12px; --pt-radius-xl: 17px; --pt-radius-pill: 999px;
+  --pt-shadow-1: 0 1px 2px rgba(15, 27, 45, .05), 0 2px 6px -2px rgba(15, 27, 45, .06);
+  --pt-shadow-2: 0 2px 4px rgba(15, 27, 45, .05), 0 12px 28px -12px rgba(15, 27, 45, .2);
+  --pt-shadow-3: 0 0 0 1px rgba(15, 27, 45, .05), 0 18px 48px -12px rgba(15, 27, 45, .3);
+  --pt-card-bg: #ffffff;
+  --pt-card-border: #e8ecf2;
+  --pt-card-shadow: var(--pt-shadow-1);
+  --pt-card-shadow-hover: var(--pt-shadow-2);
+  --pt-control-h: 44px;
+  --pt-button-h: 46px;
+  --pt-card-pad: 22px;
+  --pt-gap: 16px;
+  --pt-section-gap: 44px;
+  --pt-container: 1200px;
+  --pt-gutter: 24px;
+  --pt-header-h: 64px;
+  --pt-logo-h: 36px;
+  --pt-logo-w: 200px;
+  --pt-font: "Vazirmatn", "Vazir", Tahoma, system-ui, sans-serif;
+  --pt-font-size: 15px;
+  --pt-hero-bg: transparent;
+  --pt-hero-text: var(--pt-text);
+  --pt-hero-muted: var(--pt-muted);
+
+  /* Motion tokens: short and decelerating in, faster out. */
+  --pt-dur-1: 120ms;
+  --pt-dur-2: 180ms;
+  --pt-dur-3: 280ms;
+  --pt-ease-out: cubic-bezier(.2, .8, .2, 1);
+  --pt-ease-in: cubic-bezier(.4, 0, 1, 1);
+  --pt-ease-std: cubic-bezier(.2, 0, 0, 1);
+
+  /* Layering */
+  --pt-z-header: 1000;
+  --pt-z-float: 1100;
+}

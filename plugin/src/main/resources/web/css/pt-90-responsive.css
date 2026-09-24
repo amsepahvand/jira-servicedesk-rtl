@@ -1,0 +1,137 @@
+/* ==========================================================================================
+   Layer 90 — responsive (desktop-first overrides at 1024 / 768 / 480 px) and touch
+   ========================================================================================== */
+
+@media (max-width: 1024px) {
+  /* View request: the side panel (status, actions) comes first, above the conversation */
+  html.pt [data-pt~="request-layout"] { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  html.pt [data-pt~="request-side"] { position: static !important; order: -1; }
+  html.pt [data-pt~="request-actions"] { display: flex !important; flex-wrap: wrap; gap: 8px; }
+  html.pt [data-pt~="request-actions"] > li { flex: 1 1 200px; margin: 0 !important; }
+  html.pt .pt-footer-inner { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  html.pt .pt-footer-brand { grid-column: 1 / -1; }
+}
+
+@media (max-width: 768px) {
+  html.pt { --pt-gutter: 16px; --pt-header-h: 58px; --pt-section-gap: 32px; }
+  html.pt [data-pt~="content"] { padding-top: 22px !important; padding-bottom: 40px !important; }
+
+  /* Header: compact; text labels stay available to screen readers */
+  html.pt .pt-brand { gap: 10px; font-size: 15.5px !important; }
+  html.pt .pt-mark { width: 32px; height: 32px; font-size: 16px; }
+  html.pt .pt-logo { max-height: min(var(--pt-logo-h), 32px) !important; max-width: min(var(--pt-logo-w), 140px) !important; }
+  html.pt [data-pt~="header-button"],
+  html.pt .pt-back-jira { padding: 0 10px !important; }
+  html.pt .pt-back-jira-label {
+    position: absolute !important; width: 1px !important; height: 1px !important; overflow: hidden !important;
+    clip-path: inset(50%) !important; white-space: nowrap !important;
+  }
+  html.pt .pt-back-jira { width: 44px; justify-content: center; }
+
+  html.pt [data-pt~="hero-title"] { font-size: 25px !important; }
+  html.pt :is(.pt-hero-sub, [data-pt~="hero-text"]) { font-size: 15px; }
+  html.pt [data-pt~="search-input"] { height: 52px !important; font-size: 16px !important; }
+  html.pt [data-pt~="title"] { font-size: 21px !important; }
+  html.pt[data-pt-page="request"] [data-pt~="title"] { font-size: 20px !important; }
+
+  html.pt :is([data-pt~="portal-grid"], [data-pt~="rt-grid"]) { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  html.pt [data-pt~="group-list"] {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    margin-inline: calc(-1 * var(--pt-gutter)) !important;
+    padding: 2px var(--pt-gutter) 6px !important;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  html.pt [data-pt~="group-list"]::-webkit-scrollbar { display: none; }
+
+  /* Forms: full-width card, full-width primary action */
+  html.pt[data-pt-page="create"] #content .cv-page-body,
+  html.pt [data-pt~="form-card"] { padding: 22px 18px !important; border-radius: var(--pt-radius-lg) !important; }
+  html.pt [data-pt~="form-actions"] .buttons :is(.aui-button-primary, button[type="submit"]) { flex: 1 1 100%; }
+  html.pt [data-pt~="rt-heading-icon"] { width: 48px; height: 48px; }
+  html.pt [data-pt~="rt-heading-icon"] img { width: 26px !important; height: 26px !important; }
+  /* 16px inputs: iOS does not zoom the page when a field gets focus */
+  html.pt :is(input, select, textarea) { font-size: 16px !important; }
+
+  /* Request list: every row becomes a card with labelled values */
+  html.pt [data-pt~="table-wrap"] { background: transparent !important; border: 0 !important; box-shadow: none !important; overflow: visible; }
+  html.pt [data-pt~="table"] thead { display: none !important; }
+  html.pt [data-pt~="table"],
+  html.pt [data-pt~="table"] tbody { display: block !important; background: transparent !important; }
+  html.pt [data-pt~="table"] tbody tr {
+    display: block !important;
+    margin: 0 0 12px;
+    padding: 6px 16px;
+    background: var(--pt-card-bg);
+    border: 1px solid var(--pt-card-border);
+    border-radius: var(--pt-radius-lg);
+    box-shadow: var(--pt-card-shadow);
+  }
+  html.pt [data-pt~="table"] tbody tr:hover > td { background: transparent !important; }
+  html.pt [data-pt~="table"] tbody td {
+    display: flex !important;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    width: auto !important;
+    padding: 10px 0 !important;
+    border-block-end: 1px solid var(--pt-border) !important;
+    text-align: end !important;
+  }
+  html.pt [data-pt~="table"] tbody td:last-child { border-block-end: 0 !important; }
+  html.pt [data-pt~="table"] tbody td::before {
+    content: attr(data-pt-label);
+    flex: none;
+    color: var(--pt-muted);
+    font-size: 12.5px;
+    font-weight: 700;
+    text-align: start;
+  }
+  html.pt [data-pt~="table"] tbody td[data-pt-label=""]::before { display: none; }
+
+  /* Conversation */
+  html.pt [data-pt~="activity-item"] { padding: 16px !important; padding-inline-start: 60px !important; }
+  html.pt[dir="rtl"] [data-pt~="activity-item"] .aui-avatar { right: 14px !important; }
+  html.pt[dir="ltr"] [data-pt~="activity-item"] .aui-avatar { left: 14px !important; }
+  html.pt [data-pt~="comment-form"] { padding-inline-start: 0 !important; }
+  html.pt [data-pt~="comment-form"] .aui-avatar { display: none !important; }
+
+  /* Profile */
+  html.pt[data-pt-page="profile"] :is(.cv-page-sidebar, .vp-request-activity) { flex: 1 1 100%; }
+  html.pt[data-pt-page="profile"] .vp-request-activity { padding: 20px !important; }
+  html.pt [data-pt~="profile-row"] { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+
+  /* Dialogs use the full width minus a small margin */
+  html.pt .aui-dialog2 { width: calc(100vw - 24px) !important; }
+
+  html.pt .pt-footer-inner { grid-template-columns: minmax(0, 1fr); gap: 20px; padding-top: 28px; }
+  html.pt [data-pt~="login-card"] { padding: 28px 20px !important; }
+}
+
+@media (max-width: 480px) {
+  html.pt #header .cv-requests-nav__text {
+    position: absolute !important; width: 1px !important; height: 1px !important; overflow: hidden !important;
+    clip-path: inset(50%) !important; white-space: nowrap !important;
+  }
+  html.pt .pt-brand-name { max-width: 150px; }
+  html.pt [data-pt~="hero-title"] { font-size: 23px !important; }
+  html.pt [data-pt~="rt-card"] { padding-inline-end: calc(var(--pt-card-pad) + 12px) !important; }
+  html.pt [data-pt~="rt-card"]::after { inset-inline-end: 14px; }
+}
+
+/* Touch devices: never below 44px targets, even in the compact density; no hover lift */
+@media (pointer: coarse) {
+  html.pt :is(.aui-button, [data-pt~="header-button"], [data-pt~="group-link"], .pt-back-jira, .aui-dropdown2 a) { min-height: 44px !important; }
+  html.pt :is(input.text, input[type="text"], input[type="email"], input[type="search"], select, textarea) { min-height: 44px; }
+}
+@media (hover: none) {
+  html.pt :is([data-pt~="portal-card"], [data-pt~="rt-card"]):hover { transform: none !important; }
+}
+
+/* Printing a request: plain and readable */
+@media print {
+  html.pt :is([data-pt~="header"], .pt-footer, .pt-topbar, [data-pt~="request-actions"], [data-pt~="comment-box"]) { display: none !important; }
+  html.pt [data-pt~="request-layout"] { display: block !important; }
+  html.pt :is([data-pt~="activity-item"], [data-pt~="request-panel"]) { box-shadow: none !important; }
+}

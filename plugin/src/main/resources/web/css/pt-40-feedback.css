@@ -1,0 +1,126 @@
+/* ==========================================================================================
+   Layer 40 — feedback: status badges, messages, flags, dialogs, empty states, loading
+   ========================================================================================== */
+
+/* ---------- Status badges ----------
+   Colour is never the only signal: the status text is always shown; the dot adds a quick cue. */
+html.pt .aui-lozenge,
+html.pt [data-pt~="status-pill"] {
+  --st-bg: var(--pt-neutral-bg);
+  --st-fg: var(--pt-neutral-fg);
+  --st-dot: var(--pt-neutral-dot);
+  display: inline-flex !important;
+  align-items: center;
+  gap: 7px;
+  max-width: 100%;
+  padding: 2px 11px !important;
+  border: 0 !important;
+  border-radius: var(--pt-radius-pill) !important;
+  background: var(--st-bg) !important;
+  color: var(--st-fg) !important;
+  font-size: 12.5px !important;
+  font-weight: 650 !important;
+  line-height: 1.75 !important;
+  text-transform: none !important;
+  white-space: nowrap;
+}
+html.pt :is(.aui-lozenge, [data-pt~="status-pill"])::before {
+  content: "";
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--st-dot);
+}
+html.pt [data-pt~="status-pill"] > span { color: inherit !important; font-weight: inherit !important; text-transform: none !important; }
+html.pt [data-pt-status="new"]      { --st-bg: var(--pt-info-bg);    --st-fg: var(--pt-info-fg);    --st-dot: var(--pt-info-dot); }
+html.pt [data-pt-status="progress"] { --st-bg: var(--pt-warning-bg); --st-fg: var(--pt-warning-fg); --st-dot: var(--pt-warning-dot); }
+html.pt [data-pt-status="waiting"]  { --st-bg: var(--pt-accent-soft); --st-fg: var(--pt-accent-soft-text); --st-dot: var(--pt-accent); }
+html.pt [data-pt-status="done"]     { --st-bg: var(--pt-success-bg); --st-fg: var(--pt-success-fg); --st-dot: var(--pt-success-dot); }
+html.pt [data-pt-status="error"]    { --st-bg: var(--pt-error-bg);   --st-fg: var(--pt-error-fg);   --st-dot: var(--pt-error-dot); }
+
+/* ---------- Inline messages (AUI message) ---------- */
+html.pt .aui-message {
+  margin: 0 0 20px !important;
+  padding: 14px 18px !important;
+  background: var(--pt-surface) !important;
+  border: 1px solid var(--pt-border) !important;
+  border-inline-start: 4px solid var(--pt-info-dot) !important;
+  border-radius: var(--pt-radius-lg) !important;
+  box-shadow: var(--pt-shadow-1) !important;
+  color: var(--pt-text) !important;
+  text-align: start;
+}
+html.pt .aui-message::before { display: none !important; }
+html.pt .aui-message :is(.title, strong:first-child) { color: var(--pt-text) !important; font-weight: 700; }
+html.pt .aui-message.aui-message-success { border-inline-start-color: var(--pt-success-dot) !important; background: var(--pt-success-bg) !important; }
+html.pt .aui-message.aui-message-error { border-inline-start-color: var(--pt-error-dot) !important; background: var(--pt-error-bg) !important; }
+html.pt .aui-message.aui-message-warning { border-inline-start-color: var(--pt-warning-dot) !important; background: var(--pt-warning-bg) !important; }
+html.pt .aui-message.aui-message-success :is(p, span, li) { color: var(--pt-success-fg) !important; }
+html.pt .aui-message.aui-message-error :is(p, span, li) { color: var(--pt-error-fg) !important; }
+html.pt #aui-warning-context:empty { display: none !important; }
+
+/* Flags (toasts, e.g. "request created"): top of the viewport, never over focused fields */
+html.pt #aui-flag-container { inset-inline-end: 20px; inset-inline-start: auto; }
+html.pt .aui-flag .aui-message { box-shadow: var(--pt-shadow-3) !important; }
+
+/* ---------- Dialogs ---------- */
+html.pt .aui-dialog2 {
+  overflow: hidden;
+  border: 0 !important;
+  border-radius: var(--pt-radius-xl) !important;
+  box-shadow: var(--pt-shadow-3) !important;
+  background: var(--pt-surface) !important;
+  max-width: calc(100vw - 24px);
+  text-align: start;
+}
+html.pt :is(.aui-dialog2-header, .aui-dialog2-content, .aui-dialog2-footer) { border-radius: 0 !important; text-align: start; }
+html.pt .aui-dialog2-header { background: var(--pt-surface) !important; border-block-end: 1px solid var(--pt-border) !important; padding: 18px 24px !important; }
+html.pt .aui-dialog2-header-main { font-size: 18px !important; font-weight: 750 !important; }
+html.pt .aui-dialog2-content { padding: 20px 24px !important; }
+html.pt .aui-dialog2-footer { background: var(--pt-surface2) !important; border-block-start: 1px solid var(--pt-border) !important; padding: 14px 24px !important; }
+html.pt .aui-blanket { background: var(--pt-scrim) !important; }
+/* Atlaskit modal (React parts) */
+html.pt [role="dialog"][aria-modal="true"] section,
+html.pt [data-testid="modal-dialog"] { border-radius: var(--pt-radius-xl) !important; }
+
+/* ---------- Empty states ---------- */
+html.pt [data-pt~="empty"] {
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 56px 24px !important;
+  background: var(--pt-card-bg) !important;
+  border: 1px solid var(--pt-card-border) !important;
+  border-radius: var(--pt-radius-lg) !important;
+  box-shadow: var(--pt-card-shadow) !important;
+  color: var(--pt-muted);
+  text-align: center;
+}
+html.pt [data-pt~="empty"]::before {
+  content: "";
+  width: 48px;
+  height: 48px;
+  margin-bottom: 6px;
+  background: var(--pt-brand-soft-text);
+  opacity: .75;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round'%3E%3Cpath d='M3 13l3-8h12l3 8v6H3z'/%3E%3Cpath d='M3 13h5l1 2h6l1-2h5'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.4' stroke-linejoin='round' stroke-linecap='round'%3E%3Cpath d='M3 13l3-8h12l3 8v6H3z'/%3E%3Cpath d='M3 13h5l1 2h6l1-2h5'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+html.pt [data-pt~="empty"] :is(h2, h3, h4, strong, b) { color: var(--pt-text) !important; font-size: 17px !important; font-weight: 750 !important; }
+html.pt [data-pt~="empty"] p { max-width: 460px; margin: 0; }
+
+/* ---------- Loading ---------- */
+html.pt :is(.aui-spinner, aui-spinner) { color: var(--pt-brand); }
+
+/* ---------- Knowledge base suggestions while typing a request ---------- */
+html.pt [data-pt~="kb-suggestions"]:not(:empty) {
+  margin: 0 0 24px;
+  padding: 16px 20px;
+  background: var(--pt-accent-soft);
+  border: 1px solid color-mix(in srgb, var(--pt-accent) 30%, transparent);
+  border-radius: var(--pt-radius-lg);
+  color: var(--pt-accent-soft-text);
+}
+html.pt [data-pt~="kb-suggestions"] a { color: var(--pt-text) !important; font-weight: 600; }

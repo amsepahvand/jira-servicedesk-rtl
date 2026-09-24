@@ -1,0 +1,332 @@
+/* ==========================================================================================
+   Layer 20 — page shell: layout, header, brand, Back to Jira, page titles, footer
+   ========================================================================================== */
+
+/* ---------- Layout: Jira's fixed-width panels become one fluid, centred column ---------- */
+html.pt [data-pt~="page"] {
+  display: flex !important;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+  width: 100% !important;
+  background: transparent !important;
+  overflow-x: clip;
+}
+html.pt [data-pt~="page-bg-image"] { display: none !important; }
+
+html.pt [data-pt~="content"] {
+  display: block !important;
+  flex: 1 0 auto;
+  width: 100% !important;
+  max-width: var(--pt-container) !important;
+  margin: 0 auto !important;
+  padding: 36px var(--pt-gutter) 64px !important;
+  box-sizing: border-box;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+html.pt [data-pt~="main"] { display: block !important; width: auto !important; margin: 0 !important; padding: 0 !important; }
+html.pt [data-pt~="layout-reset"] {
+  display: block !important;
+  position: static !important;
+  float: none !important;
+  width: auto !important;
+  max-width: none !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+html.pt :is(.aui-page-panel, body.aui-page-fixed .aui-page-panel) {
+  display: block !important;
+  width: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+html.pt :is(.aui-page-panel-inner, .aui-page-header-inner) {
+  display: block !important;
+  width: auto !important;
+  max-width: none !important;
+  margin: 0 !important;
+}
+html.pt :is(.aui-page-panel-content, .aui-page-panel-sidebar) {
+  display: block !important;
+  width: auto !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+html.pt :is(.footer-web-panels, .header-web-panels, .subheader-web-panels):empty { display: none !important; }
+
+/* ---------- Header ---------- */
+html.pt [data-pt~="header"],
+html.pt .pt-topbar {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: var(--pt-z-header);
+  display: block !important;
+  min-height: var(--pt-header-h);
+  background: var(--pt-header) !important;
+  background-image: none !important;
+  border: 0 !important;
+  border-block-end: 1px solid var(--pt-header-border) !important;
+  box-shadow: none !important;
+}
+html.pt [data-pt~="header-bar"],
+html.pt .pt-topbar-inner {
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  max-width: var(--pt-container);
+  height: var(--pt-header-h);
+  margin: 0 auto !important;
+  padding: 0 var(--pt-gutter) !important;
+  box-sizing: border-box;
+  background: none !important;
+}
+html.pt #header :is(.cp-header-primary, .cp-logo) {
+  display: flex !important;
+  align-items: center;
+  min-width: 0;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Brand: uploaded logo (never distorted) or a monogram, plus the company name */
+html.pt .pt-brand {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  min-height: 44px;
+  color: var(--pt-on-header) !important;
+  font-size: 17px !important;
+  font-weight: 800 !important;
+  line-height: 1.2;
+  text-decoration: none !important;
+  border-radius: var(--pt-radius-sm);
+}
+html.pt .pt-brand:hover { color: var(--pt-on-header) !important; text-decoration: none !important; }
+html.pt .pt-logo-wrap { display: contents; }
+html.pt .pt-logo {
+  display: block;
+  width: auto !important;
+  height: auto !important;
+  max-height: var(--pt-logo-h) !important;
+  max-width: var(--pt-logo-w) !important;
+  object-fit: contain;
+  flex: none;
+}
+html.pt .pt-mark {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--pt-radius-md);
+  background: var(--pt-accent);
+  color: var(--pt-on-accent);
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1;
+}
+html.pt .pt-brand-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+html.pt [data-pt~="brand-logo"] { display: none !important; }
+
+/* Header actions: Requests, profile, Back to Jira */
+html.pt [data-pt~="header-actions"] {
+  display: flex !important;
+  align-items: center;
+  gap: 6px;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+html.pt #header .cp-header-item { display: flex; align-items: center; margin: 0 !important; padding: 0 !important; }
+html.pt [data-pt~="header-button"],
+html.pt .pt-back-jira {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 8px;
+  height: 40px !important;
+  padding: 0 14px !important;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  border-radius: var(--pt-radius-md) !important;
+  box-shadow: none !important;
+  color: var(--pt-on-header) !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  text-decoration: none !important;
+  white-space: nowrap;
+}
+html.pt [data-pt~="header-button"]:hover,
+html.pt [data-pt~="header-button"][aria-expanded="true"],
+html.pt .pt-back-jira:hover {
+  background: var(--pt-header-hover) !important;
+  color: var(--pt-on-header) !important;
+  text-decoration: none !important;
+}
+html.pt .pt-back-jira {
+  border-color: var(--pt-header-border) !important;
+}
+html.pt :is(#header .cv-requests-nav__text, #header .customize-text) { color: inherit !important; }
+html.pt [data-pt~="count-badge"] {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px !important;
+  border-radius: var(--pt-radius-pill) !important;
+  background: var(--pt-accent) !important;
+  background-image: none !important;
+  color: var(--pt-on-accent) !important;
+  box-shadow: none !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  line-height: 20px !important;
+  text-align: center;
+}
+html.pt [data-pt~="user-button"] {
+  display: inline-flex !important;
+  width: 40px;
+  height: 40px;
+  padding: 0 !important;
+  border: 2px solid var(--pt-header-border) !important;
+  border-radius: 50% !important;
+  background: none !important;
+  overflow: hidden;
+}
+html.pt [data-pt~="user-button"]:hover,
+html.pt [data-pt~="user-button"][aria-expanded="true"] { border-color: var(--pt-accent) !important; }
+html.pt [data-pt~="user-button"] :is(.cp-avatar, .cp-avatar-image, img) { width: 100% !important; height: 100% !important; border-radius: 50% !important; }
+
+/* Jira branding and admin-only tools (feature switches) */
+html.pt-hide-jira-brand [data-pt~="jira-footer"] { display: none !important; }
+html.pt-hide-admin [data-pt~="admin-tool"] { display: none !important; }
+
+/* Portal announcement: a calm banner, not a shouting band */
+html.pt [data-pt~="announcement"] {
+  margin: 0 0 24px !important;
+  padding: 14px 18px !important;
+  background: var(--pt-accent-soft) !important;
+  background-image: none !important;
+  border: 1px solid color-mix(in srgb, var(--pt-accent) 30%, transparent) !important;
+  border-radius: var(--pt-radius-lg) !important;
+  color: var(--pt-accent-soft-text) !important;
+  font-weight: 600;
+  text-align: start;
+}
+
+/* ---------- Page title: breadcrumbs + heading ---------- */
+html.pt [data-pt~="title-block"] {
+  display: block;
+  margin: 0 0 28px !important;
+  padding: 0 !important;
+  background: none !important;
+  text-align: start;
+}
+html.pt .cv-global-level-title { display: flex !important; align-items: center; gap: 16px; }
+html.pt :is(.aui-page-header-image, .aui-page-header-main) {
+  display: block !important;
+  float: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  text-align: start !important;
+}
+html.pt .aui-page-header-image { flex: none; }
+html.pt [data-pt~="breadcrumbs"] {
+  display: flex !important;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+  margin: 0 0 6px !important;
+  padding: 0 !important;
+  font-size: 13px;
+  line-height: 1.8;
+  list-style: none;
+}
+html.pt [data-pt~="breadcrumbs"] > li { display: inline-flex !important; align-items: center; margin: 0 !important; padding: 0 !important; }
+/* Separator chevron points in the reading direction (left in RTL). */
+html.pt [data-pt~="breadcrumbs"] > li + li::before {
+  content: "" !important;
+  width: 6px;
+  height: 6px;
+  margin: 0 10px;
+  padding: 0 !important;
+  border-inline-end: 1.5px solid var(--pt-subtle);
+  border-block-start: 1.5px solid var(--pt-subtle);
+  transform: rotate(45deg);
+  opacity: .7;
+}
+html.pt[dir="rtl"] [data-pt~="breadcrumbs"] > li + li::before { transform: rotate(-45deg); }
+html.pt [data-pt~="breadcrumbs"] a { color: var(--pt-muted) !important; font-weight: 500; }
+html.pt [data-pt~="breadcrumbs"] a:hover { color: var(--pt-brand-text) !important; }
+html.pt [data-pt~="title"] {
+  margin: 0 !important;
+  color: var(--pt-text) !important;
+  font-size: 26px !important;
+  font-weight: 800 !important;
+  line-height: 1.5 !important;
+}
+
+/* ---------- Footer ---------- */
+html.pt .pt-footer {
+  flex: none;
+  margin-top: auto;
+  background: var(--pt-surface);
+  border-block-start: 1px solid var(--pt-border);
+  color: var(--pt-muted);
+  font-size: 14px;
+}
+html.pt .pt-footer-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr);
+  gap: 28px 40px;
+  max-width: var(--pt-container);
+  margin: 0 auto;
+  padding: 36px var(--pt-gutter) 24px;
+  box-sizing: border-box;
+}
+html.pt .pt-footer-brand { display: flex; flex-direction: column; gap: 10px; }
+html.pt .pt-footer .pt-brand { color: var(--pt-text) !important; font-size: 16px !important; }
+html.pt .pt-footer .pt-mark { width: 32px; height: 32px; font-size: 16px; }
+html.pt .pt-footer p { margin: 0; }
+html.pt .pt-footer-links ul,
+html.pt .pt-footer-support ul { display: flex; flex-direction: column; gap: 6px; margin: 0; padding: 0; list-style: none; }
+html.pt .pt-footer-links a { display: inline-flex; min-height: 32px; align-items: center; color: var(--pt-text) !important; font-weight: 600; }
+html.pt .pt-footer-support h2 { margin: 0 0 10px; color: var(--pt-text); font-size: 15px !important; font-weight: 700; }
+html.pt .pt-footer-support p { margin: 0 0 10px; }
+html.pt .pt-footer-support li { display: flex; align-items: center; gap: 10px; min-height: 32px; }
+html.pt .pt-footer-support .pt-icon { width: 18px; height: 18px; color: var(--pt-subtle); }
+html.pt .pt-footer-support a { color: var(--pt-text) !important; font-weight: 600; unicode-bidi: isolate; }
+html.pt .pt-copyright {
+  grid-column: 1 / -1;
+  padding-top: 18px;
+  border-block-start: 1px solid var(--pt-border);
+  color: var(--pt-subtle);
+  font-size: 13px;
+}
+
+/* Our top bar exists only on login-type pages */
+html.pt .pt-topbar { flex: none; }
+
+/* Preview pill (admin "preview on portal") */
+html.pt .pt-preview-pill {
+  position: fixed;
+  z-index: var(--pt-z-float);
+  inset-block-end: 16px;
+  inset-inline-end: 16px;
+  padding: 8px 14px;
+  border-radius: var(--pt-radius-pill);
+  background: var(--pt-text);
+  color: var(--pt-surface);
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: var(--pt-shadow-3);
+}

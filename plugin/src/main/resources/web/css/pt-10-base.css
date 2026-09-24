@@ -1,0 +1,126 @@
+/* ==========================================================================================
+   Layer 10 — base: typography, colour, focus, bidi, loading state
+   ========================================================================================== */
+
+html.pt {
+  background: var(--pt-bg) !important;
+  color-scheme: light;
+  -webkit-text-size-adjust: 100%;
+}
+
+html.pt body {
+  min-width: 0 !important;
+  margin: 0;
+  background: transparent !important;
+  color: var(--pt-text);
+  font-family: var(--pt-font) !important;
+  font-size: var(--pt-font-size);
+  line-height: 1.75;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* One font everywhere in the portal. Jira/AUI and Atlaskit set font-family on many elements. */
+html.pt body :is(h1, h2, h3, h4, h5, h6, p, a, span, div, li, dt, dd, label, legend, button, input, select,
+  textarea, td, th, strong, b, small, time, section, header, footer, nav, article) {
+  font-family: var(--pt-font) !important;
+  letter-spacing: 0 !important;
+}
+
+html.pt :is(h1, h2, h3, h4) { color: var(--pt-text); text-transform: none; letter-spacing: 0; }
+html.pt h1 { font-size: 26px; font-weight: 800; line-height: 1.5; }
+html.pt h2 { font-size: 19px; font-weight: 750; line-height: 1.6; }
+html.pt h3 { font-size: 16px; font-weight: 700; line-height: 1.6; }
+
+html.pt a { color: var(--pt-brand-text); text-decoration: none; text-underline-offset: 4px; }
+html.pt a:hover { color: var(--pt-brand-text); text-decoration: underline; text-decoration-thickness: 1.5px; }
+
+html.pt ::selection { background: var(--pt-selection); color: var(--pt-text); }
+
+/* Focus: always visible for keyboard users, never for mouse clicks. */
+html.pt :focus { outline: none; }
+html.pt :focus-visible {
+  outline: 2px solid var(--pt-focus) !important;
+  outline-offset: 2px !important;
+  box-shadow: none;
+}
+html.pt :is(input, textarea, select):focus-visible { outline: none !important; }
+
+html.pt .pt-sr-only,
+html.pt [data-pt~="search-label"] {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: -1px !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* Skip link: hidden until focused, then a clear pill at the top. */
+html.pt .aui-skip-link:not(:focus),
+html.pt .aui-skip-link:not(:focus-visible) {
+  position: absolute !important;
+  inset-inline-start: -9999px;
+}
+html.pt .aui-skip-link:focus-visible {
+  position: fixed !important;
+  z-index: var(--pt-z-float);
+  inset-block-start: 12px;
+  inset-inline-start: 12px;
+  padding: 10px 16px;
+  border-radius: var(--pt-radius-pill);
+  background: var(--pt-brand);
+  color: var(--pt-on-brand) !important;
+  box-shadow: var(--pt-shadow-3);
+}
+
+/* ---------- Bidirectional text ----------
+   User-written content (summaries, comments, descriptions) gets dir="auto" from pt-enhance.js:
+   an English comment stays left-to-right inside the Persian page. Identifiers are isolated. */
+html.pt [dir="auto"] { unicode-bidi: plaintext; text-align: start; }
+html.pt [data-pt~="ltr-token"],
+html.pt [data-pt~="issue-key"] { direction: ltr; unicode-bidi: isolate; }
+html.pt :is(input[type="email"], input[type="url"], input[type="tel"], input[type="password"], input[name="username"], code, pre, kbd, samp) {
+  direction: ltr;
+  text-align: left;
+  unicode-bidi: isolate;
+}
+html.pt :is(code, pre, kbd, samp) { font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace !important; }
+
+/* Icons that point in the reading direction are mirrored in RTL. */
+html.pt[dir="rtl"] .pt-flip-rtl { transform: scaleX(-1); }
+
+/* Figures in data (keys, dates in tables) line up. */
+html.pt :is(table, [data-pt~="ltr-token"], time) { font-variant-numeric: tabular-nums; }
+
+/* ---------- Loading state ----------
+   Until the first tagging/translation pass is done the page content stays invisible (header and
+   background remain, so navigation never "blinks"). pt-boot.js reveals it within 700 ms at most,
+   and the animation below is a safety net if the script dies. */
+html.pt.pt-loading :is(#content, #pt-footer, .cv-page-contents-container) {
+  opacity: 0;
+  animation: pt-safety-reveal 0s linear 2.5s forwards;
+}
+@keyframes pt-safety-reveal { to { opacity: 1; } }
+
+/* Our own icons */
+html.pt .pt-icon { width: 20px; height: 20px; flex: none; }
+
+/* Jira pages without JS-generated hooks must not scroll sideways in RTL: the hidden file inputs
+   sit at left:-9999px, which in RTL widens the page. Put them over their button instead. */
+html.pt :is(.cv-attachment-label, label.js-attach) { position: relative !important; overflow: hidden !important; }
+html.pt :is(input.attachment-control, input.request-attachment) {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  opacity: 0 !important;
+  cursor: pointer;
+  font-size: 0 !important;
+}

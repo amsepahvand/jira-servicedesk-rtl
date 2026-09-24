@@ -1,0 +1,79 @@
+/*!
+ * Portal Theme — admin live preview. A miniature portal built only from the --pt-* tokens that
+ * pt-tokens.js generates for ".pt-preview", so it reflects exactly what customers will see.
+ */
+#pt-admin .pt-preview {
+  overflow: hidden;
+  margin: 0 auto;
+  border-radius: 10px;
+  background: var(--pt-bg);
+  color: var(--pt-text);
+  font-family: var(--pt-font);
+  font-size: 13px;
+  line-height: 1.7;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .12);
+}
+#pt-admin .pt-preview.is-mobile { max-width: 340px; }
+#pt-admin .pt-preview * { font-family: inherit; box-sizing: border-box; }
+#pt-admin .pt-preview .pv-header {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  height: 48px; padding: 0 14px;
+  background: var(--pt-header); color: var(--pt-on-header);
+  border-bottom: 1px solid var(--pt-header-border);
+}
+#pt-admin .pt-preview .pv-brand { display: flex; align-items: center; gap: 8px; min-width: 0; font-weight: 800; font-size: 13.5px; }
+#pt-admin .pt-preview .pv-logo { max-height: min(var(--pt-logo-h), 28px); max-width: min(var(--pt-logo-w), 120px); object-fit: contain; }
+#pt-admin .pt-preview .pv-mark { display: grid; place-items: center; width: 26px; height: 26px; border-radius: var(--pt-radius-sm); background: var(--pt-accent); color: var(--pt-on-accent); font-size: 13px; }
+#pt-admin .pt-preview .pv-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#pt-admin .pt-preview .pv-nav { display: flex; align-items: center; gap: 6px; }
+#pt-admin .pt-preview .pv-headbtn { display: inline-flex; align-items: center; gap: 6px; padding: 3px 8px; border-radius: var(--pt-radius-sm); font-weight: 600; font-size: 12px; white-space: nowrap; }
+#pt-admin .pt-preview .pv-back { border: 1px solid var(--pt-header-border); }
+#pt-admin .pt-preview .pv-badge { display: inline-grid; place-items: center; min-width: 18px; height: 18px; padding: 0 5px; border-radius: var(--pt-radius-pill); background: var(--pt-accent); color: var(--pt-on-accent); font-size: 11px; }
+#pt-admin .pt-preview .pv-avatar { width: 26px; height: 26px; border-radius: 50%; background: var(--pt-surface3); border: 2px solid var(--pt-header-border); }
+#pt-admin .pt-preview .pv-hero { padding: 22px 16px 16px; background: var(--pt-hero-bg); color: var(--pt-hero-text); }
+#pt-admin .pt-preview .pv-hero h1 { margin: 0; color: inherit; font-size: 19px; font-weight: 800; line-height: 1.5; }
+#pt-admin .pt-preview .pv-hero p { margin: 4px 0 12px; color: var(--pt-hero-muted); }
+#pt-admin .pt-preview .pv-search {
+  display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px;
+  border: 1px solid var(--pt-border); border-radius: var(--pt-radius-lg); background: var(--pt-surface);
+  color: var(--pt-subtle); box-shadow: var(--pt-shadow-2);
+}
+#pt-admin .pt-preview .pv-search-icon { width: 12px; height: 12px; border: 2px solid var(--pt-subtle); border-radius: 50%; }
+#pt-admin .pt-preview .pv-body { padding: 4px 16px 16px; }
+#pt-admin .pt-preview .pv-section { display: flex; align-items: center; gap: 8px; margin: 10px 0; color: var(--pt-text); font-size: 14px; font-weight: 800; }
+#pt-admin .pt-preview .pv-section::before { content: ""; width: 3px; height: 14px; border-radius: 2px; background: var(--pt-accent); }
+#pt-admin .pt-preview .pv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+#pt-admin .pt-preview.is-mobile .pv-grid { grid-template-columns: 1fr; }
+#pt-admin .pt-preview .pv-card {
+  display: flex; gap: 10px; padding: 12px;
+  background: var(--pt-card-bg); border: 1px solid var(--pt-card-border); border-radius: var(--pt-radius-lg); box-shadow: var(--pt-card-shadow);
+}
+#pt-admin .pt-preview .pv-card strong { display: block; font-size: 13px; }
+#pt-admin .pt-preview .pv-card p { margin: 2px 0 0; color: var(--pt-muted); font-size: 12px; line-height: 1.6; }
+#pt-admin .pt-preview .pv-tile { flex: none; width: 32px; height: 32px; border-radius: var(--pt-radius-md); background: var(--pt-brand-soft); box-shadow: inset 0 0 0 9px var(--pt-brand-soft), inset 0 0 0 16px var(--pt-brand-soft-text); opacity: .9; }
+#pt-admin .pt-preview .pv-form {
+  margin: 14px 0; padding: 14px;
+  background: var(--pt-card-bg); border: 1px solid var(--pt-card-border); border-radius: var(--pt-radius-xl); box-shadow: var(--pt-card-shadow);
+}
+#pt-admin .pt-preview .pv-form label { display: block; margin: 0 0 4px; font-weight: 650; font-size: 12.5px; }
+#pt-admin .pt-preview .pv-req { color: var(--pt-error-dot); }
+#pt-admin .pt-preview .pv-input { height: 32px; margin-bottom: 10px; border: 1px solid var(--pt-border-strong); border-radius: var(--pt-radius-md); background: var(--pt-surface); }
+#pt-admin .pt-preview .pv-input--error { margin-bottom: 4px; border-color: var(--pt-error-dot); }
+#pt-admin .pt-preview .pv-input--focus { border-color: var(--pt-focus); box-shadow: var(--pt-focus-glow); }
+#pt-admin .pt-preview .pv-error { margin: 0 0 10px; color: var(--pt-error-fg); font-size: 11.5px; font-weight: 600; }
+#pt-admin .pt-preview .pv-actions { display: flex; gap: 8px; padding-top: 10px; border-top: 1px solid var(--pt-border); }
+#pt-admin .pt-preview .pv-btn { display: inline-flex; align-items: center; height: 32px; padding: 0 14px; border: 1px solid var(--pt-border); border-radius: var(--pt-radius-md); background: var(--pt-surface); font-weight: 600; font-size: 12.5px; }
+#pt-admin .pt-preview .pv-btn--primary { background: var(--pt-brand); border-color: var(--pt-brand); color: var(--pt-on-brand); font-weight: 700; }
+#pt-admin .pt-preview .pv-list { overflow: hidden; background: var(--pt-card-bg); border: 1px solid var(--pt-card-border); border-radius: var(--pt-radius-lg); box-shadow: var(--pt-card-shadow); }
+#pt-admin .pt-preview .pv-row { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-bottom: 1px solid var(--pt-border); }
+#pt-admin .pt-preview .pv-row:last-child { border-bottom: 0; }
+#pt-admin .pt-preview .pv-key { color: var(--pt-muted); font-size: 11.5px; font-variant-numeric: tabular-nums; }
+#pt-admin .pt-preview .pv-sum { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 650; unicode-bidi: plaintext; }
+#pt-admin .pt-preview .pv-pill { display: inline-flex; align-items: center; gap: 5px; padding: 0 8px; border-radius: var(--pt-radius-pill); font-size: 11px; font-weight: 650; white-space: nowrap; }
+#pt-admin .pt-preview .pv-pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: .8; }
+#pt-admin .pt-preview .pv-pill[data-st="progress"] { background: var(--pt-warning-bg); color: var(--pt-warning-fg); }
+#pt-admin .pt-preview .pv-pill[data-st="done"] { background: var(--pt-success-bg); color: var(--pt-success-fg); }
+#pt-admin .pt-preview .pv-pill[data-st="waiting"] { background: var(--pt-accent-soft); color: var(--pt-accent-soft-text); }
+#pt-admin .pt-preview.is-mobile .pv-key { display: none; }
+#pt-admin .pt-preview .pv-footer { padding: 12px 16px; border-top: 1px solid var(--pt-border); background: var(--pt-surface); color: var(--pt-muted); font-size: 12px; }
+#pt-admin .pt-preview[data-card="flat"] :is(.pv-card, .pv-form, .pv-list) { border-color: transparent; }

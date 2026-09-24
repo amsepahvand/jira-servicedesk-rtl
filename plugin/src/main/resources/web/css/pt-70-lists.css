@@ -1,0 +1,142 @@
+/* ==========================================================================================
+   Layer 70 — request lists, approvals, profile
+   ========================================================================================== */
+
+/* ---------- Toolbar: filters and search ---------- */
+html.pt [data-pt~="list-toolbar"] { margin: 0 0 20px !important; }
+html.pt [data-pt~="filters"] {
+  display: flex !important;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 0 !important;
+  padding: 0 !important;
+  list-style: none;
+}
+html.pt .cp-filter-container { float: none !important; margin: 0 !important; }
+html.pt ul.cp-filter-list > li { display: block !important; flex: 0 0 auto; width: auto !important; }
+html.pt .cp-filter-list .aui-button { max-width: 260px; border-radius: var(--pt-radius-pill) !important; }
+html.pt [data-pt~="filter-search"] { position: relative; flex: 1 1 260px; min-width: 200px; }
+html.pt [data-pt~="filter-search"] input { height: var(--pt-control-h); padding-block: 0 !important; padding-inline: 40px 14px !important; }
+html.pt[dir="rtl"] :is(.cp-filter-text-input-clear-icon, .cp-filter-text-input-search-icon, [data-pt~="filter-search"] > .aui-iconfont-search) {
+  right: 12px !important; left: auto !important;
+}
+html.pt[dir="ltr"] :is(.cp-filter-text-input-clear-icon, .cp-filter-text-input-search-icon, [data-pt~="filter-search"] > .aui-iconfont-search) {
+  left: 12px !important; right: auto !important;
+}
+html.pt :is(.cp-filter-text-input-clear-icon, .cp-filter-text-input-search-icon, [data-pt~="filter-search"] > .aui-iconfont-search) {
+  top: 50% !important;
+  transform: translateY(-50%);
+  height: auto !important;
+  color: var(--pt-subtle);
+}
+
+/* ---------- Requests: an inbox, not a spreadsheet ---------- */
+html.pt [data-pt~="table-wrap"] {
+  overflow-x: auto;
+  padding: 0 !important;
+  min-height: 0 !important;
+  height: auto !important;
+  background: var(--pt-card-bg) !important;
+  border: 1px solid var(--pt-card-border) !important;
+  border-radius: var(--pt-radius-lg) !important;
+  box-shadow: var(--pt-card-shadow) !important;
+}
+html.pt [data-pt~="table-wrap"] > div { margin-bottom: 0 !important; }
+html.pt [data-pt~="table"] {
+  width: 100% !important;
+  margin: 0 !important;
+  border: 0 !important;
+  border-collapse: collapse !important;
+}
+html.pt [data-pt~="table"] thead th {
+  padding: 12px 18px !important;
+  background: var(--pt-surface2) !important;
+  border: 0 !important;
+  border-block-end: 1px solid var(--pt-border) !important;
+  color: var(--pt-muted) !important;
+  font-size: 12.5px !important;
+  font-weight: 700 !important;
+  text-align: start !important;
+  white-space: nowrap;
+}
+html.pt [data-pt~="table"] thead th * { color: inherit !important; font-weight: inherit !important; }
+html.pt [data-pt~="table"] tbody td {
+  padding: 15px 18px !important;
+  border: 0 !important;
+  border-block-end: 1px solid var(--pt-border) !important;
+  text-align: start !important;
+  vertical-align: middle !important;
+}
+html.pt [data-pt~="table"] tbody tr:last-child td { border-block-end: 0 !important; }
+html.pt [data-pt~="table"] tbody tr:hover > td { background: var(--pt-surface2) !important; }
+html.pt [data-pt~="table"] a { color: var(--pt-text) !important; font-weight: 650; }
+html.pt [data-pt~="table"] a:hover { color: var(--pt-brand-text) !important; }
+html.pt [data-pt~="table"] img.vp-rq-icon { width: 22px !important; height: 22px !important; }
+
+/* Pagination */
+html.pt :is([data-pt~="table-wrap"] ~ div) { margin-top: 16px; }
+html.pt [data-pt~="pagination"] button,
+html.pt nav li > button {
+  min-width: 40px;
+  min-height: 40px;
+  border-radius: var(--pt-radius-md) !important;
+}
+html.pt button[aria-current="page"] {
+  background: var(--pt-brand) !important;
+  border-color: var(--pt-brand) !important;
+  color: var(--pt-on-brand) !important;
+}
+html.pt[dir="rtl"] :is([aria-label="Previous page"], [aria-label="Next page"], [aria-label="صفحه‌ی قبل"], [aria-label="صفحه‌ی بعد"]) svg { transform: scaleX(-1); }
+
+/* ---------- Profile ---------- */
+html.pt[data-pt-page="profile"] .cv-page-title :is(.aui-avatar-large, .aui-avatar-inner) { width: 64px !important; height: 64px !important; }
+html.pt[data-pt-page="profile"] .aui-page-panel-content {
+  display: flex !important;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 24px;
+}
+html.pt[data-pt-page="profile"] .cv-page-content-header { flex: 1 1 100%; }
+html.pt[data-pt-page="profile"] .cv-page-content-header:empty { display: none !important; }
+html.pt[data-pt-page="profile"] .cv-page-sidebar,
+html.pt[data-pt-page="profile"] .vp-request-activity {
+  float: none !important;
+  width: auto !important;
+  margin: 0 !important;
+  background: var(--pt-card-bg) !important;
+  border: 1px solid var(--pt-card-border) !important;
+  border-radius: var(--pt-radius-lg) !important;
+  box-shadow: var(--pt-card-shadow) !important;
+}
+html.pt[data-pt-page="profile"] .cv-page-sidebar { flex: 0 0 260px; padding: 20px !important; }
+html.pt[data-pt-page="profile"] .vp-request-activity { flex: 1 1 420px; padding: 28px 32px !important; }
+html.pt :is(.profile-options-title, .profile-view-title) {
+  margin: 28px 0 8px !important;
+  padding: 0 !important;
+  font-size: 16px !important;
+  font-weight: 800 !important;
+}
+html.pt .profile-options-title { margin-top: 0 !important; }
+html.pt ul.request-actions { margin: 0 !important; padding: 0 !important; list-style: none; }
+html.pt ul.request-actions li { margin: 0 !important; }
+html.pt ul.request-actions a {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  border-block-end: 1px solid var(--pt-border);
+  color: var(--pt-text) !important;
+  font-weight: 600;
+}
+html.pt ul.request-actions li:last-child a { border-block-end: 0; }
+html.pt [data-pt~="profile-row"] {
+  display: grid !important;
+  grid-template-columns: 200px minmax(0, 1fr);
+  gap: 12px;
+  margin: 0 !important;
+  padding: 14px 0 !important;
+  border-block-end: 1px solid var(--pt-border);
+}
+html.pt [data-pt~="profile-row"] :is(dt, dd) { float: none !important; width: auto !important; margin: 0 !important; padding: 0 !important; text-align: start; }
+html.pt [data-pt~="profile-row"] dt { color: var(--pt-muted); font-weight: 600; }
+html.pt [data-pt~="profile-row"] dd { color: var(--pt-text); font-weight: 600; overflow-wrap: anywhere; }

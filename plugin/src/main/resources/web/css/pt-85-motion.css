@@ -1,0 +1,80 @@
+/* ==========================================================================================
+   Layer 85 — motion
+   Active only with html.pt-motion (motion setting on AND the OS does not ask for reduced motion).
+   Only opacity and transform are animated: no layout shift, compositor-only. Animations use
+   fill-mode "backwards", so when they end the element is in its normal state, and nothing waits
+   for an animation to finish before it becomes usable.
+   ========================================================================================== */
+
+@keyframes pt-enter { from { opacity: 0; transform: translateY(8px); } }
+@keyframes pt-enter-a { from { opacity: 0; transform: translateY(8px); } }
+@keyframes pt-enter-b { from { opacity: 0; transform: translateY(8px); } }
+@keyframes pt-fade { from { opacity: 0; } }
+@keyframes pt-pop { from { opacity: 0; transform: translateY(-4px) scale(.985); } }
+@keyframes pt-dialog { from { opacity: 0; transform: translateY(10px) scale(.985); } }
+
+/* Page entrance; data-pt-swap alternates on in-portal navigation so it plays again. */
+html.pt-motion.pt-ready [data-pt~="main"] { animation: pt-enter var(--pt-dur-3) var(--pt-ease-out) backwards; }
+html.pt-motion.pt-ready[data-pt-swap="a"] [data-pt~="main"] { animation-name: pt-enter-a; }
+html.pt-motion.pt-ready[data-pt-swap="b"] [data-pt~="main"] { animation-name: pt-enter-b; }
+
+/* Cards arrive in a short stagger (first 8 only; the rest simply appear). */
+html.pt-motion.pt-ready :is([data-pt~="portal-grid"], [data-pt~="rt-grid"]) > li { animation: pt-enter var(--pt-dur-3) var(--pt-ease-out) backwards; }
+html.pt-motion.pt-ready :is([data-pt~="portal-grid"], [data-pt~="rt-grid"]) > li:nth-child(2) { animation-delay: 30ms; }
+html.pt-motion.pt-ready :is([data-pt~="portal-grid"], [data-pt~="rt-grid"]) > li:nth-child(3) { animation-delay: 60ms; }
+html.pt-motion.pt-ready :is([data-pt~="portal-grid"], [data-pt~="rt-grid"]) > li:nth-child(4) { animation-delay: 90ms; }
+html.pt-motion.pt-ready :is([data-pt~="portal-grid"], [data-pt~="rt-grid"]) > li:nth-child(5) { animation-delay: 120ms; }
+html.pt-motion.pt-ready :is([data-pt~="portal-grid"], [data-pt~="rt-grid"]) > li:nth-child(6) { animation-delay: 150ms; }
+html.pt-motion.pt-ready :is([data-pt~="portal-grid"], [data-pt~="rt-grid"]) > li:nth-child(7) { animation-delay: 180ms; }
+html.pt-motion.pt-ready :is([data-pt~="portal-grid"], [data-pt~="rt-grid"]) > li:nth-child(n+8) { animation-delay: 210ms; }
+
+/* Hover / press feedback */
+html.pt-motion :is([data-pt~="portal-card"], [data-pt~="rt-card"]) {
+  transition: transform var(--pt-dur-2) var(--pt-ease-out), box-shadow var(--pt-dur-2) ease, border-color var(--pt-dur-2) ease !important;
+}
+html.pt-motion :is([data-pt~="portal-card"], [data-pt~="rt-card"]):hover { transform: translateY(-2px); }
+html.pt-motion :is([data-pt~="portal-card"], [data-pt~="rt-card"]):active { transform: translateY(0) scale(.995); transition-duration: var(--pt-dur-1) !important; }
+html.pt-motion [data-pt~="rt-card"]::after { transition: transform var(--pt-dur-2) var(--pt-ease-out), opacity var(--pt-dur-2) ease; }
+html.pt-motion[dir="rtl"] [data-pt~="rt-card"]:hover::after { transform: translateX(-3px) rotate(-45deg); }
+html.pt-motion[dir="ltr"] [data-pt~="rt-card"]:hover::after { transform: translateX(3px) rotate(45deg); }
+
+html.pt-motion :is(.aui-button, #login-button, [data-pt~="group-link"], .pt-back-jira, button[data-appearance]) {
+  transition: background-color var(--pt-dur-1) ease, border-color var(--pt-dur-1) ease, color var(--pt-dur-1) ease,
+    box-shadow var(--pt-dur-1) ease, transform var(--pt-dur-1) ease !important;
+}
+html.pt-motion :is(.aui-button, #login-button, [data-pt~="group-link"], button[data-appearance]):active:not([disabled]) { transform: scale(.98); }
+html.pt-motion [data-pt~="table"] tbody tr > td { transition: background-color var(--pt-dur-1) ease; }
+html.pt-motion [data-pt~="dropzone"] { transition: border-color var(--pt-dur-2) ease, background-color var(--pt-dur-2) ease; }
+
+/* Menus and dialogs grow out of their trigger area */
+html.pt-motion .aui-dropdown2[aria-hidden="false"],
+html.pt-motion .aui-dropdown2.aui-dropdown2-in-header[open],
+html.pt-motion .aui-dropdown2[open] { animation: pt-pop var(--pt-dur-2) var(--pt-ease-out); }
+html.pt-motion .aui-dialog2:not([aria-hidden="true"]) { animation: pt-dialog var(--pt-dur-3) var(--pt-ease-out); }
+html.pt-motion .aui-blanket:not([aria-hidden="true"]) { animation: pt-fade var(--pt-dur-2) ease; }
+html.pt-motion .aui-flag:not([aria-hidden="true"]) { animation: pt-pop var(--pt-dur-3) var(--pt-ease-out); }
+
+/* Status and new conversation items */
+html.pt-motion.pt-ready [data-pt~="request-status"] .aui-lozenge { animation: pt-pop var(--pt-dur-3) var(--pt-ease-out) 120ms backwards; }
+html.pt-motion [data-pt~="field-error"]:not(:empty) { animation: pt-fade var(--pt-dur-2) ease; }
+html.pt-motion [data-pt~="activity"] > li:first-child { animation: pt-enter var(--pt-dur-3) var(--pt-ease-out) backwards; }
+
+/* "Reduced" setting: keep only fades, no movement. */
+html.pt-motion.pt-motion-reduced :is([data-pt~="main"], [data-pt~="portal-grid"] > li, [data-pt~="rt-grid"] > li,
+  .aui-dropdown2, .aui-dialog2, .aui-flag, [data-pt~="activity"] > li, [data-pt~="request-status"] .aui-lozenge) { animation-name: pt-fade !important; }
+html.pt-motion.pt-motion-reduced :is([data-pt~="portal-card"], [data-pt~="rt-card"]):is(:hover, :active),
+html.pt-motion.pt-motion-reduced :is(.aui-button, #login-button, [data-pt~="group-link"], button[data-appearance]):active { transform: none !important; }
+
+/* The OS setting always wins (also covers users who change it while the page is open). */
+@media (prefers-reduced-motion: reduce) {
+  html.pt *,
+  html.pt *::before,
+  html.pt *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  html.pt :is([data-pt~="portal-card"], [data-pt~="rt-card"]):hover { transform: none !important; }
+}

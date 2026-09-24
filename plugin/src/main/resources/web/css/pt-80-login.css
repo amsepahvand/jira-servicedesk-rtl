@@ -1,0 +1,71 @@
+/* ==========================================================================================
+   Layer 80 — portal login and sign-up (a branded card; the generic Jira chrome is hidden)
+   ========================================================================================== */
+
+html.pt[data-pt-page="login"] :is([data-pt~="header"], [data-pt~="jira-footer"], [data-pt~="login-banner"]) { display: none !important; }
+html.pt[data-pt-page="login"] :is(#content, #react-container, [data-pt~="panel"]) {
+  display: block !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: none !important;
+}
+html.pt[data-pt-page="login"] [data-pt~="page"] { background: var(--pt-hero-bg), var(--pt-bg) !important; }
+
+html.pt [data-pt~="login-shell"] {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100dvh - var(--pt-header-h) - 180px);
+  padding: 48px 16px !important;
+  background: none !important;
+  box-sizing: border-box;
+}
+html.pt [data-pt~="login-shell"] > div { display: block !important; width: 100% !important; max-width: 440px; margin: 0 auto !important; padding: 0 !important; background: none !important; }
+html.pt [data-pt~="login-shell"] > div > div { display: block !important; width: 100% !important; margin: 0 !important; padding: 0 !important; background: none !important; }
+html.pt [data-pt~="login-card"] {
+  width: 100% !important;
+  max-width: 440px;
+  margin: 0 auto !important;
+  padding: 40px 36px 36px !important;
+  background: var(--pt-surface) !important;
+  border: 1px solid var(--pt-card-border) !important;
+  border-radius: var(--pt-radius-xl) !important;
+  box-shadow: var(--pt-shadow-3) !important;
+  box-sizing: border-box;
+}
+html.pt [data-pt~="login-card"] > div { padding: 0 !important; margin: 0 !important; box-shadow: none !important; border: 0 !important; background: none !important; }
+html.pt [data-pt~="login-header"] { margin: 0 0 28px !important; text-align: start !important; }
+html.pt [data-pt~="login-header"] h1 { margin: 0 0 6px !important; font-size: 23px !important; font-weight: 800 !important; text-align: start !important; }
+html.pt [data-pt~="login-header"] span { color: var(--pt-muted) !important; font-size: 14.5px !important; }
+html.pt [data-pt~="login-form"] > div { margin: 0 0 18px !important; }
+html.pt [data-pt~="login-form"] label {
+  display: block;
+  margin: 0 0 8px !important;
+  color: var(--pt-text) !important;
+  font-size: 14px !important;
+  font-weight: 650 !important;
+  text-align: start;
+}
+html.pt [data-pt~="login-form"] label:has(input[type="checkbox"]) { display: inline-flex !important; align-items: center; gap: 8px; font-weight: 500 !important; cursor: pointer; }
+html.pt [data-pt~="login-form"] div:has(> input[name="username"]),
+html.pt [data-pt~="login-form"] div:has(> input[name="password"]) {
+  display: flex !important;
+  align-items: center;
+  min-height: 48px !important;
+  padding: 0 14px !important;
+  background: var(--pt-surface) !important;
+  border: 1px solid var(--pt-border-strong) !important;
+  border-radius: var(--pt-radius-md) !important;
+  box-shadow: none !important;
+  box-sizing: border-box;
+}
+html.pt [data-pt~="login-form"] div:has(> input[name="username"]):focus-within,
+html.pt [data-pt~="login-form"] div:has(> input[name="password"]):focus-within { border-color: var(--pt-focus) !important; box-shadow: var(--pt-focus-glow) !important; }
+html.pt [data-pt~="login-form"] :is(input[name="username"], input[name="password"]) { flex: 1; height: 46px !important; font-size: 16px !important; }
+html.pt [data-pt~="login-form"] button[data-testid="toggle-password-button"] { min-width: 40px; min-height: 40px; background: none !important; border: 0 !important; }
+html.pt [data-pt~="login-form"] footer { display: block !important; margin: 26px 0 0 !important; padding: 0 !important; }
+html.pt #login-button { width: 100% !important; }
+html.pt #login-button > span { display: inline-flex !important; align-items: center; height: auto !important; line-height: 1.4 !important; margin: 0 !important; }
+html.pt #login-message:not(:empty) { margin: 0 0 18px; }
+html.pt[data-pt-page="login"] .pt-footer :is(.pt-footer-links, .pt-footer-support) { display: none; }
