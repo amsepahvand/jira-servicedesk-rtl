@@ -8,7 +8,7 @@
   var PT = root.PortalTheme || {};
   root.PortalTheme = PT;
 
-  PT.version = '1.2.0';
+  PT.version = '1.2.1';
   PT.PLUGIN_KEY = 'io.portaltheme.jsm-portal-theme';
 
   var hasOwn = Object.prototype.hasOwnProperty;

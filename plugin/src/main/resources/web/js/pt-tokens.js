@@ -227,6 +227,10 @@
     put('radius-pill', r === 0 ? '0' : '999px');
 
     // Depth and card style
+    // Mono request-type icons: grey the image and blend its own background into the tile, so an icon
+    // drawn on a light square does not become a dark block (dark scheme: inverted and screened).
+    put('icon-mono-filter', scheme === 'dark' ? 'grayscale(1) invert(1) contrast(1.1)' : 'grayscale(1) contrast(1.1)');
+    put('icon-mono-blend', scheme === 'dark' ? 'screen' : 'multiply');
     put('shadow-xs', shape.shadow === 'none' ? 'none' : '0 1px 2px ' + C.rgba(p.shadowColor, scheme === 'dark' ? 0.3 : 0.05));
     put('shadow-1', sh.s1);
     put('shadow-2', sh.s2);

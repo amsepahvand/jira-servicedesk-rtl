@@ -407,11 +407,94 @@
     if (a) { a.click(); }
   }
 
+  /**
+   * Rich-text editor: a text-direction switch (right-to-left / left-to-right) in the toolbar.
+   * Without a choice every paragraph follows its own first letter. The choice changes how the text
+   * is shown while typing; Jira stores the text itself, not its direction.
+   */
+  var DIR_ICONS = {
+    rtl: '<svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M4 5h12M8 10h8M4 15h12"/></svg>',
+    ltr: '<svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M4 5h12M4 10h8M4 15h12"/></svg>'
+  };
+  function editorTools(scope) {
+    var bars = (scope && scope.querySelectorAll ? scope : document).querySelectorAll('[data-pt~="editor"] [data-pt~="editor-toolbar"]');
+    if (!bars.length && scope && scope !== document) { bars = document.querySelectorAll('[data-pt~="editor"] [data-pt~="editor-toolbar"]'); }
+    var fa = ctx.lang === 'fa';
+    for (var i = 0; i < bars.length; i++) {
+      if (bars[i].querySelector('.pt-editor-dir')) { continue; }
+      var editor = bars[i].closest('[data-pt~="editor"]');
+      var cur = editor.getAttribute('data-pt-dir') || '';
+      var group = document.createElement('div');
+      group.className = 'pt-own pt-editor-dir';
+      group.setAttribute('role', 'group');
+      group.setAttribute('aria-label', fa ? 'جهت متن' : 'Text direction');
+      ['rtl', 'ltr'].forEach(function (d) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.setAttribute('data-pt-set-dir', d);
+        b.setAttribute('aria-pressed', String(cur === d));
+        var label = d === 'rtl' ? (fa ? 'راست‌چین' : 'Right to left') : (fa ? 'چپ‌چین' : 'Left to right');
+        b.setAttribute('aria-label', label);
+        b.title = label;
+        b.innerHTML = DIR_ICONS[d];
+        group.appendChild(b);
+      });
+      bars[i].appendChild(group);
+    }
+  }
+  function setEditorDir(editor, dir) {
+    if (dir) { editor.setAttribute('data-pt-dir', dir); } else { editor.removeAttribute('data-pt-dir'); }
+    var area = editor.querySelector('.ProseMirror, [contenteditable="true"]');
+    if (area) { if (dir) { area.setAttribute('dir', dir); } else { area.removeAttribute('dir'); } }
+    var btns = editor.querySelectorAll('[data-pt-set-dir]');
+    for (var i = 0; i < btns.length; i++) { btns[i].setAttribute('aria-pressed', String(btns[i].getAttribute('data-pt-set-dir') === dir)); }
+  }
+  /**
+   * Toolbar menus (text styles, "more") open from the trigger's left edge; in a right-to-left page
+   * the trigger sits at the right end, so the menu ran past the frame. Keep it inside the editor.
+   */
+  function keepMenuInside(bar, trigger) {
+    var tries = 0;
+    (function fit() {
+      var pw = bar.querySelector('[data-testid="popup-wrapper"]');
+      var menu = pw && pw.querySelector('[role="menu"], [role="listbox"], [role="dialog"]') || (pw && pw.firstElementChild);
+      if (!menu || !menu.getBoundingClientRect().width) { if (++tries < 10) { setTimeout(fit, 40); } return; }
+      pw.style.marginLeft = '';
+      var box = bar.closest('[data-pt~="editor"]').getBoundingClientRect();
+      var m = (pw.querySelector('div[style*="absolute"]') || menu).getBoundingClientRect();
+      var t = trigger.getBoundingClientRect();
+      var shift = 0;
+      if (m.right > box.right) { shift = Math.min(t.right, box.right) - m.right; }
+      if (m.left + shift < box.left) { shift = box.left - m.left; }
+      if (shift) { pw.style.marginLeft = Math.round(shift) + 'px'; }
+    })();
+  }
+  function onEditorClick(e) {
+    var set = e.target.closest && e.target.closest('[data-pt-set-dir]');
+    if (set) {
+      var editor = set.closest('[data-pt~="editor"]');
+      var d = set.getAttribute('data-pt-set-dir');
+      setEditorDir(editor, editor.getAttribute('data-pt-dir') === d ? '' : d);
+      var area = editor.querySelector('.ProseMirror, [contenteditable="true"]');
+      if (area) { area.focus(); }
+      return;
+    }
+    var trigger = e.target.closest && e.target.closest('[data-pt~="editor-toolbar"] button[aria-haspopup]');
+    if (trigger) { keepMenuInside(trigger.closest('[data-pt~="editor-toolbar"]'), trigger); }
+  }
+
+  /** Date inputs: the browser's autocomplete list covered the calendar button and popup. */
+  function dateFields() {
+    var list = document.querySelectorAll('.cp-date-picker input.date-picker:not([autocomplete])');
+    for (var i = 0; i < list.length; i++) { list[i].setAttribute('autocomplete', 'off'); }
+  }
+
   // ------------------------------------------------------------------ lifecycle
 
   function setup(context) {
     ctx = context;
     document.addEventListener('click', onTileClick);
+    document.addEventListener('click', onEditorClick);
   }
 
   /**
@@ -474,6 +557,8 @@
     tableLabels(scope);
     statuses(scope);
     directions(scope);
+    editorTools(scope);
+    dateFields();
     emptyStates();
     if (PT.date && U.get(ctx.settings, 'locale.jalali', true) !== false && ctx.lang === 'fa') { PT.date.decorateTimes(scope); }
     if (PT.date && ctx.lang === 'fa') { PT.date.explainGuides(scope); }
@@ -483,6 +568,7 @@
 
   function teardown() {
     document.removeEventListener('click', onTileClick);
+    document.removeEventListener('click', onEditorClick);
     var own = document.querySelectorAll('.pt-own');
     for (var i = 0; i < own.length; i++) { if (own[i].parentNode) { own[i].parentNode.removeChild(own[i]); } }
     var icons = document.querySelectorAll('link[data-pt-original-rel]');
