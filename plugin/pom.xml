@@ -6,13 +6,13 @@
     <parent>
         <groupId>io.portaltheme</groupId>
         <artifactId>portal-theme-parent</artifactId>
-        <version>1.0.2</version>
+        <version>1.1.0</version>
     </parent>
 
     <artifactId>jsm-portal-theme</artifactId>
     <packaging>atlassian-plugin</packaging>
-    <name>Portal Theme for Jira Service Management</name>
-    <description>Brandable, Persian/RTL-first theme for the Jira Service Management customer portal.</description>
+    <name>Rasta — Persian Portal Theme for Jira Service Management</name>
+    <description>Rasta (راستا) turns the Jira Service Management customer portal into a branded, Persian-first, right-to-left service portal — no ScriptRunner, no files on the server, no code. • Branding: company name, logo (light and dark), favicon, header background image, colours with automatic WCAG contrast correction, corner radius, card style, shadows, density, content width, fonts (Vazirmatn bundled). • 8 ready-made presets (Persian enterprise, Firouzeh, Anar, Jangal, Kavir, Shab dark, Zarrin black and gold, English LTR) and light / dark / automatic mode. • Persian: real RTL layout, hand-written Persian texts for the customer portal, Shamsi (Jalali) dates, Persian digits, correct mixed Persian/English text, bullet lists and punctuation, Shamsi hint under date fields. • Text control: change any customer-facing Jira text (headings, buttons, empty states, validation messages) from the settings page, including texts with variable parts. • Layout: centred or start-aligned home header, search width, card columns, form width, quick links, request status next to the title, mobile card view for request lists. • Optional "Back to Jira" button for users with a Jira licence, custom footer with support contacts, hides Jira branding. • Motion: subtle, fast transitions that respect reduced-motion settings; a slim loading bar while pages load. • Admin page: live preview (home, form, list; desktop and mobile), contrast report, feature switches, presets, image upload with cropping, preview unsaved changes on the real portal, import / export as JSON, per-portal overrides. • Safe: only customer portal pages are touched; Jira admin, agent, Software and issue screens stay unchanged; ?portalTheme=off shows the original portal; disabling the app restores Jira instantly. • Data Center ready: settings and images live in the Jira database (cluster-safe); one app for Jira 9.12, 10.x and 11.x. Made by Sepahvand Bros.</description>
 
     <organization>
         <name>Sepahvand Bros</name>

@@ -15,7 +15,7 @@ ctx.window = ctx;
 ctx.location = { pathname: '/jira/servicedesk/customer/portals', search: '' };
 ctx.document = { readyState: 'complete', documentElement: {}, createDocumentFragment: () => ({ querySelector() { return null; } }) };
 vm.createContext(ctx);
-['js/pt-namespace.js', 'js/pt-color.js', 'js/pt-presets.js', 'js/pt-tokens.js', 'js/pt-i18n-fa.js', 'js/pt-compat.js', 'js/pt-text.js',
+['js/pt-namespace.js', 'js/pt-color.js', 'js/pt-presets.js', 'js/pt-tokens.js', 'js/pt-i18n-fa.js', 'js/pt-compat.js', 'js/pt-date.js', 'js/pt-text.js',
   'admin/admin-i18n.js']
   .forEach((f) => vm.runInContext(fs.readFileSync(path.join(WEB, f), 'utf8'), ctx, { filename: f }));
 const PT = ctx.PortalTheme;
@@ -76,11 +76,14 @@ test('custom font stack is sanitised', () => {
 
 console.log('presets & per-portal');
 test('portal overrides merge over global', () => {
-  const doc = { preset: 'bimeh-bazaar', global: { identity: { companyName: 'Co' } }, portals: { 7: { colors: { primary: '#0b6e4f' } } } };
+  const doc = { preset: 'zarrin', global: { identity: { companyName: 'Co' } }, portals: { 7: { colors: { primary: '#0b6e4f' } } } };
   assert.strictEqual(eff(doc, '7').colors.primary, '#0b6e4f');
   assert.strictEqual(eff(doc, '7').identity.companyName, 'Co');
   assert.strictEqual(eff(doc, '8').colors.primary, '#111111');
   assert.strictEqual(eff(doc, null).colors.accent, '#f2bf00');
+});
+test('old preset ids keep working', () => {
+  assert.strictEqual(PT.presets.normalizeDocument({ preset: 'bimeh-bazaar' }).preset, 'zarrin');
 });
 test('unknown preset falls back to persian default', () => {
   assert.strictEqual(PT.presets.normalizeDocument({ preset: 'nope' }).preset, 'persian');
@@ -101,6 +104,13 @@ test('exact texts are replaced, whitespace preserved', () => {
   configure();
   assert.strictEqual(PT.text.translate('  My requests \n'), '  درخواست‌های من \n');
   assert.strictEqual(PT.text.translate('Something unknown'), null);
+});
+test('status-change activity sentences are Persian', () => {
+  configure();
+  assert.strictEqual(PT.text.translate('Your request status changed to Escalated.'), 'وضعیت درخواست شما به «\u2068ارجاع‌شده\u2069» تغییر کرد.');
+  assert.ok(PT.text.translate('Your request status changed to Done with resolution Duplicate.').includes('تکراری'));
+  const keys = Object.keys(PT.i18n.fa.sentences);
+  keys.forEach((k) => assert.strictEqual((PT.i18n.fa.sentences[k].match(/\{\d\}/g) || []).join(), (k.match(/\{\d\}/g) || []).join(), k));
 });
 test('substrings are never replaced', () => {
   configure();
@@ -131,6 +141,25 @@ test('translation off keeps only admin texts', () => {
   configure({ locale: { translate: false }, dictionary: { Send: 'بفرست' } });
   assert.strictEqual(PT.text.translate('My requests'), null);
   assert.strictEqual(PT.text.translate('Send'), 'بفرست');
+});
+
+console.log('dates');
+test('Jira dates become Shamsi', () => {
+  configure();
+  const a = PT.text.translate('24/Sep/26');
+  assert.ok(/مهر/.test(a) && /۱۴۰۵/.test(a), a);
+  const b = PT.text.translate('Sep 24, 2026 3:15 PM');
+  assert.ok(/ساعت/.test(b) && /۱۵:۱۵/.test(b), b);
+  assert.strictEqual(PT.text.translate('SD-12'), null);
+});
+test('standalone numbers get Persian digits', () => {
+  configure();
+  assert.strictEqual(PT.text.translate('12'), '۱۲');
+  assert.strictEqual(PT.text.translate('1 - 20'), '۱ - ۲۰');
+});
+test('no Jalali in the English preset', () => {
+  PT.text.configure(PT.presets.presetSettings('clean-ltr'), null);
+  assert.strictEqual(PT.text.translate('24/Sep/26'), null);
 });
 
 console.log('routing');

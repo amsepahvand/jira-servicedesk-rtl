@@ -21,7 +21,7 @@
 
   var lang = (function () {
     try { var s = win.localStorage.getItem(LANG_KEY); if (s === 'fa' || s === 'en') { return s; } } catch (e) { /* ignore */ }
-    return /^fa/i.test(doc.documentElement.getAttribute('lang') || '') ? 'fa' : 'en';
+    return 'fa';
   })();
   var T = PT.adminI18n[lang];
 
@@ -162,8 +162,12 @@
     var out = el('output', { for: cid, class: 'pt-a-range-value' });
     var input = el('input', { id: cid, type: 'range', min: min, max: max, step: 1, class: 'pt-a-range' });
     input.value = value(path);
-    out.textContent = input.value + (unit || '');
-    input.addEventListener('input', function () { out.textContent = input.value + (unit || ''); update(path, Number(input.value)); });
+    var show = function () {
+      var u = unit === 'px' ? (lang === 'fa' ? ' پیکسل' : ' px') : (unit || '');
+      out.textContent = (lang === 'fa' ? U.toPersianDigits(input.value) : input.value) + u;
+    };
+    show();
+    input.addEventListener('input', function () { show(); update(path, Number(input.value)); });
     var wrap = fieldWrap(path, el('div', { class: 'pt-a-range-row' }, [input, out]), cid);
     return wrap;
   }
@@ -232,29 +236,61 @@
     ]);
   }
 
+  // Upload rules per image slot: output size, byte budget, crop suggestion.
+  var IMAGE_SLOTS = {
+    logo: { maxW: 1200, maxH: 480, maxBytes: 500 * 1024 },
+    logoDark: { maxW: 1200, maxH: 480, maxBytes: 500 * 1024 },
+    favicon: { maxW: 256, maxH: 256, maxBytes: 120 * 1024, ratio: 1 },
+    background: { maxW: 2400, maxH: 1000, maxBytes: 1400 * 1024, photo: true, ratio: 16 / 5, suggest: 16 / 5 }
+  };
+
+  function uploadImage(slot, file, fieldEl) {
+    var err = fieldEl.querySelector('.pt-a-error');
+    err.textContent = '';
+    var opts = IMAGE_SLOTS[slot];
+    PT.adminCrop.prepare(file, opts, T.crop).then(function (dataUrl) {
+      if (!dataUrl) { return null; }
+      fieldEl.setAttribute('aria-busy', 'true');
+      status(T.uploading);
+      return api('PUT', '/asset/' + slot, { dataUrl: dataUrl }).then(function (res) {
+        state.assets = res.assets || {};
+        status(T.imageSaved, 'ok');
+        render();
+      });
+    }).catch(function (e) {
+      fieldEl.removeAttribute('aria-busy');
+      var msg = /413|too large|Request body/i.test(e.message) ? T.crop.tooLargeServer : e.message;
+      err.textContent = msg;
+      status(T.saveError + msg, 'error');
+    });
+  }
+
   function imageField(slot) {
     var info = state.assets[slot];
     var fileId = id('file');
-    var preview = el('div', { class: 'pt-a-image-preview' + (slot === 'logoDark' ? ' is-dark' : '') });
+    var errId = id('err');
+    var preview = el('div', { class: 'pt-a-image-preview' + (slot === 'logoDark' ? ' is-dark' : '') + (slot === 'background' ? ' is-wide' : '') });
     if (info) {
       preview.appendChild(el('img', { src: BASE + '/asset/' + slot + '?v=' + encodeURIComponent(info.hash), alt: '' }));
+      preview.appendChild(el('span', { class: 'pt-a-image-meta', dir: 'ltr', text: Math.round(info.bytes / 1024) + ' KB · ' + String(info.type).replace('image/', '').toUpperCase() }));
     } else {
-      preview.appendChild(el('span', { class: 'pt-a-muted', text: T.noImage }));
+      preview.appendChild(el('span', { class: 'pt-a-dropnote', text: T.dropHere }));
     }
-    var file = el('input', { id: fileId, type: 'file', accept: 'image/png,image/jpeg,image/webp,image/gif,image/svg+xml,image/x-icon,.ico', class: 'pt-a-file' });
+    var file = el('input', { id: fileId, type: 'file', accept: 'image/png,image/jpeg,image/webp,image/gif,image/svg+xml,image/x-icon,.ico', class: 'pt-a-file', 'aria-describedby': errId });
+    var wrap;
     file.addEventListener('change', function () {
       var f = file.files && file.files[0];
-      if (!f) { return; }
-      var reader = new FileReader();
-      reader.onload = function () {
-        status(T.uploading);
-        api('PUT', '/asset/' + slot, { dataUrl: reader.result }).then(function (res) {
-          state.assets = res.assets || {};
-          status(T.saved, 'ok');
-          render();
-        }, function (err) { status(T.saveError + err.message, 'error'); });
-      };
-      reader.readAsDataURL(f);
+      file.value = '';
+      if (f) { uploadImage(slot, f, wrap); }
+    });
+    // Drag and drop onto the preview area
+    preview.addEventListener('dragover', function (e) { e.preventDefault(); preview.classList.add('is-drop'); });
+    preview.addEventListener('dragleave', function () { preview.classList.remove('is-drop'); });
+    preview.addEventListener('drop', function (e) {
+      e.preventDefault();
+      preview.classList.remove('is-drop');
+      var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+      if (f) { uploadImage(slot, f, wrap); }
     });
     var actions = el('div', { class: 'pt-a-image-actions' }, [
       el('label', { for: fileId, class: 'pt-a-btn', text: info ? T.replace : T.upload }),
@@ -262,17 +298,19 @@
       info ? el('button', {
         type: 'button', class: 'pt-a-btn pt-a-btn--ghost', text: T.remove,
         onclick: function () {
-          api('DELETE', '/asset/' + slot, {}).then(function (res) { state.assets = res.assets || {}; render(); },
+          api('DELETE', '/asset/' + slot, {}).then(function (res) { state.assets = res.assets || {}; render(); status(T.imageRemoved, 'ok'); },
             function (err) { status(T.saveError + err.message, 'error'); });
         }
       }) : null
     ]);
     var h = help(slot);
-    return el('div', { class: 'pt-a-field pt-a-field--image' }, [
+    wrap = el('div', { class: 'pt-a-field pt-a-field--image' }, [
       el('div', { class: 'pt-a-label', text: label(slot) }),
       preview, actions,
+      el('p', { class: 'pt-a-error', id: errId, role: 'alert' }),
       el('p', { class: 'pt-a-help', text: (h ? h + ' ' : '') + T.imageHelp })
     ]);
+    return wrap;
   }
 
   function more(title, children) {
@@ -315,10 +353,20 @@
       ];
     },
     appearance: function () {
-      return [section(null, [
+      var img = value('appearance.heroStyle') === 'image';
+      return [section(T.layoutTitle, [
+        selectField('layout.heroAlign', ['center', 'start']),
+        selectField('layout.searchWidth', ['narrow', 'medium', 'wide', 'full']),
+        selectField('layout.portalColumns', ['auto', '2', '3', '4']),
+        selectField('layout.formWidth', ['narrow', 'standard', 'wide'])
+      ]), section(T.heroTitle, [
+        selectField('appearance.heroStyle', ['tinted', 'plain', 'brand', 'image']),
+        img ? imageField('background') : null,
+        img ? rangeField('appearance.heroOverlay', 0, 90, '%') : null,
+        img ? selectField('appearance.heroImagePosition', ['top', 'center', 'bottom']) : null
+      ]), section(T.styleTitle, [
         rangeField('shape.radius', 0, 24, 'px'),
         selectField('shape.cardStyle', ['elevated', 'outlined', 'flat']),
-        selectField('appearance.heroStyle', ['tinted', 'plain', 'brand']),
         selectField('appearance.mode', ['light', 'dark', 'auto']),
         more(T.moreOptions, [
           selectField('shape.shadow', ['none', 'soft', 'medium']),
@@ -339,7 +387,8 @@
           selectField('locale.language', ['fa', 'en']),
           selectField('locale.direction', ['rtl', 'ltr']),
           toggleField('locale.translate'),
-          toggleField('locale.persianDigits')
+          toggleField('locale.persianDigits'),
+          toggleField('locale.jalali')
         ]),
         section(T.textsHome, [t('homeTitle'), t('homeSubtitle', true), t('searchPlaceholder'), t('portalsHeading'), t('requestTypesHeading')]),
         section(T.textsMessages, [t('emptyRequestsTitle'), t('emptyRequestsBody', true), t('emptySearchTitle'), t('emptySearchBody', true), t('createSuccess', true)]),
@@ -366,14 +415,27 @@
             function (rows) { update('footer.links', rows.filter(function (r) { return r.label || r.url; })); }) : null
         ]),
         section(null, [
-          toggleField('features.hideJiraBranding'),
-          toggleField('features.hideAdminTools'),
-          toggleField('features.pageTitle'),
-          toggleField('features.statusColors'),
-          toggleField('features.favicon'),
-          imageField('favicon')
-        ])
+          rowsField('layout.quickLinkItems', [{ key: 'label', label: T.label }, { key: 'url', label: T.url, dir: 'ltr' }],
+            function () { return (value('layout.quickLinkItems') || []).map(function (l) { return { label: l.label, url: l.url }; }); },
+            function (rows) { update('layout.quickLinkItems', rows.filter(function (r) { return r.label || r.url; })); })
+        ]),
+        section(null, [imageField('favicon')])
       ];
+    },
+    features: function () {
+      // Every switchable capability in one place, grouped by what it affects.
+      var groups = [
+        [T.flags.portal, ['layout.quickLinks', 'layout.statusInTitle', 'features.tileClick', 'features.mobileCards', 'features.statusColors', 'features.loadingBar']],
+        [T.flags.language, ['locale.translate', 'locale.persianDigits', 'locale.jalali']],
+        [T.flags.branding, ['features.hideJiraBranding', 'features.pageTitle', 'features.favicon', 'footer.enabled', 'backToJira.enabled']],
+        [T.flags.admin, ['features.hideAdminTools']]
+      ];
+      return groups.map(function (g) {
+        return el('section', { class: 'pt-a-section' }, [
+          el('h3', { class: 'pt-a-section-title', text: g[0] }),
+          el('div', { class: 'pt-a-flags' }, g[1].map(function (path) { return toggleField(path); }))
+        ]);
+      }).concat([section(null, [selectField('motion.level', ['full', 'reduced', 'off'])])]);
     },
     advanced: function () {
       var cssId = id('f');
@@ -438,7 +500,10 @@
     } catch (e) { return new Date(t).toLocaleString(); }
   }
 
-  function fillT(str, vars) { return String(str).replace(/\{(\w+)\}/g, function (m, k) { return vars[k] != null ? vars[k] : m; }); }
+  function fillT(str, vars) {
+    var out = String(str).replace(/\{(\w+)\}/g, function (m, k) { return vars[k] != null ? vars[k] : m; });
+    return lang === 'fa' ? U.toPersianDigits(out) : out;
+  }
 
   function card(title, body, action) {
     return el('section', { class: 'pt-a-card' }, [
@@ -576,6 +641,7 @@
     function svg(d) { return '<svg class="pt-a-tab-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="' + d + '" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>'; }
     return {
       overview: svg('M4 13h6V4H4zM14 20h6v-9h-6zM14 4v3h6V4zM4 20h6v-3H4z'),
+      features: svg('M5 7h8M17 7h2M5 17h2M11 17h8M15 5v4M9 15v4'),
       identity: svg('M4 20V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v14M9 10a3 3 0 1 0 6 0 3 3 0 0 0-6 0M7 20c.8-2.6 2.8-4 5-4s4.2 1.4 5 4'),
       colors: svg('M12 3a9 9 0 1 0 0 18c1.1 0 1.6-.9 1.2-1.8-.5-1.1.2-2.2 1.4-2.2H17a4 4 0 0 0 4-4c0-5-4-10-9-10zM7.5 11.5h.01M10 7.5h.01M15 7.5h.01'),
       appearance: svg('M4 6h16M4 12h10M4 18h6M18 14l3 3-3 3'),
@@ -586,7 +652,7 @@
     };
   })();
 
-  var TAB_ORDER = ['overview', 'identity', 'appearance', 'texts', 'navigation', 'advanced'];
+  var TAB_ORDER = ['overview', 'identity', 'appearance', 'texts', 'navigation', 'features', 'advanced'];
 
   function contrastPanel() {
     var report = PT.tokens.contrastReport(effective());
@@ -657,8 +723,13 @@
             '<span class="pv-pill" data-st="' + r[3] + '">' + e(r[2]) + '</span></div>';
         }).join('') + '</div></div>';
     }
-    return '<div class="pv-hero"><h1>' + e(t.homeTitle) + '</h1><p>' + e(t.homeSubtitle) + '</p>' +
-      '<div class="pv-search"><span class="pv-search-icon"></span>' + e(t.searchPlaceholder) + '</div></div>' +
+    var lay = s.layout || {};
+    var heroImg = U.get(s, 'appearance.heroStyle', 'tinted') === 'image' && state.assets.background;
+    var heroStyle = heroImg ? ' style="background-image:var(--pt-hero-veil), url(&quot;' + e(BASE + '/asset/background?v=' + state.assets.background.hash) + '&quot;)"' : '';
+    var chips = lay.quickLinks !== false ? (lay.quickLinkItems || []).map(function (q) { return q && q.label ? '<span class="pv-quick">' + e(q.label) + '</span>' : ''; }).join('') : '';
+    return '<div class="pv-hero' + (lay.heroAlign === 'start' ? '' : ' is-center') + (heroImg ? ' is-image' : '') + '"' + heroStyle + '><h1>' + e(t.homeTitle) + '</h1><p>' + e(t.homeSubtitle) + '</p>' +
+      '<div class="pv-search"><span class="pv-search-icon"></span>' + e(t.searchPlaceholder) + '</div>' +
+      (chips ? '<div class="pv-quicks">' + chips + '</div>' : '') + '</div>' +
       '<div class="pv-body"><h2 class="pv-section">' + e(t.portalsHeading) + '</h2>' +
       '<div class="pv-grid"><div class="pv-card"><span class="pv-tile"></span><div><strong>' + L.it + '</strong><p>' + L.itd + '</p></div></div>' +
       '<div class="pv-card"><span class="pv-tile"></span><div><strong>' + L.hr + '</strong><p>' + L.hrd + '</p></div></div>' +
@@ -808,6 +879,8 @@
   }
 
   function render() {
+    // Keep the current status message (e.g. "image saved") across the re-render.
+    var lastStatus = statusEl ? [statusEl.textContent, statusEl.className] : null;
     root.innerHTML = '';
     root.setAttribute('dir', lang === 'fa' ? 'rtl' : 'ltr');
     root.setAttribute('lang', lang);
@@ -897,11 +970,12 @@
     ]);
 
     statusEl = el('p', { class: 'pt-a-status', role: 'status', 'aria-live': 'polite' });
+    if (lastStatus) { statusEl.textContent = lastStatus[0]; statusEl.className = lastStatus[1]; }
 
     root.appendChild(header);
     root.appendChild(statusEl);
     root.appendChild(el('div', { class: 'pt-a-layout' }, [side, panelEl, previewCol]));
-    root.appendChild(el('p', { class: 'pt-a-madeby', dir: 'ltr', lang: 'en', html: 'Portal Theme ' + PT.version +
+    root.appendChild(el('p', { class: 'pt-a-madeby', dir: 'ltr', lang: 'en', html: 'Rasta ' + PT.version +
       ' · Made with <span role="img" aria-label="love">\u2764\ufe0f</span> by <strong>Sepahvand Bros</strong> — ' +
       '<a href="https://www.linkedin.com/in/asepahvand/" target="_blank" rel="noopener">Amir</a> &amp; ' +
       '<a href="https://www.linkedin.com/in/taha-sepahvand-3b5063420/" target="_blank" rel="noopener">Taha Sepahvand</a>' }));

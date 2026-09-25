@@ -27,7 +27,9 @@ public final class Asset {
     public enum Kind {
         LOGO("logo", 512 * 1024),
         LOGO_DARK("logoDark", 512 * 1024),
-        FAVICON("favicon", 128 * 1024);
+        FAVICON("favicon", 128 * 1024),
+        /** Optional photo/illustration behind the home page header area. */
+        BACKGROUND("background", 1536 * 1024);
 
         public final String key;
         public final int maxBytes;

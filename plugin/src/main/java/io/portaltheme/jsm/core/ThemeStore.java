@@ -26,6 +26,13 @@ public final class ThemeStore {
     static final String CONFIG_KEY = PREFIX + "config.v1";
     static final String ASSET_PREFIX = PREFIX + "asset.";
 
+    /**
+     * Values longer than this are split over several keys. Some databases store Jira plugin
+     * settings in columns with a limited text size; chunking keeps large images portable.
+     */
+    static final int CHUNK = 60_000;
+    static final String CHUNK_MARKER = "chunks:";
+
     private final Settings settings;
 
     private volatile String cachedRaw;
@@ -101,7 +108,7 @@ public final class ThemeStore {
     public void reset() {
         settings.remove(CONFIG_KEY);
         for (Asset.Kind k : Asset.Kind.values()) {
-            settings.remove(ASSET_PREFIX + k.key);
+            removeLarge(ASSET_PREFIX + k.key);
         }
         assetCache.clear();
     }
@@ -109,7 +116,7 @@ public final class ThemeStore {
     // ------------------------------------------------------------------ images
 
     public Asset asset(Asset.Kind kind) {
-        String raw = settings.get(ASSET_PREFIX + kind.key);
+        String raw = getLarge(ASSET_PREFIX + kind.key);
         if (raw == null || raw.isEmpty()) {
             return null;
         }
@@ -129,13 +136,65 @@ public final class ThemeStore {
 
     public Asset putAsset(Asset.Kind kind, String dataUrl) {
         Asset a = Asset.fromDataUrl(kind, dataUrl);
-        settings.put(ASSET_PREFIX + kind.key, a.toDataUrl());
+        putLarge(ASSET_PREFIX + kind.key, a.toDataUrl());
         return a;
     }
 
     public void removeAsset(Asset.Kind kind) {
-        settings.remove(ASSET_PREFIX + kind.key);
+        removeLarge(ASSET_PREFIX + kind.key);
         assetCache.remove(kind.key);
+    }
+
+    // ------------------------------------------------------------------ chunked values
+
+    String getLarge(String key) {
+        String head = settings.get(key);
+        if (head == null || !head.startsWith(CHUNK_MARKER)) {
+            return head;
+        }
+        int n;
+        try {
+            n = Integer.parseInt(head.substring(CHUNK_MARKER.length()));
+        } catch (NumberFormatException e) {
+            return null;
+        }
+        StringBuilder sb = new StringBuilder(n * CHUNK);
+        for (int i = 0; i < n; i++) {
+            String part = settings.get(key + "." + i);
+            if (part == null) {
+                return null; // incomplete write: treat as missing, never serve a broken image
+            }
+            sb.append(part);
+        }
+        return sb.toString();
+    }
+
+    void putLarge(String key, String value) {
+        removeLarge(key);
+        if (value.length() <= CHUNK) {
+            settings.put(key, value);
+            return;
+        }
+        int n = (value.length() + CHUNK - 1) / CHUNK;
+        for (int i = 0; i < n; i++) {
+            settings.put(key + "." + i, value.substring(i * CHUNK, Math.min(value.length(), (i + 1) * CHUNK)));
+        }
+        settings.put(key, CHUNK_MARKER + n); // written last: readers never see a partial image
+    }
+
+    void removeLarge(String key) {
+        String head = settings.get(key);
+        if (head != null && head.startsWith(CHUNK_MARKER)) {
+            try {
+                int n = Integer.parseInt(head.substring(CHUNK_MARKER.length()));
+                for (int i = 0; i < n; i++) {
+                    settings.remove(key + "." + i);
+                }
+            } catch (NumberFormatException e) {
+                // fall through
+            }
+        }
+        settings.remove(key);
     }
 
     /** {@code {logo: "hash", favicon: "hash"}} for the images that exist. */

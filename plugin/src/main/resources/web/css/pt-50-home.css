@@ -45,7 +45,7 @@ html.pt [data-pt~="hero-text"] {
 }
 html.pt [data-pt~="hero-text"] p { margin: 0; }
 
-html.pt [data-pt~="search"] { margin: 0 0 var(--pt-section-gap) !important; padding: 0 !important; max-width: 760px; }
+html.pt [data-pt~="search"] { margin: 0 0 var(--pt-section-gap) !important; padding: 0 !important; max-width: var(--pt-search-w, 720px); }
 html.pt .sd-smart-search-input-container { width: auto !important; max-width: none !important; margin: 0 !important; position: relative; }
 html.pt [data-pt~="search-box"] { position: relative; }
 html.pt input[data-pt~="search-input"] {
@@ -118,11 +118,13 @@ html.pt [data-pt~="portal-toolbar"] {
   margin: 0 0 20px !important;
   padding: 0 !important;
 }
-html.pt [data-pt~="portal-toolbar"] label { color: var(--pt-muted) !important; font-size: 13px; font-weight: 600; }
+html.pt [data-pt~="portal-toolbar"] label { color: var(--pt-muted) !important; font-size: 13px; font-weight: 600; white-space: nowrap; }
+/* Sort control: label beside the select, on the same line as the section title */
+html.pt [data-pt~="portal-toolbar"] > div:has(> label) { display: flex !important; align-items: center; gap: 10px; }
 html.pt [data-pt~="portal-grid"],
 html.pt [data-pt~="rt-grid"] {
   display: grid !important;
-  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  grid-template-columns: var(--pt-cards-cols, repeat(auto-fit, minmax(290px, 1fr)));
   gap: var(--pt-gap);
   width: auto !important;
   max-width: none !important;
@@ -183,6 +185,8 @@ html.pt [data-pt~="rt-card"]::before {
   height: 48px;
   border-radius: var(--pt-radius-md);
   background: var(--pt-brand-soft);
+  border: 0 !important;
+  box-shadow: none !important;
   transform: none;
 }
 /* Portal cards have no icon of their own: a neutral "service" glyph in the brand colour */
@@ -334,3 +338,60 @@ html.pt-icons-mono [data-pt~="rt-card"]::before { background: var(--pt-accent-so
 html.pt [data-pt~="recent"] { margin-top: var(--pt-section-gap) !important; }
 html.pt [data-pt~="recent"] [data-pt~="section-title"] { margin-bottom: 18px !important; }
 html.pt .cv-smart-portal-nav-bottom { margin-top: 20px; text-align: center; }
+
+/* ---------- Layout options (Settings → Look & feel → Layout) ---------- */
+/* Centred hero: title, subtitle and a wide search in the middle — the classic help-centre layout. */
+html.pt[data-pt-hero-align="center"]:is([data-pt-page="home"], [data-pt-page="portal"]) :is([data-pt~="hero"], [data-pt~="hero"] *) { text-align: center !important; }
+html.pt[data-pt-hero-align="center"]:is([data-pt-page="home"], [data-pt-page="portal"]) [data-pt~="hero"] { margin-top: 28px !important; }
+html.pt[data-pt-hero-align="center"] :is(.pt-hero-sub, [data-pt~="hero-text"]) { margin-inline: auto !important; }
+html.pt[data-pt-hero-align="center"] [data-pt~="search"] { margin-inline: auto !important; }
+html.pt[data-pt-hero-align="center"] .pt-quick { justify-content: center; }
+html.pt[data-pt-hero-align="center"][data-pt-page="portal"] [data-pt~="title-block"] { text-align: center; }
+html.pt[data-pt-hero-align="center"][data-pt-page="portal"] [data-pt~="breadcrumbs"] { justify-content: center; }
+
+/* Quick links under the search */
+html.pt .pt-quick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+}
+html.pt .pt-quick a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--pt-border);
+  border-radius: var(--pt-radius-pill);
+  background: color-mix(in srgb, var(--pt-surface) 82%, transparent);
+  color: var(--pt-text) !important;
+  font-size: 13.5px;
+  font-weight: 600;
+  text-decoration: none !important;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+html.pt .pt-quick a:hover { border-color: var(--pt-brand); color: var(--pt-brand-text) !important; }
+html.pt .pt-quick .pt-icon { width: 16px; height: 16px; color: var(--pt-brand-text); }
+
+/* Uploaded background image behind the home/portal header area */
+html.pt .pt-hero-band {
+  position: absolute;
+  z-index: 0;
+  inset-block-start: var(--pt-header-h);
+  inset-inline: 0;
+  height: 440px;
+  background-color: var(--pt-brand);
+  background-repeat: no-repeat;
+  background-size: cover;
+  pointer-events: none;
+}
+html.pt .pt-hero-band::after { content: ""; position: absolute; inset: 0; background: var(--pt-hero-veil); }
+html.pt:has(.pt-hero-band) [data-pt~="page"] { position: relative; }
+html.pt:has(.pt-hero-band) [data-pt~="content"] { position: relative; z-index: 1; }
+html.pt[data-pt-hero="image"] [data-pt~="breadcrumbs"] a,
+html.pt[data-pt-hero="image"]:is([data-pt-page="home"], [data-pt-page="portal"]) [data-pt~="title"] { color: var(--pt-hero-text) !important; }
+html.pt[data-pt-hero="image"] [data-pt~="hero"] { padding-block: 24px 8px !important; }

@@ -71,6 +71,12 @@ html.pt [data-pt~="table"] tbody td {
 html.pt [data-pt~="table"] tbody tr:last-child td { border-block-end: 0 !important; }
 html.pt [data-pt~="table"] tbody tr:hover > td { background: var(--pt-surface2) !important; }
 html.pt [data-pt~="table"] a { color: var(--pt-text) !important; font-weight: 650; }
+/* Inbox feel: the summary leads, the key is a quiet identifier */
+html.pt [data-pt~="table"] [data-testid="cv-summary-cell"] a,
+html.pt [data-pt~="table"] [data-testid="cv-summary-cell"] { font-size: 15px; font-weight: 700 !important; }
+html.pt [data-pt~="table"] [data-testid="cv-issue-key-cell"],
+html.pt [data-pt~="table"] [data-testid="cv-issue-key-cell"] a { color: var(--pt-muted) !important; font-weight: 600; font-size: 13px; }
+html.pt [data-pt~="table"] tbody tr { cursor: pointer; }
 html.pt [data-pt~="table"] a:hover { color: var(--pt-brand-text) !important; }
 html.pt [data-pt~="table"] img.vp-rq-icon { width: 22px !important; height: 22px !important; }
 
@@ -140,3 +146,21 @@ html.pt [data-pt~="profile-row"] {
 html.pt [data-pt~="profile-row"] :is(dt, dd) { float: none !important; width: auto !important; margin: 0 !important; padding: 0 !important; text-align: start; }
 html.pt [data-pt~="profile-row"] dt { color: var(--pt-muted); font-weight: 600; }
 html.pt [data-pt~="profile-row"] dd { color: var(--pt-text); font-weight: 600; overflow-wrap: anywhere; }
+
+/* ---------- Profile: a header card and a clear options menu ---------- */
+html.pt[data-pt-page="profile"] [data-pt~="title-block"] {
+  padding: 24px 28px !important;
+  background: var(--pt-card-bg) !important;
+  border: 1px solid var(--pt-card-border) !important;
+  border-radius: var(--pt-radius-lg) !important;
+  box-shadow: var(--pt-card-shadow) !important;
+}
+html.pt[data-pt-page="profile"] [data-pt~="title"] { font-size: 22px !important; }
+html.pt ul.request-actions a { justify-content: space-between; gap: 12px; padding-inline: 10px; border-radius: var(--pt-radius-sm); }
+html.pt ul.request-actions a::after {
+  content: ""; flex: none; width: 7px; height: 7px;
+  border-inline-end: 2px solid var(--pt-subtle); border-block-start: 2px solid var(--pt-subtle);
+  transform: rotate(45deg); opacity: .7;
+}
+html.pt[dir="rtl"] ul.request-actions a::after { transform: rotate(-45deg); }
+html.pt ul.request-actions a:hover { background: var(--pt-surface2); text-decoration: none; }

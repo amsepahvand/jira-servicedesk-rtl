@@ -104,8 +104,8 @@ html.pt :where(textarea) { min-height: 128px; resize: vertical; }
 html.pt ::placeholder { color: var(--pt-subtle) !important; opacity: 1; }
 /* Inputs inside composite widgets (React selects, pickers, login rows): the wrapper draws the box.
    ":is(…, #pt-x)" raises specificity above the hover/focus rules below. */
-html.pt :is(sd-user-picker, [class*="-control"], [data-pt~="login-form"] div, #pt-x) input:not([type="checkbox"]):not([type="radio"]),
-html.pt input:is([role="combobox"], #pt-x) {
+html.pt :is(sd-user-picker, [class*="css-"][class*="-control"], [data-testid$="--control"], [data-pt~="login-form"] div, #pt-x) input:not([type="checkbox"]):not([type="radio"]),
+html.pt input:is([role="combobox"]:not(.text), #pt-x) {
   min-height: 0 !important;
   padding: 0 !important;
   border: 0 !important;
@@ -182,6 +182,8 @@ html.pt [data-pt~="field-error"]:empty { display: none; }
 html.pt [data-pt~="field-error"]:not(:empty)::before {
   content: "!";
   flex: none;
+  margin-inline-end: 8px;
+  vertical-align: -3px;
   display: inline-grid;
   place-items: center;
   width: 18px;
@@ -306,3 +308,46 @@ html.pt :is(.aui-dropdown2 .aui-dropdown2-checked, .aui-dropdown2 [aria-checked=
   font-weight: 700;
 }
 html.pt .aui-dropdown2-section + .aui-dropdown2-section { margin-top: 6px; padding-top: 6px; border-block-start: 1px solid var(--pt-border) !important; }
+
+/* Date fields: JSM draws a transparent input inside .cp-date-picker; the container is the field. */
+html.pt .cp-date-picker {
+  display: flex !important;
+  align-items: center;
+  min-height: var(--pt-control-h);
+  background: var(--pt-surface);
+  border: 1px solid var(--pt-border-strong);
+  border-radius: var(--pt-radius-md);
+  overflow: hidden;
+  transition: border-color var(--pt-dur-1) ease, box-shadow var(--pt-dur-1) ease;
+}
+html.pt .cp-date-picker:hover { border-color: var(--pt-muted); }
+html.pt .cp-date-picker:focus-within { border-color: var(--pt-focus); box-shadow: var(--pt-focus-glow); }
+html.pt .cp-date-picker:has([aria-invalid="true"]),
+html.pt [data-pt~="field"]:has([data-pt~="field-error"]:not(:empty)) .cp-date-picker { border-color: var(--pt-error-dot); }
+html.pt .cp-date-picker input {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0 !important;
+  height: calc(var(--pt-control-h) - 2px) !important;
+  padding: 0 14px !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  direction: ltr;
+  text-align: left;
+}
+html.pt .cp-date-picker .aui-button {
+  flex: none;
+  align-self: stretch;
+  min-width: var(--pt-control-h);
+  height: auto !important;
+  min-height: 0 !important;
+  padding: 0 12px !important;
+  border: 0 !important;
+  border-inline-end: 1px solid var(--pt-border) !important;
+  border-radius: 0 !important;
+  background: var(--pt-surface2) !important;
+  box-shadow: none !important;
+}
+html.pt .cp-date-picker .aui-button:hover { background: var(--pt-surface3) !important; }
+html.pt .cp-date-picker-guide { margin: 0 0 8px; color: var(--pt-muted); font-size: 13px; }

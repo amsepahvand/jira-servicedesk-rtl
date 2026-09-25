@@ -55,11 +55,11 @@
   html.pt :is(input, select, textarea) { font-size: 16px !important; }
 
   /* Request list: every row becomes a card with labelled values */
-  html.pt [data-pt~="table-wrap"] { background: transparent !important; border: 0 !important; box-shadow: none !important; overflow: visible; }
-  html.pt [data-pt~="table"] thead { display: none !important; }
-  html.pt [data-pt~="table"],
-  html.pt [data-pt~="table"] tbody { display: block !important; background: transparent !important; }
-  html.pt [data-pt~="table"] tbody tr {
+  html.pt-mobile-cards [data-pt~="table-wrap"] { background: transparent !important; border: 0 !important; box-shadow: none !important; overflow: visible; }
+  html.pt-mobile-cards [data-pt~="table"] thead { display: none !important; }
+  html.pt-mobile-cards [data-pt~="table"],
+  html.pt-mobile-cards [data-pt~="table"] tbody { display: block !important; background: transparent !important; }
+  html.pt-mobile-cards [data-pt~="table"] tbody tr {
     display: block !important;
     margin: 0 0 12px;
     padding: 6px 16px;
@@ -68,8 +68,8 @@
     border-radius: var(--pt-radius-lg);
     box-shadow: var(--pt-card-shadow);
   }
-  html.pt [data-pt~="table"] tbody tr:hover > td { background: transparent !important; }
-  html.pt [data-pt~="table"] tbody td {
+  html.pt-mobile-cards [data-pt~="table"] tbody tr:hover > td { background: transparent !important; }
+  html.pt-mobile-cards [data-pt~="table"] tbody td {
     display: flex !important;
     justify-content: space-between;
     align-items: center;
@@ -79,8 +79,8 @@
     border-block-end: 1px solid var(--pt-border) !important;
     text-align: end !important;
   }
-  html.pt [data-pt~="table"] tbody td:last-child { border-block-end: 0 !important; }
-  html.pt [data-pt~="table"] tbody td::before {
+  html.pt-mobile-cards [data-pt~="table"] tbody td:last-child { border-block-end: 0 !important; }
+  html.pt-mobile-cards [data-pt~="table"] tbody td::before {
     content: attr(data-pt-label);
     flex: none;
     color: var(--pt-muted);
@@ -88,7 +88,34 @@
     font-weight: 700;
     text-align: start;
   }
-  html.pt [data-pt~="table"] tbody td[data-pt-label=""]::before { display: none; }
+  html.pt-mobile-cards [data-pt~="table"] tbody td[data-pt-label=""]::before { display: none; }
+  /* Known cells form a compact inbox card: key + status, bold summary, service · requester */
+  html.pt-mobile-cards [data-pt~="table"] tbody tr:has([data-pt~="cell-summary"]) {
+    display: grid !important;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas: "type key status" "summary summary summary" "portal portal reporter" "rest rest rest";
+    align-items: center;
+    column-gap: 10px;
+    padding: 14px 16px;
+  }
+  html.pt-mobile-cards [data-pt~="table"] tbody tr:has([data-pt~="cell-summary"]) > td { border: 0 !important; padding: 2px 0 !important; }
+  html.pt-mobile-cards :is([data-pt~="cell-type"], [data-pt~="cell-key"], [data-pt~="cell-summary"], [data-pt~="cell-status"], [data-pt~="cell-portal"], [data-pt~="cell-reporter"])::before { display: none !important; }
+  html.pt-mobile-cards [data-pt~="cell-type"] { grid-area: type; }
+  html.pt-mobile-cards [data-pt~="cell-key"] { grid-area: key; justify-content: flex-start !important; }
+  html.pt-mobile-cards [data-pt~="cell-status"] { grid-area: status; }
+  html.pt-mobile-cards [data-pt~="cell-summary"] { grid-area: summary; justify-content: flex-start !important; padding-block: 6px !important; }
+  html.pt-mobile-cards [data-pt~="cell-summary"] a { font-size: 16px; font-weight: 700 !important; text-align: start; }
+  html.pt-mobile-cards [data-pt~="cell-portal"] { grid-area: portal; justify-content: flex-start !important; color: var(--pt-muted); font-size: 13px; }
+  html.pt-mobile-cards [data-pt~="cell-reporter"] { grid-area: reporter; color: var(--pt-muted); font-size: 13px; }
+
+  /* Filters: one clean column, search first */
+  html.pt [data-pt~="filters"] { flex-direction: column; align-items: stretch !important; }
+  html.pt ul.cp-filter-list > li, html.pt .cp-filter-list .aui-button { width: 100% !important; max-width: none; }
+  html.pt [data-pt~="filter-search"] { order: -1; flex-basis: auto; width: 100%; }
+
+  /* Request actions: two per row */
+  html.pt [data-pt~="request-actions"] > li { flex: 1 1 calc(50% - 8px) !important; }
+  html.pt [data-pt~="request-actions"] :is(.aui-button, .aui-button.aui-button-link) { justify-content: center; padding: 0 10px !important; font-size: 13.5px !important; }
 
   /* Conversation */
   html.pt [data-pt~="activity-item"] { padding: 16px !important; padding-inline-start: 60px !important; }
@@ -110,6 +137,12 @@
 }
 
 @media (max-width: 480px) {
+  /* "Requests" keeps a visible inbox icon when its label is visually hidden */
+  html.pt #header :is(.cv-requests-nav, [data-pt~="header-button"]):has(.cv-requests-nav__text)::before {
+    content: ""; width: 18px; height: 18px; flex: none; background: currentColor;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linejoin='round' stroke-linecap='round'%3E%3Cpath d='M3 13l3-8h12l3 8v6H3z'/%3E%3Cpath d='M3 13h5l1 2h6l1-2h5'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linejoin='round' stroke-linecap='round'%3E%3Cpath d='M3 13l3-8h12l3 8v6H3z'/%3E%3Cpath d='M3 13h5l1 2h6l1-2h5'/%3E%3C/svg%3E") center / contain no-repeat;
+  }
   html.pt #header .cv-requests-nav__text {
     position: absolute !important; width: 1px !important; height: 1px !important; overflow: hidden !important;
     clip-path: inset(50%) !important; white-space: nowrap !important;

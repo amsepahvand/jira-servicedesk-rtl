@@ -19,8 +19,15 @@
     '[contenteditable="true"]', '.ak-editor-content-area', '.ProseMirror', '.wiki-edit', '.mce-content-body',
     '.user-content-block', '.cv-user-content', '.vp-request-header', '.vp-activity-list dd',
     '.vp-activity-list .comment-body', '.vp-activity-list .activity-item > .content',
-    '[data-testid="cv-summary-cell"]', '[data-pt~="user-content"]', '[data-pt-skip]', '.pt-own', '.cv-help-center-branding-sidepanel'
+    '[data-testid="cv-summary-cell"]', '[data-pt~="user-content"]', '[data-pt-skip]', '.pt-own'
   ].join(',');
+
+  // Jira sentences that wrap a value in markup ("Your request status changed to <strong>Done</strong>.").
+  // They live inside activity items that are otherwise skipped as user content, so they are
+  // handled as whole sentences: the text parts are rewritten in place and the inline elements keep
+  // their position, with their own text translated when it is a known text (status names…).
+  var SENTENCE_SCOPE = '[data-pt~="activity-event"] > .content, [data-pt~="activity-approval"] > .content, [data-pt-sentence]';
+  var INLINE = /^(STRONG|B|EM|I|SPAN|A)$/;
 
   var ATTRS = ['placeholder', 'title', 'aria-label', 'alt'];
   var AMPM = { AM: 'ق.ظ.', PM: 'ب.ظ.' };
@@ -28,7 +35,9 @@
 
   var exact = {};
   var patterns = [];
+  var sentences = {};
   var persianDigits = false;
+  var jalali = false;
   var active = false;
 
   function escapeRegex(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
@@ -53,9 +62,11 @@
     var loc = settings.locale || {};
     exact = {};
     patterns = [];
+    sentences = {};
     var useBuiltin = builtin && loc.translate !== false;
     if (useBuiltin) {
       U.merge(exact, builtin.exact);
+      U.merge(sentences, builtin.sentences || {});
       for (var i = 0; i < builtin.patterns.length; i++) {
         try { patterns.push([new RegExp(builtin.patterns[i][0]), builtin.patterns[i][1]]); } catch (e) { /* skip */ }
       }
@@ -81,7 +92,8 @@
     });
     patterns = adminPatterns.concat(patterns);
     persianDigits = !!loc.persianDigits && loc.language === 'fa';
-    active = patterns.length > 0 || Object.keys(exact).length > 0;
+    jalali = loc.jalali !== false && loc.language === 'fa' && !!PT.date;
+    active = patterns.length > 0 || Object.keys(exact).length > 0 || jalali || persianDigits;
     return active;
   }
 
@@ -104,6 +116,12 @@
           break;
         }
       }
+    }
+    if (out === null && jalali) {
+      out = PT.date.convertText(t);            // "24/Sep/26 3:15 PM" → "۲ مهر ۱۴۰۵، ساعت ۱۵:۱۵"
+    }
+    if (out === null && persianDigits && /^[\d\s\-–/:.,]{1,24}$/.test(t) && /\d/.test(t)) {
+      out = t;                                  // counters, page numbers, "1 - 20"
     }
     if (out === null) { return null; }
     if (persianDigits) {
@@ -145,10 +163,67 @@
     }
   }
 
+  /**
+   * Sentence with inline elements: "Your request status changed to {1}." → "… «{1}» …".
+   * Placeholders must keep their order in the translation, because nodes are never moved.
+   */
+  function sentence(el) {
+    var kids = el.childNodes;
+    var src = '';
+    var slots = [[]];      // text nodes before, between and after the inline elements
+    var elems = [];
+    for (var i = 0; i < kids.length; i++) {
+      var k = kids[i];
+      if (k.nodeType === 3) { src += k.nodeValue; slots[slots.length - 1].push(k); continue; }
+      if (k.nodeType !== 1 || !INLINE.test(k.tagName) || k.children.length) { return; }
+      elems.push(k);
+      src += '{' + elems.length + '}';
+      slots.push([]);
+    }
+    src = src.replace(/\s+/g, ' ').trim();
+    if (!elems.length || !U.hasOwn.call(sentences, src)) { return; }
+    var parts = sentences[src].split(/\{(\d)\}/);
+    for (var p = 1; p < parts.length; p += 2) {
+      if (+parts[p] !== (p + 1) / 2) { return; }   // order changed: not supported
+    }
+    if ((parts.length - 1) / 2 !== elems.length) { return; }
+    for (var s = 0; s < slots.length; s++) {
+      var text = parts[s * 2];
+      if (!slots[s].length) {
+        if (!text) { continue; }
+        var t = document.createTextNode(text);
+        el.insertBefore(t, s < elems.length ? elems[s] : null);
+        continue;
+      }
+      slots[s][0].nodeValue = text;
+      for (var r = 1; r < slots[s].length; r++) { slots[s][r].nodeValue = ''; }
+    }
+    for (var e = 0; e < elems.length; e++) {
+      var v = elems[e].textContent.replace(/\s+/g, ' ').trim();
+      if (U.hasOwn.call(exact, v)) { elems[e].textContent = exact[v]; }
+      elems[e].setAttribute('dir', 'auto');
+    }
+  }
+
+  function sentences_(node) {
+    if (node.nodeType === 3) {
+      var host = node.parentElement && node.parentElement.closest && node.parentElement.closest(SENTENCE_SCOPE);
+      if (host) { sentence(host); }
+      return;
+    }
+    if (node.matches && node.matches(SENTENCE_SCOPE)) { sentence(node); }
+    var list = node.querySelectorAll ? node.querySelectorAll(SENTENCE_SCOPE) : [];
+    for (var i = 0; i < list.length; i++) { sentence(list[i]); }
+    if (!list.length && node.closest) {
+      var up = node.closest(SENTENCE_SCOPE);
+      if (up) { sentence(up); }
+    }
+  }
+
   /** Translates a subtree (or a single text node). */
   function apply(node) {
     if (!active || !node) { return; }
-    if (node.nodeType === 3) { textNode(node); return; }
+    if (node.nodeType === 3) { textNode(node); sentences_(node); return; }
     if (node.nodeType !== 1) { return; }
     attributes(node);
     var walker = document.createTreeWalker(node, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, null);
@@ -156,6 +231,7 @@
     while ((n = walker.nextNode())) {
       if (n.nodeType === 3) { textNode(n); } else { attributes(n); }
     }
+    sentences_(node);
   }
 
   PT.text = {

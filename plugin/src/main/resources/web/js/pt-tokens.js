@@ -235,14 +235,29 @@
     put('logo-h', num(U.get(s, 'identity.logoHeight', 36), 20, 64, 36) + 'px');
     put('logo-w', num(U.get(s, 'identity.logoMaxWidth', 200), 60, 360, 200) + 'px');
 
+    // Layout
+    var L = s.layout || {};
+    put('search-w', ({ narrow: '560px', medium: '720px', wide: '960px', full: '100%' })[L.searchWidth] || '720px');
+    put('form-w', ({ narrow: '680px', standard: '820px', wide: '1040px' })[L.formWidth] || '820px');
+    var cols = parseInt(L.portalColumns, 10);
+    put('cards-cols', cols >= 2 && cols <= 4 ? 'repeat(' + cols + ', minmax(0, 1fr))' : 'repeat(auto-fit, minmax(290px, 1fr))');
+
     // Hero
     var hero = (s.appearance || {}).heroStyle || 'tinted';
     put('hero-bg', hero === 'brand' ? p.brand
       : hero === 'plain' ? 'transparent'
         : 'radial-gradient(900px 380px at 85% -10%, ' + C.rgba(p.accent, scheme === 'dark' ? 0.18 : 0.2) + ', transparent 70%), '
           + 'radial-gradient(700px 320px at 0% 0%, ' + C.rgba(p.brand, scheme === 'dark' ? 0.22 : 0.08) + ', transparent 72%)');
-    put('hero-text', hero === 'brand' ? p.onBrand : p.text);
-    put('hero-muted', hero === 'brand' ? C.ensureContrast(C.mix(p.onBrand, p.brand, 0.25), p.brand, 4.5) : p.muted);
+    if (hero === 'image') {
+      // A brand-coloured veil over the photo keeps white text readable whatever the image.
+      var veil = C.isDark(p.brand) ? p.brand : C.darken(p.brand, 0.55);
+      var o = num(U.get(s, 'appearance.heroOverlay', 60), 0, 90, 60) / 100;
+      put('hero-veil', 'linear-gradient(180deg, ' + C.rgba(veil, Math.min(0.95, o + 0.1)) + ', ' + C.rgba(veil, o) + ')');
+      put('hero-bg', 'transparent');
+    }
+    var light = hero === 'brand' || hero === 'image';
+    put('hero-text', light ? (hero === 'image' ? '#ffffff' : p.onBrand) : p.text);
+    put('hero-muted', light ? (hero === 'image' ? 'rgba(255, 255, 255, .88)' : C.ensureContrast(C.mix(p.onBrand, p.brand, 0.25), p.brand, 4.5)) : p.muted);
 
     // Atlassian design tokens used by the React parts of the portal, so they follow the theme too.
     var ds = {

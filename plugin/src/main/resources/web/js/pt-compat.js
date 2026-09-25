@@ -150,6 +150,13 @@
     'filter-search': ['.cp-filter-text-input-wrapper'],
     'table-wrap': ['[data-testid="cv-table-container"]'],
     'table': ['[data-testid="cv-table-container"] table', '#content table.aui'],
+    // Request list cells, identified by Jira's own field ids
+    'cell-type': ['[data-pt~="table"] td[fieldid="requestTypeName"]'],
+    'cell-key': ['[data-pt~="table"] td[fieldid="key"]'],
+    'cell-summary': ['[data-pt~="table"] td[fieldid="summary"]'],
+    'cell-status': ['[data-pt~="table"] td[fieldid="status"]'],
+    'cell-portal': ['[data-pt~="table"] td[fieldid="portalName"]'],
+    'cell-reporter': ['[data-pt~="table"] td[fieldid="reporterDisplayName"]'],
     'pagination': ['nav[aria-label="pagination"]', 'nav[aria-label="صفحه‌بندی"]', 'nav[aria-label="صفحه بندی"]'],
     'empty': ['.cv-no-requests', '.cp-no-results', '.cv-empty-state', '[data-testid="empty-state"]'],
 

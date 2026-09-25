@@ -3,7 +3,7 @@
    ========================================================================================== */
 
 /* ---------- Create request: one focused, centred card ---------- */
-html.pt[data-pt-page="create"] [data-pt~="main"] { max-width: 820px !important; margin: 0 auto !important; }
+html.pt[data-pt-page="create"] [data-pt~="main"] { max-width: var(--pt-form-w, 820px) !important; margin: 0 auto !important; }
 html.pt[data-pt-page="create"] #content .cv-page-body,
 html.pt [data-pt~="form-card"] {
   padding: 36px 40px !important;
@@ -80,8 +80,29 @@ html.pt [data-pt~="request-side"] {
 }
 /* The title keeps the summary; the key is a quiet, copyable chip in the breadcrumbs. */
 html.pt[data-pt-page="request"] [data-pt~="title"] { font-size: 24px !important; overflow-wrap: anywhere; }
-/* The status lives in the side panel; the duplicate next to the title is hidden. */
-html.pt .cv-request-details [data-pt~="title-block"] .request-status-lozenge { display: none !important; }
+/* Status: next to the title (default) or only in the side panel. */
+html.pt:not(.pt-status-title) .cv-request-details [data-pt~="title-block"] .request-status-lozenge { display: none !important; }
+html.pt.pt-status-title [data-pt~="request-side"] [data-pt~="request-status"] { display: none !important; }
+html.pt.pt-status-title .cv-request-details [data-pt~="title-block"] .request-status-lozenge {
+  display: inline-flex !important;
+  margin: 10px 0 0 !important;
+  font-size: inherit !important;
+}
+html.pt.pt-status-title .cv-request-details [data-pt~="title-block"] .request-status-lozenge .aui-lozenge { padding: 4px 14px !important; font-size: 13.5px !important; }
+/* The request key (last breadcrumb) as a quiet, copyable chip */
+html.pt[data-pt-page="request"] [data-pt~="breadcrumbs"] > li:last-child :is(a, span) {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 10px;
+  border: 1px solid var(--pt-border);
+  border-radius: var(--pt-radius-pill);
+  background: var(--pt-surface);
+  color: var(--pt-text) !important;
+  font-weight: 700;
+  direction: ltr;
+  unicode-bidi: isolate;
+  font-variant-numeric: tabular-nums;
+}
 
 html.pt [data-pt~="request-panel"] {
   padding: 22px !important;
@@ -197,3 +218,14 @@ html.pt [data-pt~="activity"] :is(.attachment-thumbnail, .attachment-content, .c
   border-radius: var(--pt-radius-md) !important;
   overflow: hidden;
 }
+
+/* Shamsi equivalent shown under date fields (pt-date.js) */
+html.pt .pt-jalali-hint { margin: 6px 0 0; color: var(--pt-brand-text); font-size: 13px; font-weight: 600; }
+
+/* Bullet and numbered lists inside Persian or mixed content: markers on the reading side */
+html.pt :is([data-pt~="user-content"], [data-pt~="authored"], [dir="auto"]) :is(ul, ol) {
+  margin-block: 6px;
+  padding-inline-start: 22px !important;
+  padding-inline-end: 0 !important;
+}
+html.pt :is([data-pt~="user-content"], [dir="auto"]) li { text-align: start; }

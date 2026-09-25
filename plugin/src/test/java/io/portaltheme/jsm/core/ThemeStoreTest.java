@@ -52,6 +52,25 @@ class ThemeStoreTest {
     }
 
     @Test
+    void largeImagesAreChunkedAndReassembled() {
+        ThemeStore s = node();
+        byte[] png = new byte[200_000];
+        byte[] sig = {(byte) 0x89, 'P', 'N', 'G', 13, 10, 26, 10};
+        System.arraycopy(sig, 0, png, 0, sig.length);
+        new java.util.Random(1).nextBytes(png);
+        System.arraycopy(sig, 0, png, 0, sig.length);
+        String url = "data:image/png;base64," + java.util.Base64.getEncoder().encodeToString(png);
+        Asset a = s.putAsset(Asset.Kind.BACKGROUND, url);
+        assertTrue(db.get(ThemeStore.ASSET_PREFIX + "background").startsWith(ThemeStore.CHUNK_MARKER));
+        for (String v : db.values()) {
+            assertTrue(v.length() <= ThemeStore.CHUNK);
+        }
+        assertEquals(a.hash, node().asset(Asset.Kind.BACKGROUND).hash, "another node reads the same image");
+        s.removeAsset(Asset.Kind.BACKGROUND);
+        assertTrue(db.isEmpty());
+    }
+
+    @Test
     void resetRemovesEverything() {
         ThemeStore s = node();
         s.save("{\"enabled\":false}");

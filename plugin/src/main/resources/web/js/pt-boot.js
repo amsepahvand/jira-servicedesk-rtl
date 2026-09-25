@@ -81,13 +81,18 @@
 
   var data = claim();
   var docConfig = data.config || null;
+  // Preview of the admin's unsaved settings (Settings → "Preview on portal"). It stays on for this
+  // browser tab while the admin clicks around; ?portalTheme=on (or closing the tab) ends it.
   var preview = false;
-  if (mode === 'preview') {
-    try {
+  var previewMissing = false;
+  try {
+    if (mode === 'preview') { win.sessionStorage.setItem('portalTheme.previewing', '1'); }
+    if (mode === 'on') { win.sessionStorage.removeItem('portalTheme.previewing'); }
+    if (mode === 'preview' || win.sessionStorage.getItem('portalTheme.previewing') === '1') {
       var draft = win.localStorage.getItem('portalTheme.preview');
-      if (draft) { docConfig = JSON.parse(draft).config || docConfig; preview = true; }
-    } catch (e) { /* ignore */ }
-  }
+      if (draft) { docConfig = JSON.parse(draft).config || docConfig; preview = true; } else { previewMissing = true; }
+    }
+  } catch (e) { /* storage blocked: normal theme */ }
   if (docConfig && docConfig.enabled === false && !preview) { return; }
 
   // ------------------------------------------------------------------ state
@@ -176,6 +181,10 @@
     toggle('pt-compact', U.get(settings, 'shape.density', 'comfortable') === 'compact');
     toggle('pt-card-' + (U.get(settings, 'shape.cardStyle', 'elevated')), true);
     html.setAttribute('data-pt-hero', U.get(settings, 'appearance.heroStyle', 'tinted'));
+    html.setAttribute('data-pt-hero-align', U.get(settings, 'layout.heroAlign', 'center'));
+    toggle('pt-status-title', U.get(settings, 'layout.statusInTitle', true) !== false);
+    toggle('pt-mobile-cards', f.mobileCards !== false);
+    toggle('pt-loading-bar', f.loadingBar !== false);
 
     styleTag('pt-tokens', PT.tokens.css(settings));
     var custom = typeof settings.customCss === 'string' ? settings.customCss.replace(/<\/?style/gi, '') : '';
@@ -191,7 +200,7 @@
   // Set the <html> state as early as possible (this script may run in <head>), so the first
   // paint already uses the theme and no English/unstyled flash is visible.
   try {
-    html.classList.add('pt', 'pt-loading');
+    html.classList.add('pt', 'pt-loading', 'pt-waiting');
     html.setAttribute('data-pt-page', state.page);
     applySettings(computeSettings());
   } catch (e) {
@@ -258,8 +267,11 @@
     return !!(panel && panel.children.length);
   }
 
+  var customizePaused = false;
   function stepAsideForCustomize() {
-    off();
+    if (customizePaused) { return; }
+    customizePaused = true;
+    visualOff();
     var note = doc.createElement('div');
     note.className = 'pt-customize-note';
     note.setAttribute('role', 'status');
@@ -275,7 +287,16 @@
   var observer = null;
   function onMutations(records) {
     try {
-      if (customizing()) { stepAsideForCustomize(); return; }
+      if (!customizePaused && customizing()) { stepAsideForCustomize(); }
+      if (customizePaused) {
+        // Customize mode: only the language layer keeps working.
+        for (var c = 0; c < records.length; c++) {
+          for (var a = 0; a < records[c].addedNodes.length; a++) { PT.text.apply(records[c].addedNodes[a]); }
+          if (records[c].type !== 'childList') { PT.text.apply(records[c].target); }
+        }
+        observer.takeRecords();
+        return;
+      }
       routeChanged();
       for (var i = 0; i < records.length; i++) {
         var r = records[i];
@@ -312,14 +333,25 @@
   }
 
   var READY_ROLES = '[data-pt~="portal-card"],[data-pt~="rt-card"],[data-pt~="form-card"],[data-pt~="activity"],' +
-    '[data-pt~="table-wrap"],[data-pt~="empty"],[data-pt~="login-form"],[data-pt~="profile-row"],[data-pt~="hero-title"]';
+    '[data-pt~="table-wrap"],[data-pt~="empty"],[data-pt~="login-form"],[data-pt~="profile-row"],[data-pt~="hero-title"],' +
+    '[data-pt~="list-toolbar"],[data-pt~="request-panel"],[data-pt~="title"],[data-pt~="field"]';
   function maybeReveal() {
-    if (html.classList.contains('pt-loading') && doc.querySelector(READY_ROLES)) { reveal(); }
+    var ready = doc.querySelector(READY_ROLES);
+    if (ready) { html.classList.remove('pt-waiting'); }
+    if (html.classList.contains('pt-loading') && ready) { reveal(); }
   }
 
   function failOpen(e) {
     try { if (win.console && console.warn) { console.warn('[Portal Theme] disabled on this page:', e); } } catch (x) { /* ignore */ }
     off();
+  }
+
+  /** Removes the visual layer (styles, classes, added elements) but keeps the page language. */
+  function visualOff() {
+    try { PT.enhance.teardown(); } catch (e) { /* ignore */ }
+    ['pt-tokens', 'pt-custom'].forEach(function (id) { var el = doc.getElementById(id); if (el) { el.parentNode.removeChild(el); } });
+    Array.prototype.slice.call(html.classList).filter(function (c) { return c === 'pt' || c.indexOf('pt-') === 0; })
+      .forEach(function (c) { html.classList.remove(c); });
   }
 
   /** Switches the theme off at runtime (also used by fail-open). Texts need a reload to restore. */
@@ -338,11 +370,13 @@
       PT.compat.init(data.jiraVersion);
       html.setAttribute('data-pt-adapter', PT.compat.adapter());
       startEnhance();
+      if (PT.date && U.get(state.settings, 'locale.jalali', true) !== false && state.lang === 'fa') { PT.date.watchInputs(); }
       processSubtree(doc.body);
       PT.compat.refreshState();
       PT.enhance.run(null);
       maybeReveal();
       win.setTimeout(reveal, 700); // never keep content hidden for long
+      win.setTimeout(function () { html.classList.remove('pt-waiting'); }, 20000);
       observer = new MutationObserver(onMutations);
       var opts = { childList: true, subtree: true };
       if (PT.text.isActive()) {
@@ -351,7 +385,7 @@
         opts.attributeFilter = PT.text.ATTRS;
       }
       observer.observe(doc.body, opts);
-      if (preview) { previewPill(); }
+      if (preview || previewMissing) { previewPill(); }
     } catch (e) { failOpen(e); }
   }
 
@@ -359,7 +393,16 @@
     var el = doc.createElement('div');
     el.className = 'pt-own pt-preview-pill';
     el.setAttribute('role', 'status');
-    el.textContent = state.lang === 'fa' ? 'پیش‌نمایش تنظیمات ذخیره‌نشده' : 'Previewing unsaved theme settings';
+    var fa = state.lang === 'fa';
+    var label = doc.createElement('span');
+    label.textContent = previewMissing
+      ? (fa ? 'پیش‌نمایشی پیدا نشد؛ در صفحه‌ی تنظیمات دکمه‌ی «پیش‌نمایش در پرتال» را بزنید.' : 'No preview found — use “Preview on portal” in the settings page.')
+      : (fa ? 'پیش‌نمایش تنظیمات ذخیره‌نشده' : 'Previewing unsaved theme settings');
+    var end = doc.createElement('a');
+    end.href = win.location.pathname + '?portalTheme=on';
+    end.textContent = fa ? 'پایان پیش‌نمایش' : 'End preview';
+    el.appendChild(label);
+    el.appendChild(end);
     doc.body.appendChild(el);
   }
 

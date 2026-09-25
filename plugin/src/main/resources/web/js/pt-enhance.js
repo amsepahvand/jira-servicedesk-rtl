@@ -124,23 +124,14 @@
 
   // ------------------------------------------------------------------ footer
 
-  /** Author credit, always shown at the very bottom of the portal (also when the footer is off). */
-  var CREDIT = '<p class="pt-credit" dir="ltr" lang="en">Made with <span class="pt-heart" role="img" aria-label="love">\u2764\ufe0f</span> by ' +
-    '<a href="https://www.linkedin.com/in/asepahvand/" target="_blank" rel="noopener">Amir</a> &amp; ' +
-    '<a href="https://www.linkedin.com/in/taha-sepahvand-3b5063420/" target="_blank" rel="noopener">Taha Sepahvand</a></p>';
-
   function footer() {
     var cfg = ctx.settings.footer || {};
     var el = document.getElementById('pt-footer');
-    if (el || !document.body) { return; }
     if (cfg.enabled === false) {
-      el = document.createElement('footer');
-      el.id = 'pt-footer';
-      el.className = 'pt-own pt-footer pt-footer--minimal';
-      el.innerHTML = '<div class="pt-footer-inner">' + CREDIT + '</div>';
-      (document.getElementById('page') || document.body).appendChild(el);
+      if (el) { el.parentNode.removeChild(el); }
       return;
     }
+    if (el || !document.body) { return; }
     var t = ctx.settings.texts || {};
     var links = (Array.isArray(cfg.links) ? cfg.links : []).map(function (l) {
       var href = U.absolute(l && l.url);
@@ -169,7 +160,7 @@
       (links ? '<nav class="pt-footer-links" aria-label="' + (ctx.lang === 'fa' ? 'پیوندهای پایین صفحه' : 'Footer') + '"><ul>' + links + '</ul></nav>' : '') +
       supportBlock +
       '<div class="pt-footer-bottom">' +
-      (t.copyright ? '<p class="pt-copyright">' + U.escapeHtml(fill(t.copyright)) + '</p>' : '') + CREDIT + '</div>' +
+      (t.copyright ? '<p class="pt-copyright">' + U.escapeHtml(fill(t.copyright)) + '</p>' : '') + '</div>' +
       '</div>';
     (document.getElementById('page') || document.body).appendChild(el);
   }
@@ -203,10 +194,64 @@
         }
       }
     }
+    quickLinks();
+    heroBand();
     var input = document.querySelector('[data-pt~="search-input"]');
     if (input && t.searchPlaceholder && input.getAttribute('placeholder') !== t.searchPlaceholder) {
       input.setAttribute('placeholder', t.searchPlaceholder);
     }
+  }
+
+  var QUICK_ICONS = {
+    requests: '<svg class="pt-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 4h14v16H5zM9 9h6M9 13h6M9 17h3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    approvals: '<svg class="pt-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 6 9 17l-5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    link: '<svg class="pt-icon pt-flip-rtl" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+  };
+
+  /** Shortcut chips under the home search, for logged-in customers. */
+  function quickLinks() {
+    var existing = document.getElementById('pt-quick');
+    var L = ctx.settings.layout || {};
+    var box = document.querySelector('[data-pt~="search"]');
+    var items = Array.isArray(L.quickLinkItems) ? L.quickLinkItems : [];
+    if (ctx.page !== 'home' || L.quickLinks === false || !ctx.viewer.authenticated || !box || !items.length) {
+      if (existing) { existing.parentNode.removeChild(existing); }
+      return;
+    }
+    if (existing && existing.parentNode === box) { return; }
+    var html = items.map(function (it) {
+      var href = U.absolute(it && it.url);
+      if (!href || !it.label) { return ''; }
+      var icon = /requests/.test(href) ? QUICK_ICONS.requests : /approvals/.test(href) ? QUICK_ICONS.approvals : QUICK_ICONS.link;
+      return '<li><a href="' + U.escapeHtml(href) + '">' + icon + '<span>' + U.escapeHtml(it.label) + '</span></a></li>';
+    }).join('');
+    if (!html) { return; }
+    var ul = document.createElement('ul');
+    ul.id = 'pt-quick';
+    ul.className = 'pt-own pt-quick';
+    ul.setAttribute('aria-label', ctx.lang === 'fa' ? 'دسترسی سریع' : 'Quick links');
+    ul.innerHTML = html;
+    box.appendChild(ul);
+  }
+
+  /** Uploaded background image behind the header area of the home and portal pages. */
+  function heroBand() {
+    var band = document.getElementById('pt-hero-band');
+    var want = U.get(ctx.settings, 'appearance.heroStyle', 'tinted') === 'image' && assetUrl('background') &&
+      (ctx.page === 'home' || ctx.page === 'portal');
+    if (!want) {
+      if (band) { band.parentNode.removeChild(band); }
+      return;
+    }
+    var host = document.querySelector('[data-pt~="page"]');
+    if (!host || (band && band.parentNode === host)) { return; }
+    band = document.createElement('div');
+    band.id = 'pt-hero-band';
+    band.className = 'pt-own pt-hero-band';
+    band.setAttribute('aria-hidden', 'true');
+    band.style.backgroundImage = 'url("' + assetUrl('background').replace(/"/g, '%22') + '")';
+    band.style.backgroundPosition = 'center ' + ({ top: 'top', bottom: 'bottom' }[U.get(ctx.settings, 'appearance.heroImagePosition', 'center')] || 'center');
+    host.insertBefore(band, host.firstChild);
   }
 
   // ------------------------------------------------------------------ document title & favicon
@@ -311,8 +356,26 @@
     for (var j = 0; j < ltr.length; j++) { ltr[j].setAttribute('dir', 'ltr'); }
   }
 
+  /** Empty states have no stable class: recognise them by their (translated) heading text. */
+  function emptyStates() {
+    var t = ctx.settings.texts || {};
+    var titles = [t.emptyRequestsTitle, t.emptySearchTitle, 'No requests were found.', 'No requests found', 'No results found']
+      .filter(Boolean).map(function (x) { return String(x).replace(/\s+/g, ' ').trim(); });
+    var heads = document.querySelectorAll('[data-pt~="main"] :is(h2, h3, h4):not([data-pt-empty])');
+    for (var i = 0; i < heads.length; i++) {
+      heads[i].setAttribute('data-pt-empty', '0');
+      if (titles.indexOf(heads[i].textContent.replace(/\s+/g, ' ').trim()) >= 0 && heads[i].parentElement) {
+        heads[i].setAttribute('data-pt-empty', '1');
+        var box = heads[i].parentElement;
+        var cur = box.getAttribute('data-pt') || '';
+        if ((' ' + cur + ' ').indexOf(' empty ') < 0) { box.setAttribute('data-pt', (cur + ' empty').trim()); }
+      }
+    }
+  }
+
   /** Whole request-type tile is clickable (the title link stays the real, focusable control). */
   function onTileClick(e) {
+    if (ctx && U.get(ctx.settings, 'features.tileClick', true) === false) { return; }
     var tile = e.target.closest && e.target.closest('[data-pt~="rt-card"]');
     if (!tile || e.target.closest('a, button, input, label, select, textarea')) { return; }
     var a = tile.querySelector('a[href]');
@@ -337,6 +400,9 @@
     tableLabels(scope);
     statuses(scope);
     directions(scope);
+    emptyStates();
+    if (PT.date && U.get(ctx.settings, 'locale.jalali', true) !== false && ctx.lang === 'fa') { PT.date.decorateTimes(scope); }
+    if (PT.date && ctx.lang === 'fa') { PT.date.explainGuides(scope); }
   }
 
   function setPage(page) { if (ctx) { ctx.page = page; } }

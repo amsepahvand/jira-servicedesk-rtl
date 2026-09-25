@@ -54,13 +54,28 @@
     },
     appearance: {
       mode: 'light',           // light | dark | auto
-      heroStyle: 'tinted'      // tinted | plain | brand
+      heroStyle: 'tinted',     // tinted | plain | brand | image (uploaded background image)
+      heroOverlay: 60,         // 0–90 %: brand-coloured veil over the background image (keeps text readable)
+      heroImagePosition: 'center' // top | center | bottom
+    },
+    layout: {
+      heroAlign: 'center',     // center | start   (title, subtitle and search on the home page)
+      searchWidth: 'medium',   // narrow | medium | wide | full
+      portalColumns: 'auto',   // auto | 2 | 3 | 4   (service and request-type cards on desktop)
+      formWidth: 'standard',   // narrow | standard | wide   (request form)
+      quickLinks: true,        // shortcut chips under the home search (logged-in customers)
+      quickLinkItems: [
+        { label: 'درخواست‌های من', url: '/servicedesk/customer/user/requests' },
+        { label: 'تأییدهای من', url: '/servicedesk/customer/user/approvals' }
+      ],
+      statusInTitle: true      // request page: status next to the title
     },
     locale: {
       direction: 'rtl',        // rtl | ltr
       language: 'fa',          // fa | en  (built-in dictionary for Jira's English UI texts)
       translate: true,         // replace Jira's customer-facing English texts
-      persianDigits: true      // show numbers in Jira-generated texts with Persian digits
+      persianDigits: true,     // show numbers in Jira-generated texts with Persian digits
+      jalali: true             // show Jira dates in the Persian (Shamsi) calendar
     },
     texts: {
       homeTitle: 'چطور می‌توانیم کمکتان کنیم؟',
@@ -108,7 +123,10 @@
       favicon: true,
       pageTitle: true,         // "<page> | <company>" in the browser tab
       iconStyle: 'tinted',     // tinted | original | mono  (request type icons)
-      statusColors: true       // colour status badges by category
+      statusColors: true,      // colour status badges by category
+      loadingBar: true,        // slim progress bar while JSM loads a page
+      tileClick: true,         // whole request-type card is clickable
+      mobileCards: true        // request list becomes cards on phones
     },
     motion: {
       level: 'full'            // full | reduced | off   (the OS "reduce motion" setting always wins)
@@ -123,11 +141,10 @@
       settings: {}
     },
 
-    'bimeh-bazaar': {
-      id: 'bimeh-bazaar',
-      name: { fa: 'بیمه‌بازار — مشکی و زرد', en: 'Bimeh Bazaar — black & yellow' },
+    zarrin: {
+      id: 'zarrin',
+      name: { fa: 'زرین — مشکی و زرد', en: 'Zarrin — black & gold' },
       settings: {
-        identity: { companyName: 'بیمه‌بازار' },
         colors: {
           primary: '#111111',
           accent: '#f2bf00',
@@ -148,12 +165,63 @@
       }
     },
 
+    firouzeh: {
+      id: 'firouzeh',
+      name: { fa: 'فیروزه — آرام و سازمانی', en: 'Firouzeh — calm turquoise' },
+      settings: {
+        colors: { primary: '#0b6e75', accent: '#e0a526', background: '#f3f7f7', surface: '#ffffff', text: '#0c1f22',
+          muted: '#44585b', border: '#dbe6e6', focus: '#0b6e75', header: '#0b6e75' },
+        shape: { radius: 14, cardStyle: 'elevated', shadow: 'soft' },
+        appearance: { heroStyle: 'tinted' }
+      }
+    },
+    anar: {
+      id: 'anar',
+      name: { fa: 'انار — گرم و پرانرژی', en: 'Anar — pomegranate' },
+      settings: {
+        colors: { primary: '#9f1239', accent: '#d97706', background: '#fbf6f6', surface: '#ffffff', text: '#24080f',
+          muted: '#5f4148', border: '#efe0e2', focus: '#9f1239', header: '#ffffff' },
+        shape: { radius: 16, cardStyle: 'outlined', shadow: 'soft' },
+        appearance: { heroStyle: 'brand' }
+      }
+    },
+    jangal: {
+      id: 'jangal',
+      name: { fa: 'جنگل — سبز و مطمئن', en: 'Jangal — forest green' },
+      settings: {
+        colors: { primary: '#166534', accent: '#ca8a04', background: '#f4f7f3', surface: '#ffffff', text: '#0d1f12',
+          muted: '#44574a', border: '#dfe8e0', focus: '#166534', header: '#ffffff' },
+        shape: { radius: 10, cardStyle: 'elevated', shadow: 'medium' },
+        appearance: { heroStyle: 'tinted' }
+      }
+    },
+    kavir: {
+      id: 'kavir',
+      name: { fa: 'کویر — شنی و مینیمال', en: 'Kavir — desert minimal' },
+      settings: {
+        colors: { primary: '#7c4a1e', accent: '#0f766e', background: '#faf7f2', surface: '#ffffff', text: '#231709',
+          muted: '#5c4d3d', border: '#ece3d6', focus: '#7c4a1e', header: '#faf7f2' },
+        shape: { radius: 6, cardStyle: 'flat', shadow: 'none' },
+        appearance: { heroStyle: 'plain' },
+        layout: { heroAlign: 'start' }
+      }
+    },
+    shab: {
+      id: 'shab',
+      name: { fa: 'شب — تیره و مدرن', en: 'Shab — night mode' },
+      settings: {
+        colors: { primary: '#6d7cff', accent: '#22d3ee', header: '#0d1117' },
+        appearance: { mode: 'dark', heroStyle: 'tinted' },
+        shape: { radius: 14, cardStyle: 'outlined', shadow: 'soft' }
+      }
+    },
+
     'clean-ltr': {
       id: 'clean-ltr',
       name: { fa: 'انگلیسی چپ‌به‌راست', en: 'Clean English (LTR)' },
       settings: {
         identity: { companyName: 'Help Center' },
-        locale: { direction: 'ltr', language: 'en', translate: false, persianDigits: false },
+        locale: { direction: 'ltr', language: 'en', translate: false, persianDigits: false, jalali: false },
         typography: { font: 'system' },
         texts: {
           homeTitle: 'How can we help?',
@@ -173,6 +241,7 @@
           copyright: '© {year} {company}. All rights reserved.'
         },
         backToJira: { label: 'Back to Jira' },
+        layout: { quickLinkItems: [{ label: 'My requests', url: '/servicedesk/customer/user/requests' }, { label: 'My approvals', url: '/servicedesk/customer/user/approvals' }] },
         footer: {
           links: [
             { label: 'New request', url: '/servicedesk/customer/portals' },
@@ -183,8 +252,13 @@
     }
   };
 
+  // Older documents used other ids for the same presets.
+  var ALIASES = { 'bimeh-bazaar': 'zarrin' };
+
+  function presetId(id) { return PRESETS[id] ? id : (ALIASES[id] && PRESETS[ALIASES[id]] ? ALIASES[id] : 'persian'); }
+
   function presetSettings(id) {
-    var p = PRESETS[id] || PRESETS.persian;
+    var p = PRESETS[presetId(id)];
     return U.merge({}, DEFAULTS, p.settings);
   }
 
@@ -194,7 +268,7 @@
     return {
       schemaVersion: 1,
       enabled: d.enabled !== false,
-      preset: PRESETS[d.preset] ? d.preset : 'persian',
+      preset: presetId(d.preset),
       global: U.isPlainObject(d.global) ? d.global : {},
       portals: U.isPlainObject(d.portals) ? d.portals : {}
     };
@@ -213,7 +287,7 @@
 
   /** A new document that starts from a preset. */
   function documentFromPreset(id) {
-    var p = PRESETS[id] ? id : 'persian';
+    var p = presetId(id);
     return { schemaVersion: 1, enabled: true, preset: p, global: U.clone(PRESETS[p].settings), portals: {} };
   }
 
