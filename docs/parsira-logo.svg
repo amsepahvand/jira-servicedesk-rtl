@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 610">
+  <image href="parsira-mark.svg" x="70" y="0" width="480" height="480"/>
+  <text x="310" y="585" text-anchor="middle" font-family="Poppins, 'Segoe UI', Arial, sans-serif" font-size="128" font-weight="600" fill="#0f2350" letter-spacing="2">Pars<tspan fill="#0f2350">ı</tspan>ra</text>
+  <rect x="388" y="468" width="22" height="22" fill="#d9a05a" transform="rotate(45 399 479)"/>
+</svg>

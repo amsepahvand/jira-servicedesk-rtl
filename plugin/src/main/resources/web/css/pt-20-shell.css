@@ -64,7 +64,9 @@ html.pt :is(.aui-page-panel-content, .aui-page-panel-sidebar) {
 }
 html.pt :is(.footer-web-panels, .header-web-panels, .subheader-web-panels):empty { display: none !important; }
 
-/* ---------- Header ---------- */
+/* ---------- Header: compact enterprise navigation bar ----------
+   Brand at the reading start, actions at the end; a 2px accent line gives the product its edge.
+   Colours come from the header token, so a light or a dark header both work. */
 html.pt [data-pt~="header"],
 html.pt .pt-topbar {
   position: sticky;
@@ -75,8 +77,18 @@ html.pt .pt-topbar {
   background: var(--pt-header) !important;
   background-image: none !important;
   border: 0 !important;
-  border-block-end: 1px solid var(--pt-header-border) !important;
-  box-shadow: none !important;
+  box-shadow: inset 0 -1px 0 var(--pt-header-border), 0 1px 3px rgba(0, 0, 0, .04) !important;
+}
+html.pt [data-pt~="header"]::before,
+html.pt .pt-topbar::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--pt-accent) 18%, var(--pt-accent) 82%, transparent);
+  opacity: .9;
+  pointer-events: none;
 }
 html.pt [data-pt~="header-bar"],
 html.pt .pt-topbar-inner {
@@ -99,7 +111,7 @@ html.pt #header :is(.cp-header-primary, .cp-logo) {
   padding: 0 !important;
 }
 
-/* Brand: uploaded logo (never distorted) or a monogram, plus the company name */
+/* Brand: uploaded logo (never distorted) or a monogram, the company name, an optional subtitle */
 html.pt .pt-brand {
   display: inline-flex !important;
   align-items: center;
@@ -136,26 +148,36 @@ html.pt .pt-mark {
   font-size: 18px;
   font-weight: 800;
   line-height: 1;
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .12);
 }
 html.pt .pt-brand-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+html.pt .pt-brand-sub {
+  padding-inline-start: 12px;
+  border-inline-start: 1px solid var(--pt-header-border);
+  color: var(--pt-on-header-muted);
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+}
 html.pt [data-pt~="brand-logo"] { display: none !important; }
 
-/* Header actions: Requests, profile, Back to Jira */
+/* Header actions: Requests, approvals, customise, Back to Jira, profile */
 html.pt [data-pt~="header-actions"] {
   display: flex !important;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   margin: 0 !important;
   padding: 0 !important;
 }
 html.pt #header .cp-header-item { display: flex; align-items: center; margin: 0 !important; padding: 0 !important; }
 html.pt [data-pt~="header-button"],
 html.pt .pt-back-jira {
+  position: relative;
   display: inline-flex !important;
   align-items: center;
   gap: 8px;
   height: 40px !important;
-  padding: 0 14px !important;
+  padding: 0 12px !important;
   background: transparent !important;
   border: 1px solid transparent !important;
   border-radius: var(--pt-radius-md) !important;
@@ -174,9 +196,30 @@ html.pt .pt-back-jira:hover {
   color: var(--pt-on-header) !important;
   text-decoration: none !important;
 }
-html.pt .pt-back-jira {
-  border-color: var(--pt-header-border) !important;
+/* Icons for the known header actions (drawn with masks in the header text colour) */
+html.pt #header :is(.cv-requests-nav, .js-customize)::before {
+  content: "";
+  flex: none;
+  width: 18px;
+  height: 18px;
+  background: currentColor;
+  opacity: .9;
+  -webkit-mask: var(--pt-nav-icon) center / contain no-repeat;
+  mask: var(--pt-nav-icon) center / contain no-repeat;
 }
+html.pt #header .cv-requests-nav { --pt-nav-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 13l3-8h12l3 8v6H3z'/%3E%3Cpath d='M3 13h5l1 2h6l1-2h5'/%3E%3C/svg%3E"); }
+html.pt #header .js-customize { --pt-nav-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 4l6 6-8.5 8.5a2.1 2.1 0 0 1-3 0L6.5 16.5a2.1 2.1 0 0 1 0-3z'/%3E%3Cpath d='M4 20l3-3'/%3E%3C/svg%3E"); }
+/* Current section: a short accent bar under the item */
+html.pt:is([data-pt-page="requests"], [data-pt-page="approvals"]) #header .cv-requests-nav::after {
+  content: "";
+  position: absolute;
+  inset-inline: 12px;
+  inset-block-end: -12px;
+  height: 3px;
+  border-radius: 3px 3px 0 0;
+  background: var(--pt-accent);
+}
+html.pt .pt-back-jira { border-color: var(--pt-header-border) !important; }
 html.pt :is(#header .cv-requests-nav__text, #header .customize-text) { color: inherit !important; }
 html.pt [data-pt~="count-badge"] {
   min-width: 20px;
@@ -194,17 +237,101 @@ html.pt [data-pt~="count-badge"] {
 }
 html.pt [data-pt~="user-button"] {
   display: inline-flex !important;
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
+  margin-inline-start: 6px !important;
   padding: 0 !important;
   border: 2px solid var(--pt-header-border) !important;
   border-radius: 50% !important;
   background: none !important;
   overflow: hidden;
+  transition: border-color var(--pt-dur-1) ease;
 }
 html.pt [data-pt~="user-button"]:hover,
 html.pt [data-pt~="user-button"][aria-expanded="true"] { border-color: var(--pt-accent) !important; }
 html.pt [data-pt~="user-button"] :is(.cp-avatar, .cp-avatar-image, img) { width: 100% !important; height: 100% !important; border-radius: 50% !important; }
+/* The requests menu: section icons and counts line up */
+html.pt #header .aui-dropdown2 a { justify-content: space-between; }
+html.pt #header .aui-dropdown2 .aui-badge,
+html.pt #header .aui-dropdown2 [class*="badge"] {
+  min-width: 22px;
+  padding: 0 7px !important;
+  border-radius: var(--pt-radius-pill) !important;
+  background: var(--pt-surface3) !important;
+  color: var(--pt-text) !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  line-height: 20px !important;
+  text-align: center;
+}
+
+/* ---------- JSM "Customize" mode: content + side panel, theme stays on ---------- */
+html.pt.pt-customizing [data-pt~="page"] {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  grid-template-rows: auto 1fr;
+  align-items: start;
+}
+html.pt.pt-customizing [data-pt~="page"] > .cv-page-contents-container {
+  display: flex !important;
+  grid-column: 1;
+  grid-row: 1;
+  flex-direction: column;
+  min-width: 0;
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+html.pt.pt-customizing [data-pt~="page"] > .pt-footer { grid-column: 1; grid-row: 2; align-self: end; }
+html.pt.pt-customizing [data-pt~="customize-panel"] {
+  display: block !important;
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  width: auto !important;
+  max-height: 100dvh;
+  position: sticky !important;
+  inset-block-start: 0;
+  overflow-y: auto;
+  padding: 0 !important;
+  background: var(--pt-surface) !important;
+  border: 0 !important;
+  border-inline-start: 1px solid var(--pt-border) !important;
+  box-shadow: 0 0 32px rgba(0, 0, 0, .08) !important;
+  text-align: start;
+}
+html.pt.pt-customizing [data-pt~="customize-panel"] > * { padding: 20px !important; }
+html.pt.pt-customizing [data-pt~="customize-panel"] :is(h1, h2) { font-size: 18px !important; }
+html.pt.pt-customizing [data-pt~="customize-panel"] h3 { margin: 20px 0 10px !important; font-size: 15px !important; }
+html.pt.pt-customizing [data-pt~="customize-panel"] fieldset { margin: 0 !important; padding: 0 !important; border: 0 !important; }
+html.pt.pt-customizing [data-pt~="customize-panel"] .field-group { margin: 0 0 16px !important; padding: 0 !important; }
+html.pt.pt-customizing [data-pt~="customize-panel"] .field-group > label { display: block; margin: 0 0 6px !important; font-weight: 650; }
+html.pt.pt-customizing [data-pt~="customize-panel"] :is(.buttons-container, .cv-help-center-branding-buttons) {
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+  left: auto !important;
+  right: auto !important;
+  position: sticky !important;
+  inset: auto auto 0 auto !important;
+  width: auto !important;
+  z-index: 2;
+  margin: 0 -20px -20px !important;
+  padding: 14px 20px !important;
+  background: var(--pt-surface2);
+  border-block-start: 1px solid var(--pt-border);
+}
+html.pt.pt-customizing [data-pt~="customize-panel"] .pt-customize-note {
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  border-radius: var(--pt-radius-md);
+  background: var(--pt-brand-soft);
+  color: var(--pt-brand-soft-text);
+  font-size: 13px;
+  line-height: 1.8;
+}
+/* The header inside the content column is no longer full-window wide */
+html.pt.pt-customizing [data-pt~="header"] { position: relative; }
+html.pt.pt-customizing .pt-hero-band { inset-inline-end: 360px; }
 
 /* Jira branding and admin-only tools (feature switches) */
 html.pt-hide-jira-brand :is([data-pt~="jira-footer"], [data-pt~="jira-logo"]) { display: none !important; }
@@ -347,3 +474,4 @@ html.pt .pt-preview-pill a {
 }
 html.pt .pt-preview-pill a:hover,
 html.pt .pt-preview-pill a:focus-visible { opacity: 1; }
+html.pt #header .js-customize .customize-icon { display: none !important; }

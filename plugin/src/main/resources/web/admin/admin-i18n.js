@@ -1,5 +1,5 @@
 /*!
- * Portal Theme — admin page texts (English and Persian). The page follows the admin's Jira
+ * Parsira — admin page texts (English and Persian). The page follows the admin's Jira
  * language and can be switched with the language button.
  */
 (function (PT) {
@@ -7,7 +7,7 @@
 
   PT.adminI18n = {
     en: {
-      title: 'Rasta — customer portal theme',
+      title: 'Parsira — customer portal',
       subtitle: 'Brand the Jira Service Management customer portal. Changes apply to customers after you save.',
       enabled: 'Theme on', disabled: 'Theme off',
       save: 'Save changes', saving: 'Saving…', saved: 'Saved. Customers see the new look on their next page load.',
@@ -51,7 +51,7 @@
       shortcut: 'Ctrl/⌘ + S saves',
       tabs: { overview: 'Overview', identity: 'Brand', appearance: 'Look & feel', texts: 'Texts & language', navigation: 'Header & footer', features: 'Features', advanced: 'Advanced' },
       brandColours: 'Brand colours', moreColours: 'More colours', moreOptions: 'More options',
-      textsHome: 'Home page', textsMessages: 'Messages', textsLogin: 'Login page', textsFooter: 'Footer and support',
+      textsHome: 'Home page', textsActions: 'Buttons and actions', textsMessages: 'Messages', textsLogin: 'Login page', textsFooter: 'Footer and support',
       previewTitle: 'Live preview', desktop: 'Desktop', mobile: 'Mobile', contrast: 'Contrast check',
       contrastOk: 'passes', contrastLow: 'too low – adjusted automatically in the portal',
       pairs: { text: 'Text on cards', muted: 'Secondary text', mutedOnBackground: 'Secondary text on page', brandButton: 'Primary button', link: 'Links', header: 'Header', focus: 'Focus ring', border: 'Borders' },
@@ -59,6 +59,7 @@
       imageHelp: 'PNG, SVG, WebP or JPEG. The image is scaled to fit and never stretched or cropped.',
       fields: {
         'identity.companyName': ['Company or portal name', 'Shown in the header, browser tab and footer, and replaces “Help Center”.'],
+        'identity.portalTitle': ['Portal subtitle', 'Optional short line next to the name in the header, e.g. “Service requests”. Hidden on phones.'],
         'logo': ['Logo', 'For light backgrounds. Up to 512 KB.'],
         'background': ['Background image', 'Photo or illustration behind the home page header. A brand-coloured veil keeps the text readable.'],
         'layout.heroAlign': ['Title and search position', 'Centred is the classic help-centre layout; Start aligns with the page text.'],
@@ -103,6 +104,14 @@
         'features.iconStyle': ['Request type icons', ''],
         'motion.level': ['Motion', 'Customers who ask their system for reduced motion never see animation.'],
         'texts.homeTitle': ['Home page title', ''],
+        'texts.myRequests': ['“My requests”', 'Header menu, quick links and page title.'],
+        'texts.myApprovals': ['“My approvals”', ''],
+        'texts.submitRequest': ['Submit button on request forms', ''],
+        'texts.cancel': ['Cancel button', ''],
+        'texts.approve': ['Approve button', ''],
+        'texts.decline': ['Decline button', ''],
+        'texts.addComment': ['Comment box placeholder', ''],
+        'texts.attachFile': ['“Browse” button for attachments', ''],
         'texts.homeSubtitle': ['Home page subtitle', ''],
         'texts.searchPlaceholder': ['Search placeholder', ''],
         'texts.portalsHeading': ['Services heading', ''],
@@ -164,7 +173,7 @@
       jsonInvalid: 'Invalid JSON', warnings: 'Some values were ignored:'
     },
     fa: {
-      title: 'راستا — ظاهر پرتال مشتریان',
+      title: 'پارسیرا — پرتال مشتریان',
       subtitle: 'ظاهر پرتال مشتریان جیرا سرویس‌منیجمنت را با هویت سازمان خود هماهنگ کنید. تغییرات پس از ذخیره برای مشتریان اعمال می‌شود.',
       enabled: 'پوسته روشن', disabled: 'پوسته خاموش',
       save: 'ذخیره‌ی تغییرات', saving: 'در حال ذخیره…', saved: 'ذخیره شد. مشتریان ظاهر تازه را در بارگذاری بعدی صفحه می‌بینند.',
@@ -208,7 +217,7 @@
       shortcut: 'میان‌بر ذخیره: Ctrl/⌘ + S',
       tabs: { overview: 'نمای کلی', identity: 'برند', appearance: 'ظاهر و چیدمان', texts: 'متن‌ها و زبان', navigation: 'سربرگ و پانویس', features: 'قابلیت‌ها', advanced: 'پیشرفته' },
       brandColours: 'رنگ‌های برند', moreColours: 'رنگ‌های بیشتر', moreOptions: 'گزینه‌های بیشتر',
-      textsHome: 'صفحه‌ی اصلی', textsMessages: 'پیام‌ها', textsLogin: 'صفحه‌ی ورود', textsFooter: 'پانویس و پشتیبانی',
+      textsHome: 'صفحه‌ی اصلی', textsActions: 'دکمه‌ها و اقدام‌ها', textsMessages: 'پیام‌ها', textsLogin: 'صفحه‌ی ورود', textsFooter: 'پانویس و پشتیبانی',
       previewTitle: 'پیش‌نمایش زنده', desktop: 'دسکتاپ', mobile: 'موبایل', contrast: 'بررسی کنتراست',
       contrastOk: 'مناسب', contrastLow: 'کم است – در پرتال خودکار اصلاح می‌شود',
       pairs: { text: 'متن روی کارت', muted: 'متن ثانویه', mutedOnBackground: 'متن ثانویه روی زمینه', brandButton: 'دکمه‌ی اصلی', link: 'پیوندها', header: 'سربرگ', focus: 'حلقه‌ی فوکوس', border: 'حاشیه‌ها' },
@@ -216,6 +225,7 @@
       imageHelp: 'PNG، SVG، WebP یا JPEG. تصویر متناسب کوچک می‌شود و هرگز کشیده یا بریده نمی‌شود.',
       fields: {
         'identity.companyName': ['نام سازمان یا پرتال', 'در سربرگ، عنوان زبانه و پانویس نمایش داده می‌شود و جای «Help Center» را می‌گیرد.'],
+        'identity.portalTitle': ['زیرعنوان پرتال', 'عبارت کوتاه اختیاری کنار نام در سربرگ، مثلاً «سامانه‌ی درخواست‌ها». در موبایل نمایش داده نمی‌شود.'],
         'logo': ['نشان (لوگو)', 'برای زمینه‌ی روشن. حداکثر ۵۱۲ کیلوبایت.'],
         'background': ['تصویر زمینه', 'عکس یا تصویر پشت سربرگ صفحه‌ی اصلی. یک لایه‌ی رنگی برند خوانایی متن را حفظ می‌کند.'],
         'layout.heroAlign': ['جای عنوان و جست‌وجو', 'وسط‌چین چیدمان رایج مراکز پشتیبانی است؛ «ابتدای سطر» با متن صفحه هم‌تراز می‌شود.'],
@@ -260,6 +270,14 @@
         'features.iconStyle': ['آیکن انواع درخواست', ''],
         'motion.level': ['حرکت و انیمیشن', 'برای کسانی که در سیستم «کاهش حرکت» را انتخاب کرده‌اند، انیمیشنی پخش نمی‌شود.'],
         'texts.homeTitle': ['عنوان صفحه‌ی اصلی', ''],
+        'texts.myRequests': ['«درخواست‌های من»', 'در منوی سربرگ، پیوندهای سریع و عنوان صفحه.'],
+        'texts.myApprovals': ['«تأییدهای من»', ''],
+        'texts.submitRequest': ['دکمه‌ی ثبت در فرم درخواست', ''],
+        'texts.cancel': ['دکمه‌ی انصراف', ''],
+        'texts.approve': ['دکمه‌ی تأیید', ''],
+        'texts.decline': ['دکمه‌ی رد', ''],
+        'texts.addComment': ['متن راهنمای کادر پیام', ''],
+        'texts.attachFile': ['دکمه‌ی انتخاب فایل پیوست', ''],
         'texts.homeSubtitle': ['زیرعنوان صفحه‌ی اصلی', ''],
         'texts.searchPlaceholder': ['متن راهنمای جست‌وجو', ''],
         'texts.portalsHeading': ['عنوان بخش خدمات', ''],

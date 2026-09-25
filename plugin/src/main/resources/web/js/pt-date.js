@@ -1,5 +1,5 @@
 /*!
- * Portal Theme — Persian (Jalali / Shamsi) dates.
+ * Parsira — Persian (Jalali / Shamsi) dates.
  *
  * Jira keeps storing and sending Gregorian dates; only what customers read is converted:
  *   - whole texts that are a Jira-formatted date ("24/Sep/26 3:15 PM", "Sep 24, 2026", "2026-09-24")

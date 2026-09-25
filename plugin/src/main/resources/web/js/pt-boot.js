@@ -1,5 +1,5 @@
 /*!
- * Portal Theme — boot sequence and the single, centralised MutationObserver.
+ * Parsira — boot sequence and the single, centralised MutationObserver.
  *
  *  1. read the inlined configuration (WRM data; no network request)
  *  2. set <html> state: class "pt", dir/lang, page type, feature flags   → CSS activates
@@ -41,6 +41,7 @@
     doc.cookie = COOKIE + '=off; Path=' + cookiePath() + '; SameSite=Lax';
   }
   if (mode === 'off' || (mode !== 'on' && /(?:^|;\s*)portalTheme=off\b/.test(doc.cookie))) {
+    html.classList.add('pt-off');   // releases the anti-flash guard in pt-00-tokens.css
     U.onReady(function () { bypassNotice(); });
     return;
   }
@@ -55,7 +56,7 @@
       'max-width:calc(100vw - 32px);padding:10px 14px;border-radius:10px;background:#1f2937;color:#fff;' +
       'font:500 13px/1.5 system-ui,-apple-system,Segoe UI,Tahoma,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.25)');
     var text = doc.createElement('span');
-    text.textContent = fa ? 'پوسته‌ی پرتال برای این نشست خاموش است.' : 'Portal theme is off for this browser session.';
+    text.textContent = fa ? 'پارسیرا برای این نشست خاموش است و ظاهر اصلی جیرا نمایش داده می‌شود.' : 'Parsira is off for this browser session.';
     var on = doc.createElement('a');
     on.href = win.location.pathname + '?portalTheme=on';
     on.textContent = fa ? 'روشن کردن' : 'Turn on';
@@ -93,7 +94,7 @@
       if (draft) { docConfig = JSON.parse(draft).config || docConfig; preview = true; } else { previewMissing = true; }
     }
   } catch (e) { /* storage blocked: normal theme */ }
-  if (docConfig && docConfig.enabled === false && !preview) { return; }
+  if (docConfig && docConfig.enabled === false && !preview) { html.classList.add('pt-off'); return; }
 
   // ------------------------------------------------------------------ state
 
@@ -153,6 +154,14 @@
     to(t.emptySearchBody, ['Try again with a different term.', 'Try searching for something else',
       'Browse the list of portals below to raise a request', 'Try a different search term', 'Try a different search term.']);
     to(t.createSuccess, ['Your request has been created.', 'Your request was created', 'Request created']);
+    to(t.myRequests, ['My requests', 'My Requests']);
+    to(t.myApprovals, ['My approvals', 'My Approvals']);
+    to(t.submitRequest, ['Send', 'Create', 'Raise request', 'Create request']);
+    to(t.cancel, ['Cancel']);
+    to(t.approve, ['Approve']);
+    to(t.decline, ['Decline']);
+    to(t.addComment, ['Add a comment…', 'Add a comment...', 'Add a comment', 'Comment on this request...', 'Comment on this request…']);
+    to(t.attachFile, ['browse', 'Browse', 'browse.', 'Browse files', 'Browse for files', 'Choose file(s)']);
     to(t.loginSubtitle ? PT.enhance.fill(t.loginSubtitle, settings) : '', ['Log in to continue', 'Enter your username and password']);
     to(t.loginTitle ? PT.enhance.fill(t.loginTitle, settings) : '', ['Log in to the Help Center']);
     return map;
@@ -188,7 +197,7 @@
 
     styleTag('pt-tokens', PT.tokens.css(settings));
     var custom = typeof settings.customCss === 'string' ? settings.customCss.replace(/<\/?style/gi, '') : '';
-    styleTag('pt-custom', custom ? '/* Portal Theme — custom CSS (advanced) */\n' + custom : '');
+    styleTag('pt-custom', custom ? '/* Parsira — custom CSS (advanced) */\n' + custom : '');
 
     var mapped = U.merge({}, settings, { dictionary: U.merge(textMappings(settings), settings.dictionary || {}) });
     PT.text.configure(mapped, builtinTexts(settings));
@@ -205,6 +214,7 @@
     applySettings(computeSettings());
   } catch (e) {
     html.classList.remove('pt', 'pt-loading');
+    html.classList.add('pt-off');
     return;
   }
 
@@ -232,6 +242,8 @@
       enhanceQueued = false;
       try {
         PT.compat.refreshState();
+        syncCustomizing();
+        syncLoginPage();
         PT.enhance.run(null);
         if (observer) { observer.takeRecords(); } // our own changes need no processing
         maybeReveal();
@@ -261,42 +273,39 @@
     }
   }
 
-  /** JSM's own "Customize" mode needs the native portal: the theme steps aside until reload. */
-  function customizing() {
+  /**
+   * JSM's own "Customize" side panels (help-center branding, request-list columns) open inside
+   * #page. The theme stays on: html.pt-customizing switches the page to a two-column layout
+   * (content + panel) instead of the single fluid column, see pt-20-shell.css.
+   */
+  function syncCustomizing() {
     var panel = doc.querySelector('.cv-help-center-branding-sidepanel, [data-pt~="customize-panel"]');
-    return !!(panel && panel.children.length);
+    var on = !!(panel && panel.children.length && panel.offsetWidth > 0) || doc.body.classList.contains('cv-has-sidepanel');
+    if (on !== html.classList.contains('pt-customizing')) { toggle('pt-customizing', on); }
   }
 
-  var customizePaused = false;
-  function stepAsideForCustomize() {
-    if (customizePaused) { return; }
-    customizePaused = true;
-    visualOff();
-    var note = doc.createElement('div');
-    note.className = 'pt-customize-note';
-    note.setAttribute('role', 'status');
-    note.setAttribute('style', 'position:fixed;z-index:2147483000;top:12px;left:50%;transform:translateX(-50%);padding:8px 14px;' +
-      'border-radius:999px;background:#1f2937;color:#fff;font:600 13px/1.5 system-ui,Tahoma,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.25)');
-    note.textContent = /^fa/.test(state.original.lang || state.lang || '') || state.lang === 'fa'
-      ? 'پوسته‌ی پرتال در حالت سفارشی‌سازی جیرا موقتاً خاموش است. پس از پایان، صفحه را دوباره بارگذاری کنید.'
-      : 'The portal theme is paused while you customise the portal. Reload the page when you are done.';
-    doc.body.appendChild(note);
-    win.setTimeout(function () { if (note.parentNode) { note.parentNode.removeChild(note); } }, 7000);
+  /**
+   * JSM shows its login form in place of any portal page when the visitor must log in (the URL
+   * stays e.g. /portal/1/SD-2). The page type then follows the DOM, so the login design applies.
+   */
+  function syncLoginPage() {
+    var login = doc.querySelector('[data-pt~="login-classic"], [data-pt~="login-card"], [data-pt~="login-shell"]');
+    if (login && state.page !== 'login') {
+      state.pageFromUrl = state.page;
+      state.page = 'login';
+      html.setAttribute('data-pt-page', 'login');
+      PT.enhance.setPage('login');
+    } else if (!login && state.pageFromUrl && state.page === 'login') {
+      state.page = state.pageFromUrl;
+      state.pageFromUrl = null;
+      html.setAttribute('data-pt-page', state.page);
+      PT.enhance.setPage(state.page);
+    }
   }
 
   var observer = null;
   function onMutations(records) {
     try {
-      if (!customizePaused && customizing()) { stepAsideForCustomize(); }
-      if (customizePaused) {
-        // Customize mode: only the language layer keeps working.
-        for (var c = 0; c < records.length; c++) {
-          for (var a = 0; a < records[c].addedNodes.length; a++) { PT.text.apply(records[c].addedNodes[a]); }
-          if (records[c].type !== 'childList') { PT.text.apply(records[c].target); }
-        }
-        observer.takeRecords();
-        return;
-      }
       routeChanged();
       for (var i = 0; i < records.length; i++) {
         var r = records[i];
@@ -342,16 +351,8 @@
   }
 
   function failOpen(e) {
-    try { if (win.console && console.warn) { console.warn('[Portal Theme] disabled on this page:', e); } } catch (x) { /* ignore */ }
+    try { if (win.console && console.warn) { console.warn('[Parsira] disabled on this page:', e); } } catch (x) { /* ignore */ }
     off();
-  }
-
-  /** Removes the visual layer (styles, classes, added elements) but keeps the page language. */
-  function visualOff() {
-    try { PT.enhance.teardown(); } catch (e) { /* ignore */ }
-    ['pt-tokens', 'pt-custom'].forEach(function (id) { var el = doc.getElementById(id); if (el) { el.parentNode.removeChild(el); } });
-    Array.prototype.slice.call(html.classList).filter(function (c) { return c === 'pt' || c.indexOf('pt-') === 0; })
-      .forEach(function (c) { html.classList.remove(c); });
   }
 
   /** Switches the theme off at runtime (also used by fail-open). Texts need a reload to restore. */
@@ -363,6 +364,7 @@
     classes.forEach(function (c) { html.classList.remove(c); });
     if (state.original.dir === null) { html.removeAttribute('dir'); } else { html.setAttribute('dir', state.original.dir); }
     if (state.original.lang === null) { html.removeAttribute('lang'); } else { html.setAttribute('lang', state.original.lang); }
+    html.classList.add('pt-off');
   }
 
   function start() {
@@ -373,6 +375,7 @@
       if (PT.date && U.get(state.settings, 'locale.jalali', true) !== false && state.lang === 'fa') { PT.date.watchInputs(); }
       processSubtree(doc.body);
       PT.compat.refreshState();
+      syncLoginPage();
       PT.enhance.run(null);
       maybeReveal();
       win.setTimeout(reveal, 700); // never keep content hidden for long

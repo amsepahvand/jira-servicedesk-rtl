@@ -19,13 +19,19 @@ const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 mkdirSync(outDir, { recursive: true });
 
 // 1. session on the local test instance (fixture account, never a real user)
-const login = await fetch(`${JIRA}/rest/tsv/latest/authenticate`, {
+const login = process.env.NOLOGIN ? null : await fetch(`${JIRA}/rest/tsv/latest/authenticate`, {
   method: 'POST',
   headers: { 'Content-Type': 'application/json', 'X-Atlassian-Token': 'no-check' },
   body: JSON.stringify({ username: process.env.JUSER || 'admin', password: process.env.JPASS || 'admin', rememberMe: false, targetUrl: '/' })
 });
-const cookies = (login.headers.getSetCookie?.() || []).map((c) => c.split(';')[0]).filter(Boolean);
-if (!cookies.length) { console.error('login failed', login.status); process.exit(1); }
+let cookies = login ? (login.headers.getSetCookie?.() || []).map((c) => c.split(';')[0]).filter(Boolean) : [];
+if (login && (!login.ok || process.env.SESSION)) {
+  // Jira 9: the classic REST session endpoint
+  const s = await fetch(`${JIRA}/rest/auth/1/session`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Atlassian-Token': 'no-check' },
+    body: JSON.stringify({ username: process.env.JUSER || 'admin', password: process.env.JPASS || 'admin' }) });
+  cookies = (s.headers.getSetCookie?.() || []).map((c) => c.split(';')[0]).filter(Boolean);
+}
+if (login && !cookies.length) { console.error('login failed', login.status); process.exit(1); }
 
 // 2. headless Chrome with remote debugging
 const port = 9300 + Math.floor(Math.random() * 500);
@@ -47,6 +53,9 @@ ws.addEventListener('message', (e) => {
 const cdp = (method, params = {}) => new Promise((resolve) => { const id = ++seq; pending.set(id, resolve); ws.send(JSON.stringify({ id, method, params })); });
 
 await cdp('Network.enable');
+await cdp('Runtime.enable');
+const errors = [];
+ws.addEventListener('message', (e) => { const m = JSON.parse(e.data); if (m.method === 'Runtime.exceptionThrown') { errors.push(m.params.exceptionDetails.exception?.description?.split('\n')[0] || m.params.exceptionDetails.text); } if (m.method === 'Runtime.consoleAPICalled' && m.params.type === 'error') { errors.push('console: ' + (m.params.args[0]?.value || m.params.args[0]?.description || '').toString().slice(0, 160)); } });
 const host = new URL(JIRA);
 for (const c of cookies) {
   const [name, ...rest] = c.split('=');
@@ -75,5 +84,6 @@ for (const p of paths) {
   writeFileSync(name, Buffer.from(shot.result.data, 'base64'));
   console.log(name);
 }
+if (process.env.ERRORS) { console.log('errors: ' + (errors.length ? '\n  ' + errors.join('\n  ') : 'none')); }
 ws.close();
 chrome.kill();

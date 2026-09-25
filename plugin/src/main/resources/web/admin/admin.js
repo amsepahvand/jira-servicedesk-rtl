@@ -1,5 +1,5 @@
 /*!
- * Portal Theme — admin configuration page.
+ * Parsira — admin configuration page.
  *
  * A small, dependency-free script application inside Jira's admin decorator. It edits one draft
  * document, renders a live preview through the same token engine the portal uses, and talks to
@@ -336,6 +336,7 @@
       return [
         section(null, [
           textField('identity.companyName'),
+          textField('identity.portalTitle'),
           imageField('logo'),
           toggleField('identity.showName'),
           rangeField('identity.logoHeight', 20, 64, 'px'),
@@ -391,6 +392,8 @@
           toggleField('locale.jalali')
         ]),
         section(T.textsHome, [t('homeTitle'), t('homeSubtitle', true), t('searchPlaceholder'), t('portalsHeading'), t('requestTypesHeading')]),
+        section(T.textsActions, [t('myRequests'), t('myApprovals'), t('submitRequest'), t('cancel'), t('approve'), t('decline'),
+          t('addComment'), t('attachFile')]),
         section(T.textsMessages, [t('emptyRequestsTitle'), t('emptyRequestsBody', true), t('emptySearchTitle'), t('emptySearchBody', true), t('createSuccess', true)]),
         section(T.textsLogin, [t('loginTitle'), t('loginSubtitle', true)]),
         section(T.textsFooter, [t('footerText'), t('copyright'), t('supportTitle'), t('supportText', true),
@@ -975,7 +978,7 @@
     root.appendChild(header);
     root.appendChild(statusEl);
     root.appendChild(el('div', { class: 'pt-a-layout' }, [side, panelEl, previewCol]));
-    root.appendChild(el('p', { class: 'pt-a-madeby', dir: 'ltr', lang: 'en', html: 'Rasta ' + PT.version +
+    root.appendChild(el('p', { class: 'pt-a-madeby', dir: 'ltr', lang: 'en', html: 'Parsira ' + PT.version +
       ' · Made with <span role="img" aria-label="love">\u2764\ufe0f</span> by <strong>Sepahvand Bros</strong> — ' +
       '<a href="https://www.linkedin.com/in/asepahvand/" target="_blank" rel="noopener">Amir</a> &amp; ' +
       '<a href="https://www.linkedin.com/in/taha-sepahvand-3b5063420/" target="_blank" rel="noopener">Taha Sepahvand</a>' }));

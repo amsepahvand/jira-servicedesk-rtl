@@ -10,7 +10,7 @@ sed -i '' "s/PT.version = '[^']*'/PT.version = '$V'/" plugin/src/main/resources/
 export JAVA_HOME=/opt/homebrew/opt/openjdk@17
 mvn -B -q -o install > /tmp/pt-build.log 2>&1 || { tail -30 /tmp/pt-build.log; exit 1; }
 node plugin/src/test/js/engine.test.js | tail -1
-J=http://localhost:2990/jira
+J=${JIRA:-http://localhost:2990/jira}
 # Uninstall first: UPM treats a pre-release build (1.1.0-b2) as older than 1.1.0 and skips it.
 curl -s -u admin:admin -X DELETE -o /dev/null "$J/rest/plugins/1.0/io.portaltheme.jsm-portal-theme-key"
 sleep 2

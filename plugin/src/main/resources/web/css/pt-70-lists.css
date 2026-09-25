@@ -2,22 +2,83 @@
    Layer 70 — request lists, approvals, profile
    ========================================================================================== */
 
-/* ---------- Toolbar: filters and search ---------- */
-html.pt [data-pt~="list-toolbar"] { margin: 0 0 20px !important; }
-html.pt [data-pt~="filters"] {
+/* ---------- Toolbar: filters, search and export as one coherent bar ---------- */
+html.pt .cv-top[data-pt~="list-toolbar"] { margin: 0 0 16px !important; }
+html.pt .cp-search-filter-container[data-pt~="list-toolbar"] {
   display: flex !important;
   flex-wrap: wrap;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+  margin: 0 !important;
+  padding: 8px !important;
+  background: var(--pt-card-bg) !important;
+  border: 1px solid var(--pt-card-border) !important;
+  border-radius: var(--pt-radius-lg) !important;
+  box-shadow: var(--pt-card-shadow) !important;
+}
+html.pt [data-pt~="filters"] {
+  display: flex !important;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
   margin: 0 !important;
   padding: 0 !important;
   list-style: none;
 }
 html.pt .cp-filter-container { float: none !important; margin: 0 !important; }
+html.pt ul.cp-filter-list { display: contents !important; }
 html.pt ul.cp-filter-list > li { display: block !important; flex: 0 0 auto; width: auto !important; }
-html.pt .cp-filter-list .aui-button { max-width: 260px; border-radius: var(--pt-radius-pill) !important; }
-html.pt [data-pt~="filter-search"] { position: relative; flex: 1 1 260px; min-width: 200px; }
-html.pt [data-pt~="filter-search"] input { height: var(--pt-control-h); padding-block: 0 !important; padding-inline: 40px 14px !important; }
+/* Filter triggers: quiet dropdown buttons with one chevron, not native selects.
+   ":is(#pt-x, .cp-filters)" outranks the generic secondary-button rule. */
+html.pt .aui-button:is(#pt-x, .cp-filters) {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  max-width: 260px;
+  min-height: 40px !important;
+  padding: 0 14px !important;
+  background: var(--pt-surface2) !important;
+  border: 1px solid transparent !important;
+  border-radius: var(--pt-radius-md) !important;
+  box-shadow: none !important;
+  color: var(--pt-text) !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  white-space: nowrap;
+}
+html.pt .aui-button:is(#pt-x, .cp-filters):hover,
+html.pt .aui-button:is(#pt-x, .cp-filters)[aria-expanded="true"] { background: var(--pt-surface3) !important; border-color: var(--pt-border) !important; }
+html.pt .aui-button:is(#pt-x, .cp-filters)::before,
+html.pt .aui-button:is(#pt-x, .cp-filters) > .aui-icon { display: none !important; }
+html.pt .aui-button:is(#pt-x, .cp-filters)::after {
+  content: "" !important;
+  position: static !important;
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin: 0 !important;
+  border: 0 !important;
+  background: currentColor;
+  opacity: .6;
+  transform: none;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") center / contain no-repeat;
+  transition: transform var(--pt-dur-2) var(--pt-ease-out);
+}
+html.pt .aui-button:is(#pt-x, .cp-filters)[aria-expanded="true"]::after { transform: rotate(180deg); }
+html.pt [data-pt~="filter-search"] { position: relative; flex: 1 1 240px; min-width: 200px; }
+html.pt :is([data-pt~="filters"], [data-pt~="list-toolbar"]) > .cp-filter-container:has([data-pt~="filter-search"]) { flex: 1 1 260px; }
+html.pt [data-pt~="filter-search"] input {
+  height: 40px !important;
+  min-height: 40px !important;
+  padding-block: 0 !important;
+  padding-inline: 38px 12px !important;
+  background: var(--pt-surface) !important;
+  border-color: var(--pt-border) !important;
+  box-shadow: none !important;
+}
 html.pt[dir="rtl"] :is(.cp-filter-text-input-clear-icon, .cp-filter-text-input-search-icon, [data-pt~="filter-search"] > .aui-iconfont-search) {
   right: 12px !important; left: auto !important;
 }
@@ -30,8 +91,13 @@ html.pt :is(.cp-filter-text-input-clear-icon, .cp-filter-text-input-search-icon,
   height: auto !important;
   color: var(--pt-subtle);
 }
+/* Export: a secondary action at the end of the bar */
+html.pt [data-pt~="list-toolbar"] :is(.cv-export-button, [data-testid*="export"], .js-export-trigger, .cp-export-trigger) {
+  min-height: 40px !important;
+  margin-inline-start: auto !important;
+}
 
-/* ---------- Requests: an inbox, not a spreadsheet ---------- */
+/* ---------- Requests table: an inbox, not a spreadsheet ---------- */
 html.pt [data-pt~="table-wrap"] {
   overflow-x: auto;
   padding: 0 !important;
@@ -50,7 +116,8 @@ html.pt [data-pt~="table"] {
   border-collapse: collapse !important;
 }
 html.pt [data-pt~="table"] thead th {
-  padding: 12px 18px !important;
+  height: 44px;
+  padding: 0 18px !important;
   background: var(--pt-surface2) !important;
   border: 0 !important;
   border-block-end: 1px solid var(--pt-border) !important;
@@ -58,35 +125,54 @@ html.pt [data-pt~="table"] thead th {
   font-size: 12.5px !important;
   font-weight: 700 !important;
   text-align: start !important;
+  vertical-align: middle !important;
   white-space: nowrap;
 }
 html.pt [data-pt~="table"] thead th * { color: inherit !important; font-weight: inherit !important; }
 html.pt [data-pt~="table"] tbody td {
-  padding: 15px 18px !important;
+  height: 58px;
+  padding: 8px 18px !important;
   border: 0 !important;
   border-block-end: 1px solid var(--pt-border) !important;
   text-align: start !important;
   vertical-align: middle !important;
 }
 html.pt [data-pt~="table"] tbody tr:last-child td { border-block-end: 0 !important; }
-html.pt [data-pt~="table"] tbody tr:hover > td { background: var(--pt-surface2) !important; }
-html.pt [data-pt~="table"] a { color: var(--pt-text) !important; font-weight: 650; }
-/* Inbox feel: the summary leads, the key is a quiet identifier */
-html.pt [data-pt~="table"] [data-testid="cv-summary-cell"] a,
-html.pt [data-pt~="table"] [data-testid="cv-summary-cell"] { font-size: 15px; font-weight: 700 !important; }
-html.pt [data-pt~="table"] [data-testid="cv-issue-key-cell"],
-html.pt [data-pt~="table"] [data-testid="cv-issue-key-cell"] a { color: var(--pt-muted) !important; font-weight: 600; font-size: 13px; }
 html.pt [data-pt~="table"] tbody tr { cursor: pointer; }
+html.pt [data-pt~="table"] tbody tr:hover > td { background: var(--pt-surface2) !important; }
+html.pt [data-pt~="table"] tbody tr:focus-within > td { background: var(--pt-brand-soft) !important; }
+html.pt [data-pt~="table"] a { color: var(--pt-text) !important; font-weight: 650; }
 html.pt [data-pt~="table"] a:hover { color: var(--pt-brand-text) !important; }
-html.pt [data-pt~="table"] img.vp-rq-icon { width: 22px !important; height: 22px !important; }
+/* Summary leads; the key is a quiet LTR chip; people and services are secondary */
+html.pt [data-pt~="table"] [data-pt~="cell-summary"],
+html.pt [data-pt~="table"] [data-pt~="cell-summary"] a { font-size: 15px; font-weight: 700 !important; }
+html.pt [data-pt~="table"] [data-pt~="cell-key"] :is(a, span):first-child {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 8px;
+  border-radius: var(--pt-radius-sm);
+  background: var(--pt-surface3);
+  color: var(--pt-muted) !important;
+  font-size: 12.5px !important;
+  font-weight: 700 !important;
+  direction: ltr;
+  unicode-bidi: isolate;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+html.pt [data-pt~="table"] :is([data-pt~="cell-portal"], [data-pt~="cell-reporter"]) { color: var(--pt-muted) !important; font-size: 13.5px; }
+html.pt [data-pt~="table"] img.vp-rq-icon { width: 22px !important; height: 22px !important; border-radius: 4px; }
 
 /* Pagination */
 html.pt :is([data-pt~="table-wrap"] ~ div) { margin-top: 16px; }
+html.pt [data-pt~="pagination"] { display: flex; justify-content: center; }
 html.pt [data-pt~="pagination"] button,
 html.pt nav li > button {
   min-width: 40px;
   min-height: 40px;
   border-radius: var(--pt-radius-md) !important;
+  font-weight: 600;
 }
 html.pt button[aria-current="page"] {
   background: var(--pt-brand) !important;
@@ -164,3 +250,9 @@ html.pt ul.request-actions a::after {
 }
 html.pt[dir="rtl"] ul.request-actions a::after { transform: rotate(-45deg); }
 html.pt ul.request-actions a:hover { background: var(--pt-surface2); text-decoration: none; }
+
+/* Summaries keep their own text direction but line up on the page's reading edge, so a list that
+   mixes Persian and English titles still reads as one column. */
+html.pt[dir="rtl"] [data-pt~="table"] [data-pt~="cell-summary"] { direction: rtl !important; text-align: right !important; }
+html.pt[dir="ltr"] [data-pt~="table"] [data-pt~="cell-summary"] { direction: ltr !important; text-align: left !important; }
+html.pt [data-pt~="table"] [data-pt~="cell-summary"] a { unicode-bidi: plaintext; }

@@ -35,11 +35,36 @@ html.pt :is(.aui-lozenge, [data-pt~="status-pill"])::before {
   background: var(--st-dot);
 }
 html.pt [data-pt~="status-pill"] > span { color: inherit !important; font-weight: inherit !important; text-transform: none !important; }
-html.pt [data-pt-status="new"]      { --st-bg: var(--pt-info-bg);    --st-fg: var(--pt-info-fg);    --st-dot: var(--pt-info-dot); }
-html.pt [data-pt-status="progress"] { --st-bg: var(--pt-warning-bg); --st-fg: var(--pt-warning-fg); --st-dot: var(--pt-warning-dot); }
-html.pt [data-pt-status="waiting"]  { --st-bg: var(--pt-accent-soft); --st-fg: var(--pt-accent-soft-text); --st-dot: var(--pt-accent); }
-html.pt [data-pt-status="done"]     { --st-bg: var(--pt-success-bg); --st-fg: var(--pt-success-fg); --st-dot: var(--pt-success-dot); }
-html.pt [data-pt-status="error"]    { --st-bg: var(--pt-error-bg);   --st-fg: var(--pt-error-fg);   --st-dot: var(--pt-error-dot); }
+/* Semantic categories (see statusCategory in pt-enhance.js). "neutral" = Jira gives no reliable
+   category and the name is unknown: a calm grey, never a guessed colour. */
+html.pt [data-pt-status="new"]       { --st-bg: var(--pt-st-new-bg);       --st-fg: var(--pt-st-new-fg);       --st-dot: var(--pt-st-new-dot); }
+html.pt [data-pt-status="progress"]  { --st-bg: var(--pt-st-progress-bg);  --st-fg: var(--pt-st-progress-fg);  --st-dot: var(--pt-st-progress-dot); }
+html.pt [data-pt-status="waiting"]   { --st-bg: var(--pt-st-waiting-bg);   --st-fg: var(--pt-st-waiting-fg);   --st-dot: var(--pt-st-waiting-dot); }
+html.pt [data-pt-status="approval"]  { --st-bg: var(--pt-st-approval-bg);  --st-fg: var(--pt-st-approval-fg);  --st-dot: var(--pt-st-approval-dot); }
+html.pt [data-pt-status="done"]      { --st-bg: var(--pt-st-done-bg);      --st-fg: var(--pt-st-done-fg);      --st-dot: var(--pt-st-done-dot); }
+html.pt [data-pt-status="rejected"]  { --st-bg: var(--pt-st-rejected-bg);  --st-fg: var(--pt-st-rejected-fg);  --st-dot: var(--pt-st-rejected-dot); }
+html.pt [data-pt-status="error"]     { --st-bg: var(--pt-st-rejected-bg);  --st-fg: var(--pt-st-rejected-fg);  --st-dot: var(--pt-st-rejected-dot); }
+html.pt [data-pt-status="cancelled"] { --st-bg: var(--pt-st-cancelled-bg); --st-fg: var(--pt-st-cancelled-fg); --st-dot: var(--pt-st-cancelled-dot); }
+/* Finished states get a check / cross glyph instead of the dot: meaning without colour. */
+html.pt :is([data-pt-status="done"], [data-pt-status="rejected"], [data-pt-status="cancelled"])::before {
+  width: 12px;
+  height: 12px;
+  border-radius: 0;
+  -webkit-mask: var(--st-glyph) center / contain no-repeat;
+  mask: var(--st-glyph) center / contain no-repeat;
+}
+html.pt [data-pt-status="done"] { --st-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4.5 12.5l5 5L19.5 7'/%3E%3C/svg%3E"); }
+html.pt :is([data-pt-status="rejected"], [data-pt-status="cancelled"]) { --st-glyph: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3.2' stroke-linecap='round'%3E%3Cpath d='M6 6l12 12M18 6L6 18'/%3E%3C/svg%3E"); }
+/* The "Latest" marker in the conversation: small and quiet */
+html.pt .aui-lozenge[data-pt-status="marker"] {
+  --st-bg: transparent;
+  --st-fg: var(--pt-subtle);
+  --st-dot: var(--pt-accent);
+  padding: 0 !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+}
+html.pt .aui-lozenge[data-pt-status="marker"]::before { width: 6px; height: 6px; }
 
 /* ---------- Inline messages (AUI message) ---------- */
 html.pt .aui-message {
@@ -64,7 +89,11 @@ html.pt #aui-warning-context:empty { display: none !important; }
 
 /* Flags (toasts, e.g. "request created"): top of the viewport, never over focused fields */
 html.pt #aui-flag-container { inset-inline-end: 20px; inset-inline-start: auto; }
-html.pt .aui-flag .aui-message { box-shadow: var(--pt-shadow-3) !important; }
+html.pt .aui-flag .aui-message { box-shadow: var(--pt-shadow-3) !important; padding-inline-end: 44px !important; }
+/* The close button sits at the reading end in both directions */
+html.pt .aui-flag :is(.icon-close, .aui-close-button, button[aria-label]) { position: absolute !important; inset-block-start: 12px !important; }
+html.pt[dir="rtl"] .aui-flag :is(.icon-close, .aui-close-button, button[aria-label]) { left: 12px !important; right: auto !important; }
+html.pt[dir="ltr"] .aui-flag :is(.icon-close, .aui-close-button, button[aria-label]) { right: 12px !important; left: auto !important; }
 
 /* ---------- Dialogs ---------- */
 html.pt .aui-dialog2 {

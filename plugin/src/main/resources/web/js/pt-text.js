@@ -1,5 +1,5 @@
 /*!
- * Portal Theme — customer-facing text layer.
+ * Parsira — customer-facing text layer.
  *
  * Replaces texts that Jira renders (buttons, headings, validation messages, statuses…) with the
  * built-in Persian texts and/or the admin's own overrides. Safety rules:
@@ -131,8 +131,13 @@
     return raw.match(/^\s*/)[0] + out + raw.match(/\s*$/)[0];
   }
 
+  // Jira's own labels inside skipped areas (the status badge inside the request title in JSM 5)
+  var UNSKIP = '.aui-lozenge, [data-pt~="status-pill"]';
+
   function skipped(el) {
-    return !!(el && el.closest && el.closest(SKIP));
+    if (!el || !el.closest) { return false; }
+    if (el.closest(UNSKIP)) { return false; }
+    return !!el.closest(SKIP);
   }
 
   function textNode(node) {
@@ -175,14 +180,18 @@
     for (var i = 0; i < kids.length; i++) {
       var k = kids[i];
       if (k.nodeType === 3) { src += k.nodeValue; slots[slots.length - 1].push(k); continue; }
-      if (k.nodeType !== 1 || !INLINE.test(k.tagName) || k.children.length) { return; }
+      if (k.nodeType !== 1 || !INLINE.test(k.tagName) || k.children.length) { systemTexts(el); return; }
       elems.push(k);
       src += '{' + elems.length + '}';
       slots.push([]);
     }
     src = src.replace(/\s+/g, ' ').trim();
-    if (!elems.length || !U.hasOwn.call(sentences, src)) { return; }
-    var parts = sentences[src].split(/\{(\d)\}/);
+    if (!elems.length || !U.hasOwn.call(sentences, src)) { systemTexts(el); return; }
+    // A sentence is "target" or { text: "target", values: { english: persian } } when the inline
+    // values need a wording specific to this sentence ("approved" → "تأیید کرد").
+    var def = sentences[src];
+    var values = (def && def.values) || {};
+    var parts = String(def && def.text !== undefined ? def.text : def).split(/\{(\d)\}/);
     for (var p = 1; p < parts.length; p += 2) {
       if (+parts[p] !== (p + 1) / 2) { return; }   // order changed: not supported
     }
@@ -200,8 +209,24 @@
     }
     for (var e = 0; e < elems.length; e++) {
       var v = elems[e].textContent.replace(/\s+/g, ' ').trim();
-      if (U.hasOwn.call(exact, v)) { elems[e].textContent = exact[v]; }
+      if (U.hasOwn.call(values, v)) { elems[e].textContent = values[v]; } else if (U.hasOwn.call(exact, v)) { elems[e].textContent = exact[v]; }
       elems[e].setAttribute('dir', 'auto');
+    }
+  }
+
+  /**
+   * Plain system texts inside an event item ("Request requires approval. 1 approval needed.").
+   * Only exact/pattern matches are replaced, so a person's own words are left as they are.
+   */
+  function systemTexts(el) {
+    var walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null);
+    var n;
+    while ((n = walker.nextNode())) {
+      if (!/[A-Za-z]/.test(n.nodeValue)) { continue; }
+      var p = n.parentElement;
+      if (p && p.closest && p.closest('textarea, input, code, pre, [contenteditable="true"], .pt-own')) { continue; }
+      var t = translate(n.nodeValue);
+      if (t !== null && t !== n.nodeValue) { n.nodeValue = t; }
     }
   }
 

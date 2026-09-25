@@ -1,5 +1,5 @@
 /*!
- * Portal Theme — additive page enhancements: brand, "Back to Jira", footer, hero texts, favicon,
+ * Parsira — additive page enhancements: brand, "Back to Jira", footer, hero texts, favicon,
  * mobile table labels, status categories, text direction of user content.
  *
  * Principle: add, never rebuild. Jira's own controls stay the controls (same elements, same
@@ -76,7 +76,9 @@
       if (!link.hasAttribute('data-pt-branded')) { originals.push([link, link.innerHTML]); }
       link.setAttribute('data-pt-branded', sig());
       link.classList.add('pt-brand');
-      link.innerHTML = logoHtml(ctx.tokens.headerIsDark);
+      var sub = U.get(ctx.settings, 'identity.portalTitle', '');
+      link.innerHTML = logoHtml(ctx.tokens.headerIsDark) +
+        (sub ? '<span class="pt-brand-sub">' + U.escapeHtml(sub) + '</span>' : '');
       if (!link.getAttribute('aria-label')) { link.setAttribute('aria-label', company()); }
     }
     // Pages without the portal header (login, sign-up): our own minimal top bar.
@@ -95,7 +97,9 @@
     }
   }
 
-  function sig() { return (ctx.assets.logo || '') + '|' + (ctx.assets.logoDark || '') + '|' + company(); }
+  function sig() {
+    return (ctx.assets.logo || '') + '|' + (ctx.assets.logoDark || '') + '|' + company() + '|' + U.get(ctx.settings, 'identity.portalTitle', '');
+  }
 
   // ------------------------------------------------------------------ Back to Jira
 
@@ -305,40 +309,61 @@
     }
   }
 
-  var categoryIndex = null;
+  /**
+   * Semantic category of a status name. Order matters: "approved" is done, not "approval";
+   * "waiting for approval" is approval, not generic waiting. Persian names typed by admins are
+   * matched too (ي/ك and half-spaces normalised). Unknown names return null, so the caller falls
+   * back to the category Jira itself exposes — a status is never guessed from nothing.
+   */
+  var STATUS_RULES = [
+    ['done', /^(done|resolved|closed|completed|complete|approved|fixed|delivered)$|انجام ?شد|انجام ?شده|حل ?شد|حل ?شده|بسته ?شد|^بسته$|تکمیل ?شد|خاتمه|تایید ?شد|تایید ?شده|پایان ?یافت/],
+    ['rejected', /declin|reject|denied|^رد$|رد ?شد|رد ?شده|عدم ?تایید|نامنظور/],
+    ['cancelled', /cancel|withdrawn|won'?t do|obsolete|لغو|انصراف|منصرف|ابطال/],
+    ['error', /fail|error|broken|خطا|ناموفق|شکست/],
+    ['approval', /approv|\bcab\b|تایید|منتظر ?تایید|بررسی ?مدیر/],
+    ['waiting', /waiting for (the )?customer|awaiting customer|pending|on hold|انتظار پاسخ|منتظر پاسخ|در انتظار شما|انتظار مشتری|منتظر مشتری|معلق|نیازمند اطلاعات/],
+    ['progress', /progress|escalat|review|implement|investigat|working|waiting for support|triage|planning|در حال|ارجاع|بررسی|پیگیری|اجرا|انتظار پشتیبانی|درجریان|شروع/],
+    ['new', /^(open|new|to do|todo|backlog|reopened|submitted)$|^باز$|^جدید$|در صف|ثبت ?شده|باز ?شده/]
+  ];
   function statusCategory(text) {
-    if (!categoryIndex) {
-      categoryIndex = {};
-      var cats = (PT.i18n && PT.i18n.fa && PT.i18n.fa.statusCategories) || {};
-      for (var cat in cats) {
-        if (U.hasOwn.call(cats, cat)) {
-          for (var i = 0; i < cats[cat].length; i++) { categoryIndex[cats[cat][i].toLowerCase()] = cat; }
-        }
-      }
+    var t = String(text || '').toLowerCase().replace(/[يى]/g, 'ی').replace(/ك/g, 'ک').replace(/أ/g, 'ا')
+      .replace(/[‌‏‎]/g, ' ').replace(/\s+/g, ' ').trim();
+    if (!t) { return null; }
+    for (var i = 0; i < STATUS_RULES.length; i++) {
+      if (STATUS_RULES[i][1].test(t)) { return STATUS_RULES[i][0]; }
     }
-    return categoryIndex[String(text || '').replace(/\s+/g, ' ').trim().toLowerCase()] || null;
+    return null;
+  }
+
+  /** Category from Jira's own lozenge classes (JSM maps its status categories onto these). */
+  function lozengeCategory(cls) {
+    return /aui-lozenge-success/.test(cls) ? 'done'
+      : /aui-lozenge-(current|inprogress)/.test(cls) ? 'progress'
+        : /aui-lozenge-(error|removed)/.test(cls) ? 'error'
+          : /aui-lozenge-(new|moved|default)/.test(cls) ? 'new' : null;
   }
 
   function statuses(scope) {
     if (U.get(ctx.settings, 'features.statusColors', true) === false) { return; }
     var root = scope || document;
-    // AUI lozenges carry their category as a class; map it to our category names.
-    var loz = root.querySelectorAll('.aui-lozenge:not([data-pt-status])');
+    var loz = root.querySelectorAll('.aui-lozenge');
     for (var i = 0; i < loz.length; i++) {
-      var cls = loz[i].className;
-      var cat = /aui-lozenge-success/.test(cls) ? 'done'
-        : /aui-lozenge-(current|inprogress)/.test(cls) ? 'progress'
-          : /aui-lozenge-(error|removed)/.test(cls) ? 'error'
-            : /aui-lozenge-(new|moved)/.test(cls) ? 'new' : statusCategory(loz[i].textContent) || 'neutral';
-      loz[i].setAttribute('data-pt-status', cat);
+      var el = loz[i];
+      var text = el.textContent;
+      if (el.getAttribute('data-pt-status-text') === text) { continue; }
+      el.setAttribute('data-pt-status-text', text);
+      // The "Latest" marker in the activity list is not a status.
+      var isMarker = !!(el.closest && el.closest('[data-pt~="activity-item"] header'));
+      var cat = isMarker ? 'marker' : (statusCategory(text) || lozengeCategory(el.className) || 'neutral');
+      el.setAttribute('data-pt-status', cat);
     }
     // React table status (no category in the DOM): the only child span of a status cell.
     var cells = root.querySelectorAll('[data-pt~="table"] td');
     for (var j = 0; j < cells.length; j++) {
       var cell = cells[j];
       var inner = cell.children.length === 1 && cell.firstElementChild.tagName === 'SPAN' ? cell.firstElementChild : null;
-      if (!inner || inner.children.length !== 1 || inner.firstElementChild.tagName !== 'SPAN' || inner.querySelector('a, img')) { continue; }
-      var catT = statusCategory(inner.textContent) || 'progress';
+      if (!inner || inner.children.length !== 1 || inner.firstElementChild.tagName !== 'SPAN' || inner.querySelector('a, img, .aui-lozenge')) { continue; }
+      var catT = statusCategory(inner.textContent) || 'neutral';
       if (inner.getAttribute('data-pt-status') !== catT) {
         inner.setAttribute('data-pt-status', catT);
         inner.setAttribute('data-pt', (inner.getAttribute('data-pt') || '').replace(/\bstatus-pill\b/, '').trim() + ' status-pill');
@@ -389,9 +414,58 @@
     document.addEventListener('click', onTileClick);
   }
 
+  /**
+   * Login pages: brand row at the top of the card, and visible labels for the classic JSM form,
+   * whose fields only have placeholders (a placeholder disappears while typing).
+   */
+  function loginPage() {
+    if (ctx.page !== 'login') { return; }
+    var card = document.querySelector('[data-pt~="login-classic"] #cv-content, [data-pt~="login-card"]');
+    if (card && !card.querySelector('.pt-login-brand')) {
+      var head = document.createElement('p');
+      head.className = 'pt-own pt-login-brand';
+      head.innerHTML = logoHtml(false);
+      card.insertBefore(head, card.firstChild);
+    }
+    var fields = document.querySelectorAll('[data-pt~="login-form"] input#os_username, [data-pt~="login-form"] input#os_password');
+    for (var i = 0; i < fields.length; i++) {
+      var input = fields[i];
+      if (document.querySelector('label[for="' + input.id + '"]')) { continue; }
+      var label = document.createElement('label');
+      label.className = 'pt-own pt-login-label';
+      label.setAttribute('for', input.id);
+      label.textContent = input.getAttribute('placeholder') || (input.id === 'os_username' ? 'Username' : 'Password');
+      input.parentNode.insertBefore(label, input);
+      input.setAttribute('autocomplete', input.id === 'os_username' ? 'username' : 'current-password');
+      input.setAttribute('placeholder', ''); // the visible label replaces it
+    }
+  }
+
+  /** In JSM's Customize panel: explain which parts Parsira controls, with a link to its settings. */
+  function customizeNote() {
+    var form = document.querySelector('[data-pt~="customize-panel"] form, [data-pt~="customize-panel"] .cv-help-center-branding');
+    if (!form || form.querySelector('.pt-customize-note')) { return; }
+    var fa = ctx.lang === 'fa';
+    var note = document.createElement('p');
+    note.className = 'pt-own pt-customize-note';
+    note.appendChild(document.createTextNode(fa
+      ? 'رنگ‌ها، نشان، تصویر سربرگ و متن‌های این پرتال را پارسیرا تعیین می‌کند. اطلاعیه‌ها را می‌توانید همین‌جا بنویسید؛ برای بقیه به '
+      : 'Colours, logo, header image and texts of this portal are managed by Parsira. Announcements can be edited here; for everything else open '));
+    var a = document.createElement('a');
+    a.href = U.contextPath() + '/plugins/servlet/portal-theme/admin';
+    a.target = '_blank';
+    a.rel = 'noopener';
+    a.textContent = fa ? 'تنظیمات پارسیرا' : 'Parsira settings';
+    note.appendChild(a);
+    note.appendChild(document.createTextNode(fa ? ' بروید.' : '.'));
+    form.insertBefore(note, form.firstChild);
+  }
+
   function run(scope) {
     if (!ctx) { return; }
     brand();
+    loginPage();
+    customizeNote();
     backToJira();
     footer();
     hero();

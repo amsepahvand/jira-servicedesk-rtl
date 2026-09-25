@@ -3,10 +3,10 @@
    ========================================================================================== */
 
 @media (max-width: 1024px) {
-  /* View request: the side panel (status, actions) comes first, above the conversation */
+  /* View request: one column; title, status and any approval lead, the side card follows the conversation */
   html.pt [data-pt~="request-layout"] { grid-template-columns: minmax(0, 1fr); gap: 20px; }
-  html.pt [data-pt~="request-side"] { position: static !important; order: -1; }
-  html.pt [data-pt~="request-actions"] { display: flex !important; flex-wrap: wrap; gap: 8px; }
+  html.pt [data-pt~="request-side"] { position: static !important; }
+  html.pt [data-pt~="request-actions"] { display: flex !important; flex-direction: row !important; flex-wrap: wrap; gap: 8px; }
   html.pt [data-pt~="request-actions"] > li { flex: 1 1 200px; margin: 0 !important; }
   html.pt .pt-footer-inner { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   html.pt .pt-footer-brand { grid-column: 1 / -1; }
@@ -114,11 +114,18 @@
   html.pt [data-pt~="filter-search"] { order: -1; flex-basis: auto; width: 100%; }
 
   /* Request actions: two per row */
+  html.pt [data-pt~="request-actions"] { flex-direction: row !important; flex-wrap: wrap; }
   html.pt [data-pt~="request-actions"] > li { flex: 1 1 calc(50% - 8px) !important; }
-  html.pt [data-pt~="request-actions"] :is(.aui-button, .aui-button.aui-button-link) { justify-content: center; padding: 0 10px !important; font-size: 13.5px !important; }
+  html.pt [data-pt~="request-actions"] :is(.aui-button, .aui-button.aui-button-link, li > a) { justify-content: center; padding: 0 10px !important; font-size: 13.5px !important; }
 
-  /* Conversation */
-  html.pt [data-pt~="activity-item"] { padding: 16px !important; padding-inline-start: 60px !important; }
+  /* Conversation: a narrower timeline */
+  html.pt [data-pt~="activity"] { padding-inline-start: 20px !important; }
+  html.pt [data-pt~="activity"]::before { inset-inline-start: 5px; }
+  html.pt [data-pt~="activity"] > li::before { inset-inline-start: -20px; }
+  html.pt [data-pt~="activity"] > li:has([data-pt~="activity-event"])::before { inset-inline-start: -19px; }
+  html.pt [data-pt~="activity-item"] { padding: 14px 16px !important; padding-inline-start: 58px !important; }
+  html.pt [data-pt~="activity-fields"] { padding-inline-start: 16px !important; }
+  html.pt :is([data-pt~="activity-event"], [data-pt~="activity-approval"]) { padding: 6px 2px !important; }
   html.pt[dir="rtl"] [data-pt~="activity-item"] .aui-avatar { right: 14px !important; }
   html.pt[dir="ltr"] [data-pt~="activity-item"] .aui-avatar { left: 14px !important; }
   html.pt [data-pt~="comment-form"] { padding-inline-start: 0 !important; }
@@ -133,7 +140,40 @@
   html.pt .aui-dialog2 { width: calc(100vw - 24px) !important; }
 
   html.pt .pt-footer-inner { grid-template-columns: minmax(0, 1fr); gap: 20px; padding-top: 28px; }
-  html.pt [data-pt~="login-card"] { padding: 28px 20px !important; }
+  html.pt :is([data-pt~="login-card"], [data-pt~="login-classic"]) { padding: 26px 20px !important; }
+  html.pt[data-pt-page="login"] [data-pt~="content"] { padding-block: 24px !important; }
+
+  /* Header: subtitle hidden, compact actions */
+  html.pt .pt-brand-sub { display: none; }
+  html.pt:is([data-pt-page="requests"], [data-pt-page="approvals"]) #header .cv-requests-nav::after { inset-block-end: -9px; }
+
+  /* Approval callout: text above, two equal buttons below */
+  html.pt [data-pt~="approval-action"] { padding: 16px !important; padding-inline-start: 56px !important; }
+  html.pt [data-pt~="approval-action"]::before { inset-block-start: 18px; margin-top: 0; inset-inline-start: 16px; width: 26px; height: 26px; }
+  html.pt [data-pt~="approval-action"] > form { flex: 1 1 100%; }
+  html.pt [data-pt~="approval-action"] > form > :is(.aui-button, button) { flex: 1 1 0; min-width: 0 !important; }
+
+  /* Header never wraps: secondary labels become icon-only */
+  html.pt [data-pt~="header-bar"] { flex-wrap: nowrap !important; gap: 8px; }
+  html.pt [data-pt~="header-actions"] { flex: none; gap: 2px; }
+  html.pt #header .js-customize .customize-text {
+    position: absolute !important; width: 1px !important; height: 1px !important; overflow: hidden !important;
+    clip-path: inset(50%) !important; white-space: nowrap !important;
+  }
+  html.pt #header .js-customize { padding: 0 10px !important; }
+  html.pt .pt-brand { min-width: 0; flex: 1 1 auto; }
+  html.pt #header :is(.cp-header-primary, .cp-logo) { flex: 1 1 auto; min-width: 0; }
+
+  /* Request list toolbar: one column, search first */
+  html.pt [data-pt~="filters"] > *, html.pt [data-pt~="list-toolbar"] > .cp-filter-container { flex: 0 0 auto !important; }
+  html.pt-mobile-cards [data-pt~="table"] tbody td { height: auto !important; }
+  html.pt .cp-search-filter-container[data-pt~="list-toolbar"] { padding: 10px !important; }
+  html.pt .aui-button:is(#pt-x, .cp-filters) { max-width: none; width: 100% !important; }
+
+  /* Customize mode on small screens: the panel goes under the page */
+  html.pt.pt-customizing [data-pt~="page"] { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto auto; }
+  html.pt.pt-customizing [data-pt~="customize-panel"] { grid-column: 1; grid-row: 2; max-height: none; position: static !important; }
+  html.pt.pt-customizing [data-pt~="page"] > .pt-footer { grid-row: 3; }
 }
 
 @media (max-width: 480px) {

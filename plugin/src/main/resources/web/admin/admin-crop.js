@@ -1,5 +1,5 @@
 /*!
- * Rasta — image preparation for uploads: crop dialog, downscaling and compression.
+ * Parsira — image preparation for uploads: crop dialog, downscaling and compression.
  *
  * Raster images are cropped (optional) and re-encoded in the browser, so uploads stay small
  * whatever the original photo is, and never hit a proxy's request-size limit. SVG and ICO files

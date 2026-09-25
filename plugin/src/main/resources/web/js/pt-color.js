@@ -1,5 +1,5 @@
 /*!
- * Portal Theme — colour maths (WCAG 2.x contrast, mixing, accessible adjustments).
+ * Parsira — colour maths (WCAG 2.x contrast, mixing, accessible adjustments).
  * Used by the portal token engine and by the admin page's live preview and contrast checks.
  */
 (function (PT) {

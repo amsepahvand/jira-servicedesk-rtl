@@ -1,5 +1,5 @@
 /*!
- * Portal Theme — admin page. Scoped to #pt-admin; neutral colours so it sits naturally inside
+ * Parsira — admin page. Scoped to #pt-admin; neutral colours so it sits naturally inside
  * Jira's administration chrome in every Jira version (light and dark Jira themes).
  */
 #pt-admin {
@@ -183,6 +183,12 @@
   box-shadow: 0 1px 2px rgba(0, 0, 0, .25);
   transition: transform .15s ease;
 }
+/* Physical thumb position per direction: Jira's own form styles (light and dark themes) can change
+   an input's writing direction, which would move a logically positioned thumb out of the track. */
+#pt-admin .pt-a-switch { width: 38px !important; min-width: 38px !important; height: 22px !important; padding: 0 !important; border: 0 !important; box-shadow: none !important; overflow: hidden; }
+#pt-admin[dir="rtl"] .pt-a-switch::after { right: 3px; left: auto; }
+#pt-admin[dir="ltr"] .pt-a-switch::after { left: 3px; right: auto; }
+#pt-admin .pt-a-switch:focus-visible { outline: 2px solid var(--ds-border-focused, #388bff); outline-offset: 2px; }
 #pt-admin .pt-a-switch:checked { background: var(--a-ok); }
 #pt-admin .pt-a-switch:checked::after { transform: translateX(16px); }
 #pt-admin[dir="rtl"] .pt-a-switch:checked::after { transform: translateX(-16px); }
@@ -301,7 +307,7 @@
 #pt-admin .pt-a-hero-title { margin: 0 0 2px; font-size: 18px; font-weight: 700; }
 #pt-admin .pt-a-hero-meta { margin: 6px 0 0; color: var(--a-muted); font-size: 12.5px; }
 #pt-admin .pt-a-hero-dirty { margin: 6px 0 0; color: var(--a-warn); font-size: 12.5px; font-weight: 600; }
-#pt-admin .pt-a-switch--lg { width: 46px; height: 26px; }
+#pt-admin .pt-a-switch--lg { width: 46px !important; min-width: 46px !important; height: 26px !important; }
 #pt-admin .pt-a-switch--lg::after { width: 20px; height: 20px; }
 #pt-admin .pt-a-switch--lg:checked::after { transform: translateX(20px); }
 #pt-admin[dir="rtl"] .pt-a-switch--lg:checked::after { transform: translateX(-20px); }
@@ -374,11 +380,11 @@
 #pt-admin .pt-a-madeby { margin: 24px 0 8px; color: var(--a-muted); font-size: 12px; text-align: center; }
 #pt-admin .pt-a-madeby a { color: inherit; font-weight: 600; }
 
-/* ---------- Title with the Rasta mark ---------- */
+/* ---------- Title with the Parsira mark ---------- */
 #pt-admin .pt-a-title { display: flex; align-items: center; gap: 12px; }
 #pt-admin .pt-a-title::before {
   content: ""; flex: none; width: 32px; height: 32px; border-radius: 9px;
-  background: url(images/rasta-32.png) center / 32px no-repeat;
+  background: url(images/parsira-32.png) center / 32px no-repeat;
 }
 
 /* ---------- Feature switches: tidy two-column cards ---------- */

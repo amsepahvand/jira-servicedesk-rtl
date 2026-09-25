@@ -1,6 +1,6 @@
-# Rasta — Persian Portal Theme for Jira Service Management
+# Parsira — Persian Portal for Jira Service Management
 
-<img src="docs/rasta-logo.png" width="96" alt="Rasta logo" align="right">
+<img src="docs/parsira-logo.png" width="120" alt="Parsira logo" align="right">
 
 A Persian-first, RTL-first theme for the Jira Service Management **customer portal**, packaged as a
 native Jira Data Center app (P2 plugin). One JAR runs on Jira **9.12 → 11.x** (JSM 5.12 → 11.x).
@@ -15,7 +15,14 @@ Made by **Sepahvand Bros** — Amir & Taha Sepahvand.
 - **Persian and RTL throughout.** Built-in Persian texts for portal UI, validation messages,
   statuses, resolutions and activity events ("Your request status changed to …"), Persian digits,
   Shamsi (Jalali) dates, the Vazirmatn font (served by the app, OFL licence).
-- **Your own texts.** Override any portal text, or add patterns such as `Please fill '{1}'`.
+- **Your own texts.** Rename buttons and labels (My requests, Approve, Submit…) from grouped settings,
+  override any other portal text, or add patterns such as `Please fill '{1}'`.
+- **A real design system.** Header, fields, selects, pickers, date fields, rich-text editor,
+  attachments, request list toolbar, request page timeline, an approval callout with clear
+  approve / decline actions, and semantic status colours (new, in progress, waiting for you,
+  waiting for approval, done, rejected, cancelled).
+- **Works with JSM's own tools.** Customize mode keeps the theme; both the classic and the new
+  login page are styled.
 - **Branding.** Logo (light and dark), favicon, header background image, company name, colours,
   corner radius, typography, footer, support text, "Back to Jira" button.
 - **Built-in images editor.** Uploads are cropped, resized and compressed in the browser.
@@ -25,7 +32,7 @@ Made by **Sepahvand Bros** — Amir & Taha Sepahvand.
   form width, quick links, status next to the request title, mobile request cards.
 - **Feature switches.** Hide Jira branding, hide admin tools from customers, status colours,
   loading bar, clickable tiles, page titles, favicon, icon style, motion.
-- **Admin page** under *Manage apps → Rasta Portal Theme*: live preview (desktop / mobile),
+- **Admin page** under *Manage apps → Parsira*: live preview (desktop / mobile),
   "preview on portal" for unsaved changes, import / export JSON, reset, English or Persian UI.
 - **Accessible and light.** WCAG contrast is checked and corrected automatically, reduced-motion is
   respected, no framework, one shared DOM observer, fail-open on any error.
@@ -36,7 +43,7 @@ Made by **Sepahvand Bros** — Amir & Taha Sepahvand.
 
 1. Jira → **Administration → Manage apps → Upload app**.
 2. Upload `jsm-portal-theme-<version>.jar` (from `dist/` or a release).
-3. Open **Manage apps → Rasta Portal Theme → Customer portal theme** to configure.
+3. Open **Manage apps → Parsira → Customer portal theme** to configure.
 
 The theme is active as soon as the app is enabled.
 
@@ -54,7 +61,7 @@ The theme is active as soon as the app is enabled.
 
 ### Notes
 
-- If an older ScriptRunner-based portal theme is still installed, turn it off while using Rasta so the
+- If an older ScriptRunner-based portal theme is still installed, turn it off while using Parsira so the
   two do not style the portal at the same time.
 - Jira caches web resources per app version: always install a JAR with a new version number.
 
@@ -93,6 +100,14 @@ screenshots of portal pages for visual checks.
   semantic roles (`data-pt="…"`) that the CSS and scripts use.
 - **Text layer.** Only whole, exact texts (or declared patterns) are replaced; user content, form
   values and editors are never touched.
+
+## Custom CSS tokens
+
+Custom CSS (Settings → Advanced) should use the public tokens, which stay stable across versions:
+`--portal-brand`, `--portal-accent`, `--portal-bg`, `--portal-surface`, `--portal-surface-hover`,
+`--portal-text`, `--portal-text-muted`, `--portal-border`, `--portal-success`, `--portal-danger`,
+`--portal-warning`, `--portal-focus`, `--portal-radius-sm|md|lg`, `--portal-shadow-sm|md`,
+`--portal-motion-fast|normal`, `--portal-font`.
 
 ## Licence
 

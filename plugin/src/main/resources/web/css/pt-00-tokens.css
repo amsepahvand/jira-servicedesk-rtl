@@ -1,5 +1,5 @@
 /*!
- * Portal Theme for Jira Service Management — stylesheet layer 00: font and token fallbacks.
+ * Parsira for Jira Service Management — stylesheet layer 00: font and token fallbacks.
  *
  * Every rule of the theme is scoped under html.pt, which pt-boot.js sets only on customer portal
  * pages. Without it (JS off, theme disabled, ?portalTheme=off) these files do nothing at all.
@@ -84,7 +84,57 @@ html.pt {
   --pt-ease-in: cubic-bezier(.4, 0, 1, 1);
   --pt-ease-std: cubic-bezier(.2, 0, 0, 1);
 
+  --pt-field-bg: #ffffff;
+  --pt-field-border: #9aa5b5;
+  --pt-field-border-hover: #6f7a8b;
+  --pt-shadow-xs: 0 1px 2px rgba(15, 27, 45, .05);
+  --pt-st-new-bg: #eef0f4;      --pt-st-new-fg: #3b4659;      --pt-st-new-dot: #52607a;
+  --pt-st-progress-bg: #e8eff9; --pt-st-progress-fg: #184c98; --pt-st-progress-dot: #1f5fbf;
+  --pt-st-waiting-bg: #f8eee3;  --pt-st-waiting-fg: #86400b;  --pt-st-waiting-dot: #b45309;
+  --pt-st-approval-bg: #f0ebf8; --pt-st-approval-fg: #55309a; --pt-st-approval-dot: #6d3fc0;
+  --pt-st-done-bg: #e8f3ec;     --pt-st-done-fg: #11602f;     --pt-st-done-dot: #15803d;
+  --pt-st-rejected-bg: #f9e9ea; --pt-st-rejected-fg: #97171d; --pt-st-rejected-dot: #c0262d;
+  --pt-st-cancelled-bg: #f0f1f3; --pt-st-cancelled-fg: #4b5260; --pt-st-cancelled-dot: #6b7280;
+
   /* Layering */
   --pt-z-header: 1000;
   --pt-z-float: 1100;
 }
+
+/* Public design tokens. Custom CSS (Settings → Advanced) should use these names; they map onto the
+   generated --pt-* values and stay stable across versions. */
+html.pt {
+  --portal-brand: var(--pt-brand);
+  --portal-on-brand: var(--pt-on-brand);
+  --portal-accent: var(--pt-accent);
+  --portal-bg: var(--pt-bg);
+  --portal-surface: var(--pt-surface);
+  --portal-surface-hover: var(--pt-surface2);
+  --portal-surface-muted: var(--pt-surface3);
+  --portal-text: var(--pt-text);
+  --portal-text-muted: var(--pt-muted);
+  --portal-border: var(--pt-border);
+  --portal-border-strong: var(--pt-border-strong);
+  --portal-success: var(--pt-success-dot);
+  --portal-danger: var(--pt-error-dot);
+  --portal-warning: var(--pt-warning-dot);
+  --portal-focus: var(--pt-focus);
+  --portal-radius-sm: var(--pt-radius-sm);
+  --portal-radius-md: var(--pt-radius-md);
+  --portal-radius-lg: var(--pt-radius-lg);
+  --portal-shadow-sm: var(--pt-shadow-1);
+  --portal-shadow-md: var(--pt-shadow-2);
+  --portal-motion-fast: var(--pt-dur-1);
+  --portal-motion-normal: var(--pt-dur-2);
+  --portal-font: var(--pt-font);
+}
+
+/* Anti-flash guard. pt-boot.js normally runs in <head>, before the first paint, and sets html.pt
+   (theme on) or html.pt-off (bypass, disabled, error). Where an installation defers scripts, the
+   unthemed Jira portal would flash for a moment; this keeps the page blank until the decision.
+   Safety net: the page is shown after 1.2 s whatever happens. */
+html:not(.pt):not(.pt-off) body {
+  opacity: 0;
+  animation: pt-guard-reveal 0s linear 1.2s forwards;
+}
+@keyframes pt-guard-reveal { to { opacity: 1; } }

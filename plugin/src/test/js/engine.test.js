@@ -15,7 +15,7 @@ ctx.window = ctx;
 ctx.location = { pathname: '/jira/servicedesk/customer/portals', search: '' };
 ctx.document = { readyState: 'complete', documentElement: {}, createDocumentFragment: () => ({ querySelector() { return null; } }) };
 vm.createContext(ctx);
-['js/pt-namespace.js', 'js/pt-color.js', 'js/pt-presets.js', 'js/pt-tokens.js', 'js/pt-i18n-fa.js', 'js/pt-compat.js', 'js/pt-date.js', 'js/pt-text.js',
+['js/pt-namespace.js', 'js/pt-color.js', 'js/pt-presets.js', 'js/pt-tokens.js', 'js/pt-i18n-fa.js', 'js/pt-compat.js', 'js/pt-date.js', 'js/pt-text.js', 'js/pt-enhance.js',
   'admin/admin-i18n.js']
   .forEach((f) => vm.runInContext(fs.readFileSync(path.join(WEB, f), 'utf8'), ctx, { filename: f }));
 const PT = ctx.PortalTheme;
@@ -110,7 +110,23 @@ test('status-change activity sentences are Persian', () => {
   assert.strictEqual(PT.text.translate('Your request status changed to Escalated.'), 'وضعیت درخواست شما به «\u2068ارجاع‌شده\u2069» تغییر کرد.');
   assert.ok(PT.text.translate('Your request status changed to Done with resolution Duplicate.').includes('تکراری'));
   const keys = Object.keys(PT.i18n.fa.sentences);
-  keys.forEach((k) => assert.strictEqual((PT.i18n.fa.sentences[k].match(/\{\d\}/g) || []).join(), (k.match(/\{\d\}/g) || []).join(), k));
+  keys.forEach((k) => assert.strictEqual((String(PT.i18n.fa.sentences[k].text || PT.i18n.fa.sentences[k]).match(/\{\d\}/g) || []).join(), (k.match(/\{\d\}/g) || []).join(), k));
+});
+test('status names map to semantic categories', () => {
+  const c = PT.enhance.statusCategory;
+  assert.strictEqual(c('Waiting for approval'), 'approval');
+  assert.strictEqual(c('در انتظار تایید تیم لیدر'), 'approval');
+  assert.strictEqual(c('در انتظار تأیید'), 'approval');
+  assert.strictEqual(c('Approved'), 'done');
+  assert.strictEqual(c('Declined'), 'rejected');
+  assert.strictEqual(c('ردشده'), 'rejected');
+  assert.strictEqual(c('Canceled'), 'cancelled');
+  assert.strictEqual(c('Waiting for customer'), 'waiting');
+  assert.strictEqual(c('Waiting for support'), 'progress');
+  assert.strictEqual(c('Escalated'), 'progress');
+  assert.strictEqual(c('Done'), 'done');
+  assert.strictEqual(c('Open'), 'new');
+  assert.strictEqual(c('Something custom'), null);
 });
 test('substrings are never replaced', () => {
   configure();

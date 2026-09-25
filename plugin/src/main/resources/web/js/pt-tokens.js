@@ -1,5 +1,5 @@
 /*!
- * Portal Theme — design-token engine.
+ * Parsira — design-token engine.
  *
  * Turns the handful of admin settings (brand colours, radius, density…) into the complete set of
  * CSS custom properties used by the stylesheets. Every foreground/background pair is checked and,
@@ -96,6 +96,9 @@
     var muted = C.ensureContrast(C.ensureContrast(p.muted, p.surface, 4.6), p.bg, 4.6);
     var subtle = C.ensureContrast(C.mix(muted, p.surface, 0.18), p.surface, 4.5);
     var borderStrong = C.ensureContrast(C.mix(p.border, p.text, dark ? 0.25 : 0.32), p.surface, 3);
+    // Field outline: meets 3:1 against the surface (WCAG 1.4.11), a touch darker on hover.
+    var fieldBorder = C.ensureContrast(C.mix(p.border, p.text, dark ? 0.2 : 0.26), p.surface, 3);
+    var fieldBorderHover = C.mix(fieldBorder, p.text, 0.3);
     var onBrand = C.onColor(p.brand, '#111111', '#ffffff');
     var onAccent = C.onColor(p.accent, '#111111', '#ffffff');
     var brandText = C.ensureContrast(p.brand, p.surface, 4.6);
@@ -118,6 +121,9 @@
       subtle: subtle,
       border: p.border,
       borderStrong: borderStrong,
+      fieldBg: dark ? C.mix(p.surface, '#000000', 0.12) : p.surface,
+      fieldBorder: fieldBorder,
+      fieldBorderHover: fieldBorderHover,
       brand: p.brand,
       brandHover: C.shade(p.brand, 1),
       brandActive: C.shade(p.brand, 2),
@@ -142,6 +148,14 @@
       warning: statusSet(p.warning, p.surface, p.scheme),
       error: statusSet(p.error, p.surface, p.scheme),
       info: info,
+      // Status semantics: fixed, recognisable hues (not the brand), contrast-checked per scheme.
+      stNew: statusSet('#52607a', p.surface, p.scheme),
+      stProgress: statusSet('#1f5fbf', p.surface, p.scheme),
+      stWaiting: statusSet('#b45309', p.surface, p.scheme),
+      stApproval: statusSet('#6d3fc0', p.surface, p.scheme),
+      stDone: statusSet(p.success, p.surface, p.scheme),
+      stRejected: statusSet(p.error, p.surface, p.scheme),
+      stCancelled: statusSet('#6b7280', p.surface, p.scheme),
       neutral: {
         bg: surface3,
         fg: C.ensureContrast(p.text, surface3, 7),
@@ -184,21 +198,24 @@
 
     function put(k, v) { t['--pt-' + k] = v; }
 
-    ['bg', 'surface', 'surface2', 'surface3', 'text', 'muted', 'subtle', 'border', 'borderStrong', 'brand', 'brandHover',
+    ['bg', 'surface', 'surface2', 'surface3', 'text', 'muted', 'subtle', 'border', 'borderStrong', 'fieldBg', 'fieldBorder',
+      'fieldBorderHover', 'brand', 'brandHover',
       'brandActive', 'onBrand', 'brandText', 'brandSoft', 'brandSoftText', 'accent', 'accentHover', 'onAccent',
       'accentText', 'accentSoft', 'accentSoftText', 'focus', 'header', 'onHeader', 'onHeaderMuted', 'headerHover',
       'headerBorder'].forEach(function (k) {
       put(k.replace(/[A-Z]/g, function (m) { return '-' + m.toLowerCase(); }), p[k]);
     });
-    ['success', 'warning', 'error', 'info', 'neutral'].forEach(function (k) {
-      put(k + '-bg', p[k].bg);
-      put(k + '-fg', p[k].fg);
-      put(k + '-dot', p[k].dot);
-      put(k + '-border', p[k].border);
+    ['success', 'warning', 'error', 'info', 'neutral', 'stNew', 'stProgress', 'stWaiting', 'stApproval', 'stDone', 'stRejected',
+      'stCancelled'].forEach(function (k) {
+      var n = k.replace(/^st([A-Z])/, function (m, c) { return 'st-' + c.toLowerCase(); });
+      put(n + '-bg', p[k].bg);
+      put(n + '-fg', p[k].fg);
+      put(n + '-dot', p[k].dot);
+      put(n + '-border', p[k].border);
     });
     put('scrim', C.rgba(scheme === 'dark' ? '#000000' : C.darken(p.text, 0.4), scheme === 'dark' ? 0.66 : 0.48));
     put('focus-ring', '0 0 0 2px ' + p.surface + ', 0 0 0 4px ' + p.focus);
-    put('focus-glow', '0 0 0 3px ' + C.rgba(p.focus, 0.28));
+    put('focus-glow', '0 0 0 4px ' + C.rgba(p.focus, 0.16));
     put('selection', C.rgba(p.accent, 0.35));
 
     // Shape
@@ -210,6 +227,7 @@
     put('radius-pill', r === 0 ? '0' : '999px');
 
     // Depth and card style
+    put('shadow-xs', shape.shadow === 'none' ? 'none' : '0 1px 2px ' + C.rgba(p.shadowColor, scheme === 'dark' ? 0.3 : 0.05));
     put('shadow-1', sh.s1);
     put('shadow-2', sh.s2);
     put('shadow-3', sh.s3);

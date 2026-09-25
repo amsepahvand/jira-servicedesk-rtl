@@ -59,9 +59,24 @@ html.pt-motion.pt-ready [data-pt~="request-status"] .aui-lozenge { animation: pt
 html.pt-motion [data-pt~="field-error"]:not(:empty) { animation: pt-fade var(--pt-dur-2) ease; }
 html.pt-motion [data-pt~="activity"] > li:first-child { animation: pt-enter var(--pt-dur-3) var(--pt-ease-out) backwards; }
 
+/* New parts of the request page and forms */
+html.pt-motion.pt-ready [data-pt~="approval-action"] { animation: pt-enter var(--pt-dur-3) var(--pt-ease-out) 60ms backwards; }
+html.pt-motion .sd-attachment-parent { animation: pt-pop var(--pt-dur-2) var(--pt-ease-out); }
+html.pt-motion [data-pt~="select-menu"] { animation: pt-pop var(--pt-dur-2) var(--pt-ease-out); }
+html.pt-motion :is([data-pt~="approve-button"], [data-pt~="decline-button"]) {
+  transition: background-color var(--pt-dur-1) ease, border-color var(--pt-dur-1) ease, transform var(--pt-dur-1) ease !important;
+}
+html.pt-motion :is([data-pt~="approve-button"], [data-pt~="decline-button"]):active:not([disabled]) { transform: scale(.98); }
+html.pt-motion :is([data-pt~="request-actions"] .aui-button, .cp-filter-list .aui-button, [data-pt~="portal-more"], .sd-attachment-parent button) {
+  transition: background-color var(--pt-dur-1) ease, border-color var(--pt-dur-1) ease, color var(--pt-dur-1) ease !important;
+}
+html.pt-motion :is([data-pt~="portal-card"], [data-pt~="rt-card"])::before { transition: background-color var(--pt-dur-2) ease; }
+html.pt-motion details[open] > :not(summary) { animation: pt-fade var(--pt-dur-2) ease; }
+
 /* "Reduced" setting: keep only fades, no movement. */
 html.pt-motion.pt-motion-reduced :is([data-pt~="main"], [data-pt~="portal-grid"] > li, [data-pt~="rt-grid"] > li,
-  .aui-dropdown2, .aui-dialog2, .aui-flag, [data-pt~="activity"] > li, [data-pt~="request-status"] .aui-lozenge) { animation-name: pt-fade !important; }
+  .aui-dropdown2, .aui-dialog2, .aui-flag, [data-pt~="activity"] > li, [data-pt~="request-status"] .aui-lozenge,
+  [data-pt~="approval-action"], .sd-attachment-parent, [data-pt~="select-menu"]) { animation-name: pt-fade !important; }
 html.pt-motion.pt-motion-reduced :is([data-pt~="portal-card"], [data-pt~="rt-card"]):is(:hover, :active),
 html.pt-motion.pt-motion-reduced :is(.aui-button, #login-button, [data-pt~="group-link"], button[data-appearance]):active { transform: none !important; }
 

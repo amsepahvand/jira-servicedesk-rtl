@@ -1,5 +1,5 @@
 /*!
- * Portal Theme — configuration model, defaults and presets.
+ * Parsira — configuration model, defaults and presets.
  *
  * Document (stored by the server as JSON, schemaVersion 1):
  *   {
@@ -21,6 +21,7 @@
   var DEFAULTS = {
     identity: {
       companyName: 'مرکز پشتیبانی',
+      portalTitle: '',         // optional subtitle next to the name in the header
       logoAlt: '',
       logoHeight: 36,          // px, the logo is scaled to fit — never stretched
       logoMaxWidth: 200,       // px
@@ -88,6 +89,14 @@
       emptySearchTitle: 'نتیجه‌ای پیدا نشد',
       emptySearchBody: 'عبارت دیگری را امتحان کنید یا از میان خدمات زیر، درخواست خود را ثبت کنید.',
       createSuccess: 'درخواست شما ثبت شد. پاسخ‌ها و تغییر وضعیت را در همین صفحه و از راه ایمیل دریافت می‌کنید.',
+      myRequests: 'درخواست‌های من',
+      myApprovals: 'تأییدهای من',
+      submitRequest: 'ثبت درخواست',
+      cancel: 'انصراف',
+      approve: 'تأیید',
+      decline: 'رد',
+      addComment: 'پیامی برای این درخواست بنویسید…',
+      attachFile: 'انتخاب فایل',
       loginTitle: 'ورود به {company}',
       loginSubtitle: 'برای ثبت و پیگیری درخواست‌ها وارد حساب کاربری خود شوید.',
       footerText: 'همراه شما در ثبت و پیگیری درخواست‌ها',
@@ -234,6 +243,8 @@
           emptySearchTitle: 'No results',
           emptySearchBody: 'Try another term or raise a new request.',
           createSuccess: 'Your request was created. We will keep you posted here and by email.',
+          myRequests: 'My requests', myApprovals: 'My approvals', submitRequest: 'Send', cancel: 'Cancel',
+          approve: 'Approve', decline: 'Decline', addComment: 'Add a comment…', attachFile: 'Browse',
           loginTitle: 'Log in to {company}',
           loginSubtitle: 'Log in to raise and follow your requests.',
           footerText: 'We are here to help.',

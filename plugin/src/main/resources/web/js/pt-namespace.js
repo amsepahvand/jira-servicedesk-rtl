@@ -1,5 +1,5 @@
 /*!
- * Portal Theme for Jira Service Management — namespace and small utilities.
+ * Parsira for Jira Service Management — namespace and small utilities.
  * Plain ES5 on purpose: it runs through every Jira version's resource minifier unchanged.
  */
 (function (root) {
@@ -8,7 +8,7 @@
   var PT = root.PortalTheme || {};
   root.PortalTheme = PT;
 
-  PT.version = '1.1.0';
+  PT.version = '1.2.0';
   PT.PLUGIN_KEY = 'io.portaltheme.jsm-portal-theme';
 
   var hasOwn = Object.prototype.hasOwnProperty;

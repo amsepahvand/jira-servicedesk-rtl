@@ -1,5 +1,5 @@
 /*!
- * Portal Theme — Jira/JSM compatibility layer.
+ * Parsira — Jira/JSM compatibility layer.
  *
  * THE ONLY FILE THAT KNOWS JSM's MARKUP. It maps Jira's (version-specific, partly generated)
  * portal DOM onto stable semantic hooks: data-pt="<role> …" attributes. The stylesheets target
@@ -26,7 +26,7 @@
   function page(pathname) {
     var s = pathAfterPrefix(pathname || window.location.pathname);
     if (s === null) { return 'other'; }
-    if (/^user\/(login|signup|forgotpassword|resetpassword|password|verify)/.test(s)) { return 'login'; }
+    if (/(^|\/)user\/(login|signup|forgotpassword|resetpassword|password|verify)/.test(s)) { return 'login'; }
     if (/^user\/requests/.test(s)) { return 'requests'; }
     if (/^user\/approvals/.test(s)) { return 'approvals'; }
     if (/^user\/profile/.test(s)) { return 'profile'; }
@@ -90,6 +90,8 @@
     'portal-card': ['.cv-portal-cards-react-container li > a'],
     'portal-card-name': ['.cv-portal-cards-react-container [data-testid="portal-card-name"]', '.cv-portal-cards-react-container li > a h3'],
     'portal-card-text': ['.cv-portal-cards-react-container [data-testid="card-description"]'],
+    'portal-more': ['.cv-smart-portal-browse-portals', '[data-testid="expand-portal-cards"]'],
+    'portal-sort': ['[data-testid="all-portals-select-input-react-select-select--container"]'],
     'group-list': ['.cv-request-groups'],
     'group-link': ['.cv-request-group-name'],
     'rt-grid': ['.cv-landing-list', '.cv-smart-portal-request-type-list', 'ul.cv-smart-portal-results'],
@@ -121,6 +123,10 @@
     'editor': ['.wysiwyg-create-request .akEditor', '.akEditor'],
     'editor-toolbar': ['[data-testid="ak-editor-main-toolbar"]'],
     'user-picker': ['.cp-user-picker sd-user-picker > div > div:nth-child(3)'],
+    // react-select (fields, pickers, sort menus): documented class tokens of its classNamePrefix
+    'select-control': ['[class~="-control"]', '[data-testid$="select--control"]'],
+    'select-menu': ['[class~="-menu"]', '[data-testid$="select--menu"]'],
+    'select-option': ['[class~="-option"]', '[data-testid$="select--option"]'],
 
     // View request
     'request-layout': ['.cv-request-details .aui-page-panel-inner.cv-page-body-inner', '.cv-request-details .aui-page-panel-inner'],
@@ -132,6 +138,11 @@
     'request-share': ['#cp-request-share-root'],
     'request-sla': ['#cv-request-sla-panel-root'],
     'comment-box': ['.cv-request-comment'],
+    'top-panels': ['.cv-request-top-panels'],
+    'approval-action': ['.cv-portal-approval-action', '.js-portal-approval-action'],
+    'approve-button': ['.js-approve-approval'],
+    'decline-button': ['.js-decline-approval'],
+    'approval-status': ['.cv-approval-status'],
     'comment-form': ['.comment-form'],
     'activity': ['.vp-activity-list'],
     'activity-item': ['.vp-activity-list .activity-item'],
@@ -142,7 +153,7 @@
     'activity-event': ['.vp-activity-list .activity-item.status-update', '.vp-activity-list .activity-item.resolution-update',
       '.vp-activity-list .activity-item.attachment'],
     'activity-fields': ['.vp-activity-list .activity-item.request-fields'],
-    'activity-heading': ['.cv-request-activity > div > h2', '.cv-request-activity h2'],
+    'activity-heading': ['.cv-request-activity > div > h2', '.cv-request-activity h2', ':is(h2, h3):has(+ .vp-activity-list)'],
 
     // Lists
     'list-toolbar': ['.cv-top', '.cp-search-filter-container'],
@@ -173,6 +184,10 @@
     'jira-logo': ['[data-testid="two-step-verification-jsm-login"] > div > span:has(> svg)', '#login-panel .aui-header-logo'],
     'login-form': ['#login-form'],
     'login-header': ['#login-header'],
+    // Classic JSM portal login (all versions; used when the Jira login page is not in charge)
+    'login-classic': ['.aui-page-panel.cv-login'],
+    'login-classic-title': ['.cv-login .cv-title'],
+    'login-signup': ['.cv-login .cv-col-secondary', '.cv-signup-hint'],
 
     // Content that users wrote: keep its own text direction (English stays LTR)
     'user-content': ['.user-content-block', '.cv-user-content', '.vp-activity-list .activity-item > .content',
@@ -192,7 +207,14 @@
     'login-form': ['#login-form', 'form#vp-login-form', 'form.cv-login-form'],
     'header-bar': ['#header .cp-header'],
     'table-wrap': ['.cv-request-list-table', '.cv-requests-list'],
-    'table': ['.cv-request-list-table table', 'table.cv-requests-table']
+    'table': ['.cv-request-list-table table', 'table.cv-requests-table'],
+    // Request list cells: JSM 5 names its columns with the headers attribute
+    'cell-type': ['[data-pt~="table"] td[headers="type"]'],
+    'cell-key': ['[data-pt~="table"] td[headers="reference"]'],
+    'cell-summary': ['[data-pt~="table"] td[headers="summary"]'],
+    'cell-status': ['[data-pt~="table"] td[headers="status"]'],
+    'cell-portal': ['[data-pt~="table"] td[headers="portal"]'],
+    'cell-reporter': ['[data-pt~="table"] td[headers="requester"]']
   };
 
   /** Jira 10 and 11. */

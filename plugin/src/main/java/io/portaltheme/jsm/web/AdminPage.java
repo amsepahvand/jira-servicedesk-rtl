@@ -27,13 +27,13 @@ final class AdminPage {
     static String render(String contextPath) {
         String ctx = escape(contextPath == null ? "" : contextPath);
         return "<!DOCTYPE html>\n<html>\n<head>\n"
-                + "<title>Rasta — Portal Theme</title>\n"
+                + "<title>Parsira — Customer Portal</title>\n"
                 + "<meta name=\"decorator\" content=\"atl.admin\">\n"
                 + "<meta name=\"admin.active.section\" content=\"admin_plugins_menu/portal-theme-admin-section\">\n"
                 + "<meta name=\"admin.active.tab\" content=\"portal-theme-admin-link\">\n"
                 + "</head>\n<body>\n"
                 + "<div id=\"pt-admin\" class=\"pt-admin\" data-context-path=\"" + ctx + "\">"
-                + "<p class=\"pt-admin-boot\" role=\"status\">Loading Rasta portal theme settings…</p></div>\n"
+                + "<p class=\"pt-admin-boot\" role=\"status\">Loading Parsira settings…</p></div>\n"
                 + "<noscript><p>The Portal Theme settings page needs JavaScript.</p></noscript>\n"
                 + "</body>\n</html>\n";
     }

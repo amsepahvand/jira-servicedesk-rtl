@@ -1,21 +1,40 @@
 /* ==========================================================================================
-   Layer 80 — portal login and sign-up (a branded card; the generic Jira chrome is hidden)
+   Layer 80 — portal login and sign-up: one branded card on a calm, tinted background.
+   Two markups are supported: the Jira 10+ login page (login-shell / login-card) and the classic
+   JSM portal login form (login-classic), which some installations still use.
    ========================================================================================== */
 
-html.pt[data-pt-page="login"] :is([data-pt~="header"], [data-pt~="jira-footer"], [data-pt~="login-banner"]) { display: none !important; }
-html.pt[data-pt-page="login"] :is(#content, #react-container, [data-pt~="panel"]) {
+/* Jira's own chrome around the login card is hidden; the portal header stays (classic JSM login) and
+   our own top bar replaces it only where there is none (Jira 10+ login page). */
+html.pt[data-pt-page="login"] :is([data-pt~="jira-footer"], [data-pt~="login-banner"]) { display: none !important; }
+html.pt[data-pt-page="login"]:has(.pt-topbar) [data-pt~="header"] { display: none !important; }
+html.pt[data-pt-page="login"] :is(#content, #react-container, [data-pt~="panel"]:not([data-pt~="login-classic"])) {
   display: block !important;
   width: 100% !important;
   margin: 0 !important;
   padding: 0 !important;
   background: none !important;
 }
-html.pt[data-pt-page="login"] [data-pt~="page"] { background: var(--pt-hero-bg), var(--pt-bg) !important; }
+/* Background: the hero tint plus a faint dotted pattern, so the card never floats on flat grey */
+html.pt[data-pt-page="login"] [data-pt~="page"] {
+  background:
+    radial-gradient(color-mix(in srgb, var(--pt-text) 7%, transparent) 1px, transparent 1.5px) 0 0 / 22px 22px,
+    var(--pt-hero-bg), var(--pt-bg) !important;
+}
+html.pt[data-pt-page="login"] [data-pt~="content"] {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100dvh - var(--pt-header-h) - 180px);
+  padding-block: 48px !important;
+}
 
+/* ---------- The card (both markups) ---------- */
 html.pt [data-pt~="login-shell"] {
   display: flex !important;
   align-items: center;
   justify-content: center;
+  width: 100%;
   min-height: calc(100dvh - var(--pt-header-h) - 180px);
   padding: 48px 16px !important;
   background: none !important;
@@ -23,23 +42,72 @@ html.pt [data-pt~="login-shell"] {
 }
 html.pt [data-pt~="login-shell"] > div { display: block !important; width: 100% !important; max-width: 440px; margin: 0 auto !important; padding: 0 !important; background: none !important; }
 html.pt [data-pt~="login-shell"] > div > div { display: block !important; width: 100% !important; margin: 0 !important; padding: 0 !important; background: none !important; }
-html.pt [data-pt~="login-card"] {
+html.pt .cv-split-info-box-layout { display: block !important; width: 100% !important; }
+html.pt :is([data-pt~="login-card"], [data-pt~="login-classic"], #pt-x) {
+  display: block !important;
   width: 100% !important;
-  max-width: 440px;
+  max-width: 440px !important;
   margin: 0 auto !important;
-  padding: 40px 36px 36px !important;
+  padding: 36px 36px 32px !important;
   background: var(--pt-surface) !important;
   border: 1px solid var(--pt-card-border) !important;
   border-radius: var(--pt-radius-xl) !important;
   box-shadow: var(--pt-shadow-3) !important;
   box-sizing: border-box;
+  float: none !important;
+  text-align: start;
 }
-html.pt [data-pt~="login-card"] > div { padding: 0 !important; margin: 0 !important; box-shadow: none !important; border: 0 !important; background: none !important; }
-html.pt [data-pt~="login-header"] { margin: 0 0 28px !important; text-align: start !important; }
-html.pt [data-pt~="login-header"] h1 { margin: 0 0 6px !important; font-size: 23px !important; font-weight: 800 !important; text-align: start !important; }
+html.pt [data-pt~="login-card"] > div,
+html.pt [data-pt~="login-classic"] :is(.aui-page-panel-inner, #cv-content, .cv-main-group, .cv-col-primary, .cv-col-secondary) {
+  display: block !important;
+  width: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  border: 0 !important;
+  background: none !important;
+  float: none !important;
+}
+
+/* Brand row at the top of the card */
+html.pt .pt-login-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 24px;
+  padding: 0 0 20px;
+  border-block-end: 1px solid var(--pt-border);
+  color: var(--pt-text);
+  font-size: 16px;
+  font-weight: 800;
+}
+html.pt .pt-login-brand .pt-logo { max-height: 40px !important; }
+
+/* Title and subtitle */
+html.pt :is([data-pt~="login-header"], [data-pt~="login-classic-title"]) {
+  display: block !important;
+  width: auto !important;
+  margin: 0 0 22px !important;
+  padding: 0 !important;
+  text-align: start !important;
+}
+html.pt :is([data-pt~="login-header"], [data-pt~="login-classic-title"]) h1 { margin: 0 0 6px !important; font-size: 22px !important; font-weight: 800 !important; text-align: start !important; }
 html.pt [data-pt~="login-header"] span { color: var(--pt-muted) !important; font-size: 14.5px !important; }
-html.pt [data-pt~="login-form"] > div { margin: 0 0 18px !important; }
-html.pt [data-pt~="login-form"] label {
+html.pt [data-pt~="login-classic"] .aui-page-header-inner { display: block !important; margin: 0 !important; padding: 0 !important; }
+html.pt [data-pt~="login-classic"] .cv-login-announcement {
+  margin: 0 0 20px;
+  padding: 12px 14px;
+  border-radius: var(--pt-radius-md);
+  background: var(--pt-accent-soft);
+  color: var(--pt-accent-soft-text);
+}
+
+/* ---------- Fields ---------- */
+html.pt [data-pt~="login-form"] { margin: 0 !important; padding: 0 !important; }
+html.pt [data-pt~="login-form"] > div,
+html.pt [data-pt~="login-form"] .field-group { margin: 0 0 16px !important; padding: 0 !important; }
+html.pt [data-pt~="login-form"] label,
+html.pt .pt-login-label {
   display: block;
   margin: 0 0 8px !important;
   color: var(--pt-text) !important;
@@ -47,25 +115,60 @@ html.pt [data-pt~="login-form"] label {
   font-weight: 650 !important;
   text-align: start;
 }
-html.pt [data-pt~="login-form"] label:has(input[type="checkbox"]) { display: inline-flex !important; align-items: center; gap: 8px; font-weight: 500 !important; cursor: pointer; }
+html.pt [data-pt~="login-form"] label:has(input[type="checkbox"]),
+html.pt [data-pt~="login-form"] .checkbox label { display: inline-flex !important; align-items: center; gap: 8px; margin: 0 !important; font-weight: 500 !important; cursor: pointer; }
+/* Jira 10+ page: the row wraps the input */
 html.pt [data-pt~="login-form"] div:has(> input[name="username"]),
 html.pt [data-pt~="login-form"] div:has(> input[name="password"]) {
   display: flex !important;
   align-items: center;
   min-height: 48px !important;
   padding: 0 14px !important;
-  background: var(--pt-surface) !important;
-  border: 1px solid var(--pt-border-strong) !important;
+  background: var(--pt-field-bg) !important;
+  border: 1px solid var(--pt-field-border) !important;
   border-radius: var(--pt-radius-md) !important;
-  box-shadow: none !important;
+  box-shadow: var(--pt-shadow-xs) !important;
   box-sizing: border-box;
+  transition: border-color var(--pt-dur-1) ease, box-shadow var(--pt-dur-1) ease;
 }
+html.pt [data-pt~="login-form"] div:has(> input[name="username"]):hover,
+html.pt [data-pt~="login-form"] div:has(> input[name="password"]):hover { border-color: var(--pt-field-border-hover) !important; }
 html.pt [data-pt~="login-form"] div:has(> input[name="username"]):focus-within,
 html.pt [data-pt~="login-form"] div:has(> input[name="password"]):focus-within { border-color: var(--pt-focus) !important; box-shadow: var(--pt-focus-glow) !important; }
 html.pt [data-pt~="login-form"] :is(input[name="username"], input[name="password"]) { flex: 1; height: 46px !important; font-size: 16px !important; }
+/* Classic form: plain inputs */
+html.pt [data-pt~="login-form"] :is(#os_username, #os_password, #login-form-captcha) {
+  height: 48px !important;
+  font-size: 16px !important;
+  direction: ltr;
+  text-align: left;
+}
 html.pt [data-pt~="login-form"] button[data-testid="toggle-password-button"] { min-width: 40px; min-height: 40px; background: none !important; border: 0 !important; }
-html.pt [data-pt~="login-form"] footer { display: block !important; margin: 26px 0 0 !important; padding: 0 !important; }
-html.pt #login-button { width: 100% !important; }
+
+/* ---------- Actions ---------- */
+html.pt [data-pt~="login-form"] footer { display: block !important; margin: 24px 0 0 !important; padding: 0 !important; }
+html.pt :is(#login-button, #js-login-submit) { width: 100% !important; }
 html.pt #login-button > span { display: inline-flex !important; align-items: center; height: auto !important; line-height: 1.4 !important; margin: 0 !important; }
-html.pt #login-message:not(:empty) { margin: 0 0 18px; }
+html.pt [data-pt~="login-form"] .buttons-container {
+  display: flex !important;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 14px;
+  margin: 22px 0 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+}
+html.pt [data-pt~="login-form"] .buttons-container .buttons { display: flex !important; flex-direction: column; gap: 8px; margin: 0 !important; padding: 0 !important; }
+html.pt [data-pt~="login-form"] .buttons-container .checkbox { order: -1; margin: 0 !important; padding: 0 !important; }
+html.pt [data-pt~="login-form"] .forgot-password { margin: 16px 0 0 !important; text-align: center; }
+html.pt [data-pt~="login-form"] .forgot-password a,
+html.pt [data-pt~="login-signup"] a { color: var(--pt-brand-text) !important; font-weight: 600; }
+html.pt [data-pt~="login-signup"] {
+  margin: 20px 0 0 !important;
+  padding: 16px 0 0 !important;
+  border-block-start: 1px solid var(--pt-border) !important;
+  text-align: center;
+}
+html.pt #login-message:not(:empty),
+html.pt [data-pt~="login-classic"] .aui-message { margin: 0 0 18px !important; }
 html.pt[data-pt-page="login"] .pt-footer :is(.pt-footer-links, .pt-footer-support) { display: none; }
